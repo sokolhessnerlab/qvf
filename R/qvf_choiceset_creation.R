@@ -47,7 +47,7 @@ choice_probability <- function(parameters, choiceset) {
 }
 
 ## Likelihood function ----
-negLLprospect_cgt <- function(parameters,choiceset,choices) {
+negLLprospect_qvf <- function(parameters,choiceset,choices) {
   # A negative log likelihood function for a prospect-theory estimation.
   # Assumes parameters are [rho, mu] as used in S-H 2009, 2013, 2015, etc.
   # Assumes choiceset has columns riskyoption1, riskyoption2, and safeoption
@@ -88,7 +88,7 @@ negLLprospect_cgt <- function(parameters,choiceset,choices) {
 # tic();
 # for(r in 1:n_rho_values){
 #   for(m in 1:n_mu_values){
-#     grid_nll_values[r,m] = negLLprospect_cgt(c(rho_values[r],mu_values[m]), choiceset, simulatedchoices)
+#     grid_nll_values[r,m] = negLLprospect_qvf(c(rho_values[r],mu_values[m]), choiceset, simulatedchoices)
 #   }
 # }
 # toc()
@@ -135,6 +135,9 @@ choiceP_range_easy_upper = 0.9; # implicitly between this value and 1
 possible_risky_value_range = c(0.05, 30); 
 possible_safe_value_range = c(0.05, 12);
 
+colnames_out = c('riskyoption1', 'riskyoption2', 'safeoption', 'choiceP', 'type_e0i1d2', 'reject0accept1');
+ncols_out = length(colnames_out)
+
 setwd('/Users/sokolhessner/Documents/gitrepos/qvf/R/bespoke_choicesets/');
 
 ## Loop through and create choice sets ----
@@ -144,9 +147,9 @@ for(r in 1:n_rho_values){
   for(m in 1:n_mu_values){
     temp_parameters = c(rho_values[r],mu_values[m]);
     
-    newchoices_difficult = array(dim = c(total_number_difficult,5)); # 5 -> riskyoption1, riskyoption2, safeoption, choiceP, easy/intermediate/difficult
-    newchoices_intermediate = array(dim = c(total_number_intermediate,5));
-    newchoices_easy = array(dim = c(total_number_easy,5));
+    newchoices_difficult = array(dim = c(total_number_difficult,ncols_out)); # -> riskyoption1, riskyoption2, safeoption, choiceP, easy/intermediate/difficult, reject0accept1
+    newchoices_intermediate = array(dim = c(total_number_intermediate,ncols_out));
+    newchoices_easy = array(dim = c(total_number_easy,ncols_out));
     
     choiceP_difficult = array(dim = c(total_number_difficult,1));
     choiceP_intermediate = array(dim = c(total_number_intermediate,1));
@@ -156,8 +159,8 @@ for(r in 1:n_rho_values){
     number_intermediate = 0;
     number_easy = 0;
     
-    newchoiceoption = array(dim = c(1,5));
-    colnames(newchoiceoption) <- c('riskyoption1','riskyoption2','safeoption','choiceP','type_e0i1d2');
+    newchoiceoption = array(dim = c(1,ncols_out));
+    colnames(newchoiceoption) <- colnames_out;
     newchoiceoption = as.data.frame(newchoiceoption);
     
     number_iterations = 0;
@@ -173,6 +176,7 @@ for(r in 1:n_rho_values){
       choiceP_temporary = choice_probability(temp_parameters,newchoiceoption);
       newchoiceoption[4] = choiceP_temporary;
       newchoiceoption[5] = 2; # 2 = difficult
+      newchoiceoption[6] = NA; # neither accept nor reject (it's difficult)
       
       if((choiceP_temporary > choiceP_range_difficult[1]) & (choiceP_temporary < choiceP_range_difficult[2])){
         number_difficult = number_difficult + 1;
@@ -195,6 +199,7 @@ for(r in 1:n_rho_values){
       choiceP_temporary = choice_probability(temp_parameters,newchoiceoption);
       newchoiceoption[4] = choiceP_temporary;
       newchoiceoption[5] = 1; # 1 = intermediate
+      newchoiceoption[6] = 0; # reject
       
       if((choiceP_temporary > choiceP_range_int_lower[1]) & (choiceP_temporary < choiceP_range_int_lower[2])){
         number_intermediate = number_intermediate + 1;
@@ -214,6 +219,7 @@ for(r in 1:n_rho_values){
       choiceP_temporary = choice_probability(temp_parameters,newchoiceoption);
       newchoiceoption[4] = choiceP_temporary;
       newchoiceoption[5] = 1; # 1 = intermediate
+      newchoiceoption[6] = 1; # accept
       
       if((choiceP_temporary > choiceP_range_int_upper[1]) & (choiceP_temporary < choiceP_range_int_upper[2])){
         number_intermediate = number_intermediate + 1;
@@ -235,7 +241,8 @@ for(r in 1:n_rho_values){
       
       choiceP_temporary = choice_probability(temp_parameters,newchoiceoption);
       newchoiceoption[4] = choiceP_temporary;
-      newchoiceoption[5] = 0;
+      newchoiceoption[5] = 0; # 0 = easy
+      newchoiceoption[6] = 0; # reject
       
       if(choiceP_temporary < choiceP_range_easy_lower){
         number_easy = number_easy + 1;
@@ -253,7 +260,8 @@ for(r in 1:n_rho_values){
       
       choiceP_temporary = choice_probability(temp_parameters,newchoiceoption);
       newchoiceoption[4] = choiceP_temporary;
-      newchoiceoption[5] = 0;
+      newchoiceoption[5] = 0; # 0 = easy
+      newchoiceoption[6] = 1; # accept
       
       if(choiceP_temporary > choiceP_range_easy_upper){
         number_easy = number_easy + 1;
@@ -263,17 +271,18 @@ for(r in 1:n_rho_values){
     }
     print(sprintf('Easy iterations: %i',number_iterations))
     
-    new_choiceset = rbind(newchoices_easy, newchoices_intermediate, newchoices_difficult)
-    colnames(new_choiceset) <- c('riskyoption1','riskyoption2','safeoption','choiceP','type_e0i1d2');
-    new_choiceset = new_choiceset[sample(nrow(new_choiceset)),];
-    new_choiceset = as.data.frame(new_choiceset);
+    new_choiceset = rbind(newchoices_easy, newchoices_intermediate, newchoices_difficult) # bind the 3 choicesets together
+    colnames(new_choiceset) <- colnames_out
+    new_choiceset = new_choiceset[sample(nrow(new_choiceset)),]; # Randomly sort the choiceset
+    new_choiceset = as.data.frame(new_choiceset); # make it a dataframe for saving
     
     fname = sprintf('bespoke_choiceset_rhoInd%03i_muInd%03i.csv', r, m); # Use of %03i creates a three-digit text string with leading 0's as needed for the relevant index; this standardizes file name length
-    # Files are roughly 7.5 KB per. 2500 files would be ~18 MB.
+    # Files are ~14 KB in size. 40,200 such files should be ~560MB (half a gig).
     
-    write.csv(new_choiceset, file = fname);
+    write.csv(new_choiceset, file = fname, row.names = F);
     
   }
+  cat(sprintf('Done with rho #%i of %i.\n',r,n_rho_values))
 }
 toc()
 
@@ -318,7 +327,7 @@ toc()
 
 # ## Optimization code ----
 # 
-# negLLprospect_cgt(c(1.2, 20), choiceset, simulatedchoices)
+# negLLprospect_qvf(c(1.2, 20), choiceset, simulatedchoices)
 # # It works!
 # 
 # eps = .Machine$double.eps;
@@ -340,7 +349,7 @@ toc()
 #   
 #   initial_values = runif(number_of_parameters, min = lower_bounds, max = upper_bounds)
 #   
-#   temp_output = optim(initial_values, negLLprospect_cgt,
+#   temp_output = optim(initial_values, negLLprospect_qvf,
 #                       choiceset = choiceset,
 #                       choices = simulatedchoices,
 #                       lower = lower_bounds,
