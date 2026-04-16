@@ -176,7 +176,7 @@ for(r in 1:n_rho_values){
       choiceP_temporary = choice_probability(temp_parameters,newchoiceoption);
       newchoiceoption[4] = choiceP_temporary;
       newchoiceoption[5] = 2; # 2 = difficult
-      newchoiceoption[6] = NA; # neither accept nor reject (it's difficult)
+      newchoiceoption[6] = 2; # 2 = neither accept nor reject (it's difficult)
       
       if((choiceP_temporary > choiceP_range_difficult[1]) & (choiceP_temporary < choiceP_range_difficult[2])){
         number_difficult = number_difficult + 1;
