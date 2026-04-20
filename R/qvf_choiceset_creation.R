@@ -8,9 +8,7 @@ library(tictoc)
 
 tic()
 
-# Function Creation ----
-
-## Function to calculate choice probabilities ----
+# Create function to calculate choice probabilities ----
 choice_probability <- function(parameters, choiceset) {
   # A function to calculate the probability of taking a risky option
   # using a prospect theory model.
@@ -45,66 +43,6 @@ choice_probability <- function(parameters, choiceset) {
   
   return(p)
 }
-
-## Likelihood function ----
-negLLprospect_qvf <- function(parameters,choiceset,choices) {
-  # A negative log likelihood function for a prospect-theory estimation.
-  # Assumes parameters are [rho, mu] as used in S-H 2009, 2013, 2015, etc.
-  # Assumes choiceset has columns riskyoption1, riskyoption2, and safeoption
-  # Assumes choices are binary/logical, with 1 = risky, 0 = safe.
-  #
-  # Peter Sokol-Hessner
-  # July 2021
-  
-  choiceP = choice_probability(parameters, choiceset);
-  
-  likelihood = choices * choiceP + (1 - choices) * (1-choiceP);
-  likelihood[likelihood == 0] = 0.000000000000001; # 1e-15, i.e. 14 zeros followed by a 1
-  
-  nll <- -sum(log(likelihood));
-  return(nll)
-}
-
-
-# # Simulate one person's choices
-# true_vals = c(0.8, 20); # rho (risk attitudes), mu (choice consistency)
-# 
-# choiceP = choice_probability(true_vals, choiceset)
-# simulatedchoices = as.integer(runif(n = length(choiceP)) < choiceP);
-# 
-# choiceset_temp = list();
-# choiceset_temp$riskyoption1 = c(5, 8, 10, 12, 18, 4, 9);
-# choiceset_temp$riskyoption2 = c(0, 0,  0,  0,  0, 0, 0);
-# choiceset_temp$safeoption =   c(1, 5,  3,  8, 10, 2, 4);
-# simulatedchoices =            c(1, 0,  1,  1,  0, 0, 1);
-# choiceset = as.data.frame(choiceset_temp);
-
-# NOTE: may want to consider specifying mu values in log space to account for nonlinearity/skewness
-#   i.e. using exp(seq(from = log(3), to = log(100), length.out = 50)) or something like it.
-# NOTE: in Python, `numpy.linspace` may accomplish this identical operation.
-
-# grid_nll_values = array(dim = c(n_rho_values, n_mu_values));
-# 
-# tic();
-# for(r in 1:n_rho_values){
-#   for(m in 1:n_mu_values){
-#     grid_nll_values[r,m] = negLLprospect_qvf(c(rho_values[r],mu_values[m]), choiceset, simulatedchoices)
-#   }
-# }
-# toc()
-# 
-# min_nll = min(grid_nll_values); # identify the single best value
-# indexes = which(grid_nll_values == min_nll, arr.ind = T); # Get indices for that single best value
-# 
-# best_rho = rho_values[indexes[1]]; # what are the corresponding rho & mu values?
-# best_mu = mu_values[indexes[2]];
-# 
-# sprintf('The best R index is %i while the best M indx is %i, with an NLL of %f', indexes[1], indexes[2], min_nll)
-# 
-# c(best_rho, best_mu)
-# true_vals
-# 
-# fname = sprintf('bespoke_choiceset_rhoInd%03i_muInd%03i.csv', indexes[1], indexes[2]); # Use of %03i creates a three-digit text string with leading 0's as needed for the relevant index; this standardizes file name length
 
 
 # Configuring choice set creation ----
@@ -145,6 +83,7 @@ setwd('/Users/sokolhessner/Documents/gitrepos/qvf/R/bespoke_choicesets/');
 tic();
 for(r in 1:n_rho_values){
   for(m in 1:n_mu_values){
+    ### Carry out the subject loop ----
     temp_parameters = c(rho_values[r],mu_values[m]);
     
     newchoices_difficult = array(dim = c(total_number_difficult,ncols_out)); # -> riskyoption1, riskyoption2, safeoption, choiceP, easy/intermediate/difficult, reject0accept1
@@ -188,7 +127,7 @@ for(r in 1:n_rho_values){
 
     ### Make INTERMEDIATE choices ----
     number_iterations = 0;
-    #### Make the LOWER choices (i.e. reject) ----
+    #### INT. LOWER choices (i.e. reject) ----
     while (number_intermediate < (total_number_intermediate/2)){
       number_iterations = number_iterations + 1;
       
@@ -208,7 +147,7 @@ for(r in 1:n_rho_values){
       }
     }
     
-    #### Make the UPPER choices (i.e. accept) ----
+    #### INT. UPPER choices (i.e. accept) ----
     while (number_intermediate < total_number_intermediate){
       number_iterations = number_iterations + 1;
       
@@ -286,8 +225,38 @@ for(r in 1:n_rho_values){
 }
 toc()
 
+# All finished!
 
-# # Visualization of Choice Probability surface given different parameters ----
+
+
+
+
+
+
+# APPENDIX ----
+
+## Likelihood function ----
+# negLLprospect_qvf <- function(parameters,choiceset,choices) {
+#   # A negative log likelihood function for a prospect-theory estimation.
+#   # Assumes parameters are [rho, mu] as used in S-H 2009, 2013, 2015, etc.
+#   # Assumes choiceset has columns riskyoption1, riskyoption2, and safeoption
+#   # Assumes choices are binary/logical, with 1 = risky, 0 = safe.
+#   #
+#   # Peter Sokol-Hessner
+#   # July 2021
+#   
+#   choiceP = choice_probability(parameters, choiceset);
+#   
+#   likelihood = choices * choiceP + (1 - choices) * (1-choiceP);
+#   likelihood[likelihood == 0] = 0.000000000000001; # 1e-15, i.e. 14 zeros followed by a 1
+#   
+#   nll <- -sum(log(likelihood));
+#   return(nll)
+# }
+
+
+
+## Visualization of Choice Probability surface given different parameters ----
 # 
 # riskyvals = seq(from = possible_risky_value_range[1], to = possible_risky_value_range[2],
 #                 length.out = 100);
@@ -322,10 +291,48 @@ toc()
 # dev.off();
 
 
+## Example code to simulate and fit one person's choices ----
+# true_vals = c(0.8, 20); # rho (risk attitudes), mu (choice consistency)
+# 
+# choiceP = choice_probability(true_vals, choiceset)
+# simulatedchoices = as.integer(runif(n = length(choiceP)) < choiceP);
+# 
+# choiceset_temp = list();
+# choiceset_temp$riskyoption1 = c(5, 8, 10, 12, 18, 4, 9);
+# choiceset_temp$riskyoption2 = c(0, 0,  0,  0,  0, 0, 0);
+# choiceset_temp$safeoption =   c(1, 5,  3,  8, 10, 2, 4);
+# simulatedchoices =            c(1, 0,  1,  1,  0, 0, 1);
+# choiceset = as.data.frame(choiceset_temp);
 
-# APPENDIX ----
+# NOTE: may want to consider specifying mu values in log space to account for nonlinearity/skewness
+#   i.e. using exp(seq(from = log(3), to = log(100), length.out = 50)) or something like it.
+# NOTE: in Python, `numpy.linspace` may accomplish this identical operation.
 
-# ## Optimization code ----
+# grid_nll_values = array(dim = c(n_rho_values, n_mu_values));
+# 
+# tic();
+# for(r in 1:n_rho_values){
+#   for(m in 1:n_mu_values){
+#     grid_nll_values[r,m] = negLLprospect_qvf(c(rho_values[r],mu_values[m]), choiceset, simulatedchoices)
+#   }
+# }
+# toc()
+# 
+# min_nll = min(grid_nll_values); # identify the single best value
+# indexes = which(grid_nll_values == min_nll, arr.ind = T); # Get indices for that single best value
+# 
+# best_rho = rho_values[indexes[1]]; # what are the corresponding rho & mu values?
+# best_mu = mu_values[indexes[2]];
+# 
+# sprintf('The best R index is %i while the best M indx is %i, with an NLL of %f', indexes[1], indexes[2], min_nll)
+# 
+# c(best_rho, best_mu)
+# true_vals
+# 
+# fname = sprintf('bespoke_choiceset_rhoInd%03i_muInd%03i.csv', indexes[1], indexes[2]); # Use of %03i creates a three-digit text string with leading 0's as needed for the relevant index; this standardizes file name length
+
+
+## Example Optimization code ----
 # 
 # negLLprospect_qvf(c(1.2, 20), choiceset, simulatedchoices)
 # # It works!
@@ -379,8 +386,8 @@ toc()
 # sim_parameters
 # sim_parameter_errors
 # 
-# 
-# #### Visualization of Estimated parameters, likelihoods, & easy/difficult lines ####
+
+## Visualization of Estimated parameters, likelihoods, & easy/difficult lines ----
 # 
 # # Plot actual choices
 # plot(choiceset$riskyoption1[simulatedchoices == 0], choiceset$safeoption[simulatedchoices == 0],col = 'red',
