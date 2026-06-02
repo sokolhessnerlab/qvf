@@ -3,6 +3,9 @@
 # QUITTING VS. FACILIATION (QVF) STUDY: BESPOKE GAMBLING PARADIGM (BGP) - DISCRETE RANGES FULL CONTINUUM
 # -------------------------------------------------------------------------------------------------------
 
+# hello JM & JP
+
+
 """
 
 Bespoke Gambling Paradigm (BGP) - Discrete Ranges Full Continuum
