@@ -20,6 +20,12 @@ base_p_vals = c(.Machine$double.eps, seq(from = 0.01, to = 0.99, by = 0.01), 1-.
 # Calculate the implied value differences, given the CGE-observed softmax value
 val_diffs = log((1/base_p_vals-1))/-softmax_inv_temp_preveasy
 
+# Make the softmax function
+softmax <- function(xvals,mu){
+  yvals = 1/(1 + exp(-mu * xvals))
+  return(yvals)
+}
+
 
 # Alternative Softmaxes ##############################################
 # Make the new (flatter) softmaxes
@@ -109,9 +115,8 @@ lines(x = inte_rej, y = c(threshold,threshold), col = 'green', lwd = 10)
 lines(x = inte_acc, y = c(threshold,threshold), col = 'green', lwd = 10)
 
 
-plot(NA, NA, xlab = 'prisky', ylab = '', ylim = c(0,1), xlim = c(0,1), xaxs = "i", yaxt = "n",
-     main = sprintf('Trial Types: Easy (blue), Intermediate (pink), & Difficult (red) from baseline mu = %.1f', softmax_inv_temp_preveasy),
-     xlab = 'p(risky)')
+plot(NA, NA, xlab = 'p(risky)', ylab = '', ylim = c(0,1), xlim = c(0,1), xaxs = "i", yaxt = "n",
+     main = sprintf('Trial Types: Easy (blue), Intermediate (pink), & Difficult (red) from baseline mu = %.1f', softmax_inv_temp_preveasy))
 polygon(x = c(easy_rej[1], easy_rej[1], easy_rej[2], easy_rej[2]), y = c(-1, 100, 100, -1), col = rgb(0,0,1))
 polygon(x = c(easy_acc[1], easy_acc[1], easy_acc[2], easy_acc[2]), y = c(-1, 100, 100, -1), col = rgb(0,0,1))
 
