@@ -45,7 +45,7 @@ for(t in 1:n_alternatives){
 
 # Visualize these new softmaxes
 plot(val_diffs, base_p_vals, col = 'blue', type = 'l', lwd = 2, 
-     main = 'Softmaxes', xlab = 'Value difference', ylab = 'p(risky)')
+     main = '1. Softmaxes', xlab = 'Value difference', ylab = 'p(risky)')
 for(t in 1:n_alternatives){
   lines(val_diffs, new_p_vals[t,], col = rgb(t/n_alternatives,0,0), lwd = 2)
 }
@@ -61,7 +61,7 @@ for(t in 1:n_alternatives){
 
 # ... and plot them in change-in-p(risky) space
 plot(base_p_vals, p_diffs[1,], col = rgb(1/n_alternatives,0,0), type = 'l', lwd = 2, ylim = c(0, .31),
-     main = 'Diff. in p(risky) (baseline vs new softmax value)', xlab = 'Original p(risky)', ylab = 'Change in p(risky)')
+     main = '2. Diff. in p(risky) (baseline vs new softmax value)', xlab = 'Original p(risky)', ylab = 'Change in p(risky)')
 for(t in 2:n_alternatives){
   lines(base_p_vals, p_diffs[t,], col = rgb(t/n_alternatives,0,0), lwd = 2)
 }
@@ -74,7 +74,7 @@ for(t in 1:n_alternatives){
 
 # Plot the normalized difference values
 plot(base_p_vals, p_diffs_norm[1,], col = rgb(1/n_alternatives,0,0), type = 'l', lwd = 2, ylim = c(0, 1),
-     main = 'NORMALIZED Diff. in p(risky) (baseline vs new softmax value)', xlab = 'Original p(risky)', ylab = 'Change in p(risky)')
+     main = '3. NORMALIZED Diff. in p(risky) (baseline vs new softmax value)', xlab = 'Original p(risky)', ylab = 'Change in p(risky)')
 for(t in 2:n_alternatives){
   lines(base_p_vals, p_diffs_norm[t,], col = rgb(t/n_alternatives,0,0), lwd = 2)
 }
@@ -92,7 +92,12 @@ for(t in 1:n_alternatives){
 }
 weighted_p_diffs_sum = colSums(weighted_p_diffs)/max(colSums(weighted_p_diffs)) # normalized to 1
 
-plot(base_p_vals, weighted_p_diffs_sum, col = 'magenta', type = 'l')
+plot(softmax_inv_temp_fractions, 1/softmax_inv_temp_fractions, pch = 16, col = rgb(1:n_alternatives/n_alternatives,0,0), cex = 2,
+     xlab = 'Fractional decrease from baseline softmax inv. temp',
+     ylab = 'Weight', main = '4.1. Weights related to rough expectations of behavioral effect sizes')
+
+plot(base_p_vals, weighted_p_diffs_sum, col = 'magenta', type = 'l', xlab = 'p(risky)',
+     ylab = 'likelihood of observing a behavioral difference', main = '4.2. Summed Weighted Behavioral Difference Expectations')
 
 threshold = 0.9 # between 0 and 1. Smaller values = narrower range of "intermediate" trials.
 # Arbitrary! Need to pick a value from 0-1 corresponding to which points
@@ -116,7 +121,7 @@ lines(x = inte_acc, y = c(threshold,threshold), col = 'green', lwd = 10)
 
 
 plot(NA, NA, xlab = 'p(risky)', ylab = '', ylim = c(0,1), xlim = c(0,1), xaxs = "i", yaxt = "n",
-     main = sprintf('Trial Types: Easy (blue), Intermediate (pink), & Difficult (red) from baseline mu = %.1f', softmax_inv_temp_preveasy))
+     main = sprintf('5. Trial Types: Easy (blue), Intermediate (pink), & Difficult (red) from baseline mu = %.1f', softmax_inv_temp_preveasy))
 polygon(x = c(easy_rej[1], easy_rej[1], easy_rej[2], easy_rej[2]), y = c(-1, 100, 100, -1), col = rgb(0,0,1))
 polygon(x = c(easy_acc[1], easy_acc[1], easy_acc[2], easy_acc[2]), y = c(-1, 100, 100, -1), col = rgb(0,0,1))
 
@@ -125,6 +130,6 @@ polygon(x = c(inte_acc[1], inte_acc[1], inte_acc[2], inte_acc[2]), y = c(-1, 100
 
 polygon(x = c(diff_bnd[1], diff_bnd[1], diff_bnd[2], diff_bnd[2]), y = c(-1, 100, 100, -1), col = rgb(1,0,0))
 
-cat(sprintf('Intermediate Reject = [%.2f, %.2f]; Intermediate Accept = [%.2f, %.2f]\n',
+cat(sprintf('Bounds for: Intermediate Reject = [%.2f, %.2f]; Intermediate Accept = [%.2f, %.2f]\n',
             inte_rej[1], inte_rej[2], inte_acc[1], inte_acc[2]))
 
