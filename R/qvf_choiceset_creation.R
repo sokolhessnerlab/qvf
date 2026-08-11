@@ -64,10 +64,10 @@ total_number_easy = 80;
 
 # Probability ranges for easy & difficult categories
 choiceP_range_difficult = c(0.45, 0.55);
-choiceP_range_int_lower = c(0.25, 0.35);
-choiceP_range_int_upper = c(0.65, 0.75);
-choiceP_range_easy_lower = 0.10; # implicitly between 0 and this value
-choiceP_range_easy_upper = 0.9; # implicitly between this value and 1
+choiceP_range_int_lower = c(0.08, 0.22);
+choiceP_range_int_upper = c(0.78, 0.92);
+choiceP_range_easy_lower = 0.02; # implicitly between 0 and this value
+choiceP_range_easy_upper = 0.98; # implicitly between this value and 1
 
 # allowable $ values
 possible_risky_value_range = c(0.05, 30); 
