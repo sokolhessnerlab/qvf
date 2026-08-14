@@ -106,12 +106,20 @@ ncols_out = length(colnames_out)
 
 setwd('/Users/sokolhessner/Documents/gitrepos/qvf/R/bespoke_choicesets/');
 
-## Loop through and create choice sets ----
-# NOTE: This will take a long time! 
+# Loop through and create choice sets ----
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
+#                                     #
+#  NOTE: This will take a long time!  #
+#                                     #
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
+
 tic();
-for(r in 1:n_rho_values){
-  for(m in 1:n_mu_values){
-    ### Carry out the subject loop ----
+# for(r in 1:n_rho_values){
+#   for(m in 1:n_mu_values){
+for(r in c(10, 40, 60, 100, 150)){ # for testing
+  for(m in c(15, 45, 65, 105, 155)){ # for testing
+    ## Carry out the subject loop ----
     temp_parameters = c(rho_values[r],mu_values[m]);
     
     # Make empty arrays to hold the choices we'll generate
@@ -272,6 +280,7 @@ for(r in 1:n_rho_values){
       print(sprintf('Easy iterations: %i',number_iterations))
     } # end of Dynamic Block FOR
     
+    ## Save out the new choice set ----
     new_choiceset = rbind(newchoices_easy, newchoices_intermediate, newchoices_difficult) # bind the 3 choicesets together
     colnames(new_choiceset) <- colnames_out
     new_choiceset = new_choiceset[sample(nrow(new_choiceset)),]; # Randomly sort the choiceset
