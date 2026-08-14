@@ -115,10 +115,10 @@ setwd('/Users/sokolhessner/Documents/gitrepos/qvf/R/bespoke_choicesets/');
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
 
 tic();
-# for(r in 1:n_rho_values){
-#   for(m in 1:n_mu_values){
-for(r in c(10, 40, 60, 100, 150)){ # for testing
-  for(m in c(15, 45, 65, 105, 155)){ # for testing
+for(r in 1:n_rho_values){
+  for(m in 1:n_mu_values){
+# for(r in c(10, 40, 60, 100, 150)){ # for testing
+#   for(m in c(15, 45, 65, 105, 155)){ # for testing
     ## Carry out the subject loop ----
     temp_parameters = c(rho_values[r],mu_values[m]);
     
