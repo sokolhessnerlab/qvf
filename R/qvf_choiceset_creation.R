@@ -59,21 +59,22 @@ mu_values = seq(from = 7, to = 80, length.out = n_mu_values); # the range of fit
 ## Defining Choice Set contents ----
 # Set up variables defining choice set creation
 total_number_difficult = 80; # total number of choices in each type
-total_number_intermediate = 80; # total number of choices in each type
+total_number_intermediate = 84; # total number of choices in each type
 total_number_easy = 80;
 
 # Probability ranges for easy & difficult categories
 choiceP_range_difficult = c(0.45, 0.55);
 choiceP_range_int_lower = c(0.08, 0.22);
 choiceP_range_int_upper = c(0.78, 0.92);
-choiceP_range_easy_lower = 0.02; # implicitly between 0 and this value
-choiceP_range_easy_upper = 0.98; # implicitly between this value and 1
+choiceP_range_easy_lower = c(0.0, 0.02);
+choiceP_range_easy_upper = c(0.98, 1.0);
 
 # allowable $ values
 possible_risky_value_range = c(0.05, 30); 
-possible_safe_value_range = c(0.05, 12);
+possible_safe_value_range = c(0.05, 15);
 
-colnames_out = c('riskyoption1', 'riskyoption2', 'safeoption', 'choiceP', 'type_e0i1d2', 'reject0accept1');
+colnames_out = c('riskyoption1', 'riskyoption2', 'safeoption', 
+                 'choiceP', 'type_e0i1d2', 'reject0accept1', 'dynamicblocknum');
 ncols_out = length(colnames_out)
 
 setwd('/Users/sokolhessner/Documents/gitrepos/qvf/R/bespoke_choicesets/');
@@ -86,6 +87,7 @@ for(r in 1:n_rho_values){
     ### Carry out the subject loop ----
     temp_parameters = c(rho_values[r],mu_values[m]);
     
+    # Make empty arrays to hold the choices we'll generate
     newchoices_difficult = array(dim = c(total_number_difficult,ncols_out)); # -> riskyoption1, riskyoption2, safeoption, choiceP, easy/intermediate/difficult, reject0accept1
     newchoices_intermediate = array(dim = c(total_number_intermediate,ncols_out));
     newchoices_easy = array(dim = c(total_number_easy,ncols_out));
@@ -94,17 +96,18 @@ for(r in 1:n_rho_values){
     choiceP_intermediate = array(dim = c(total_number_intermediate,1));
     choiceP_easy = array(dim = c(total_number_easy,1));
     
+    # Set the counters to zero
     number_difficult = 0;
     number_intermediate = 0;
     number_easy = 0;
     
+    # Temporary variables used when generating each choice option
     newchoiceoption = array(dim = c(1,ncols_out));
     colnames(newchoiceoption) <- colnames_out;
     newchoiceoption = as.data.frame(newchoiceoption);
     
-    number_iterations = 0;
-    
     ### Make DIFFICULT choices ----
+    number_iterations = 0;
     while (number_difficult < total_number_difficult){
       number_iterations = number_iterations + 1;
       
@@ -146,7 +149,6 @@ for(r in 1:n_rho_values){
         choiceP_intermediate[number_intermediate] = choiceP_temporary;
       }
     }
-    
     #### INT. UPPER choices (i.e. accept) ----
     while (number_intermediate < total_number_intermediate){
       number_iterations = number_iterations + 1;
