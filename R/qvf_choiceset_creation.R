@@ -286,7 +286,7 @@ for(r in c(10, 40, 60, 100, 150)){ # for testing
     new_choiceset = new_choiceset[sample(nrow(new_choiceset)),]; # Randomly sort the choiceset
     new_choiceset = as.data.frame(new_choiceset); # make it a dataframe for saving
     
-    fname = sprintf('bespoke_choiceset_rhoInd%03i_muInd%03i.csv', r, m); # Use of %03i creates a three-digit text string with leading 0's as needed for the relevant index; this standardizes file name length
+    fname = sprintf('qvf_bespoke_choiceset_rhoInd%03i_muInd%03i.csv', r, m); # Use of %03i creates a three-digit text string with leading 0's as needed for the relevant index; this standardizes file name length
     # Files are ~14 KB in size. 40,200 such files should be ~560MB (half a gig).
     
     write.csv(new_choiceset, file = fname, row.names = F);
