@@ -119,23 +119,20 @@ for(r in 1:n_rho_values){
     newchoices_intermediate = array(dim = c(0,ncols_out));
     newchoices_easy = array(dim = c(0,ncols_out));
     
-    # Set the counters to zero
-    number_difficult = 0;
-    number_intermediate = 0;
-    number_easy = 0;
-    
     # Temporary variables used when generating each choice option
     newchoiceoption = array(dim = c(1,ncols_out));
     colnames(newchoiceoption) <- colnames_out;
     newchoiceoption = as.data.frame(newchoiceoption);
     
+    ### Cycle through DYNAMIC BLOCKS ----
     for (numDynBlk in 1:number_dynamic_blocks){
       
-      ### Make DIFFICULT choices ----
+      #### Make DIFFICULT choices ----
       number_iterations = 0;
       for (binN in 1:nbins_difficult){
-        tmp_lower_bin_edge = bin_edges_difficult[binN]
-        tmp_upper_bin_edge = bin_edges_difficult[binN + 1]
+        # Set up bin edges (in choice probability space)
+        tmp_lower_bin_edge = bin_edges_difficult[binN] # define lower bin edge
+        tmp_upper_bin_edge = bin_edges_difficult[binN + 1] # define upper bin edge
         
         number_generated = 0
         while(number_generated < num_difficult_perBin_perDynblk){
@@ -160,94 +157,120 @@ for(r in 1:n_rho_values){
       } # end of bin FOR
       print(sprintf('Difficult iterations: %i',number_iterations))
       
-      ### Make INTERMEDIATE choices ----
+      #### Make INTERMEDIATE choices ----
       number_iterations = 0;
-      #### INT. LOWER choices (i.e. reject) ----
-      while (number_intermediate < (total_number_intermediate/2)){
-        number_iterations = number_iterations + 1;
+      ##### INT. LOWER choices (i.e. reject) ----
+      for (binN in 1:nbins_int_lower){
+        tmp_lower_bin_edge = bin_edges_int_lower[binN]
+        tmp_upper_bin_edge = bin_edges_int_lower[binN + 1]
         
-        newchoiceoption[1:3] = c(runif(1, min = possible_risky_value_range[1], max = possible_risky_value_range[2]),
-                                 0,
-                                 runif(1, min = possible_safe_value_range[1], max = possible_safe_value_range[2]));
+        number_generated = 0
+        while (number_generated < num_int_lower_perBin_perDynblk){
+          number_iterations = number_iterations + 1;
+          
+          newchoiceoption[1:3] = c(runif(1, min = possible_risky_value_range[1], max = possible_risky_value_range[2]),
+                                   0,
+                                   runif(1, min = possible_safe_value_range[1], max = possible_safe_value_range[2]));
+          
+          choiceP_temporary = choice_probability(temp_parameters,newchoiceoption);
+          newchoiceoption[4] = choiceP_temporary;
+          newchoiceoption[5] = 1; # 1 = intermediate
+          newchoiceoption[6] = 0; # reject
+          newchoiceoption[7] = numDynBlk; # number of the dynamic block
+          
+          # Evaluate if the new option meets criteria
+          if((tmp_lower_bin_edge < choiceP_temporary) & (choiceP_temporary < tmp_upper_bin_edge)){
+            number_generated = number_generated + 1; # If so, count it!
+            newchoices_intermediate = rbind(newchoices_intermediate,as.numeric(newchoiceoption));
+          } # end of evaluation IF
+        } # end of generation WHILE
+      } # end of bin FOR
+      
+      ##### INT. UPPER choices (i.e. accept) ----
+      for (binN in 1:nbins_int_upper){
+        tmp_lower_bin_edge = bin_edges_int_upper[binN]
+        tmp_upper_bin_edge = bin_edges_int_upper[binN + 1]
         
-        choiceP_temporary = choice_probability(temp_parameters,newchoiceoption);
-        newchoiceoption[4] = choiceP_temporary;
-        newchoiceoption[5] = 1; # 1 = intermediate
-        newchoiceoption[6] = 0; # reject
-        newchoiceoption[7] = numDynBlk; # number of the dynamic block
-        
-        if((choiceP_temporary > choiceP_range_int_lower[1]) & (choiceP_temporary < choiceP_range_int_lower[2])){
-          number_intermediate = number_intermediate + 1;
-          newchoices_intermediate[number_intermediate,] = as.numeric(newchoiceoption);
-          choiceP_intermediate[number_intermediate] = choiceP_temporary;
-        }
-      }
-      #### INT. UPPER choices (i.e. accept) ----
-      while (number_intermediate < total_number_intermediate){
-        number_iterations = number_iterations + 1;
-        
-        newchoiceoption[1:3] = c(runif(1, min = possible_risky_value_range[1], max = possible_risky_value_range[2]),
-                                 0,
-                                 runif(1, min = possible_safe_value_range[1], max = possible_safe_value_range[2]));
-        
-        choiceP_temporary = choice_probability(temp_parameters,newchoiceoption);
-        newchoiceoption[4] = choiceP_temporary;
-        newchoiceoption[5] = 1; # 1 = intermediate
-        newchoiceoption[6] = 1; # accept
-        newchoiceoption[7] = numDynBlk; # number of the dynamic block
-        
-        if((choiceP_temporary > choiceP_range_int_upper[1]) & (choiceP_temporary < choiceP_range_int_upper[2])){
-          number_intermediate = number_intermediate + 1;
-          newchoices_intermediate[number_intermediate,] = as.numeric(newchoiceoption);
-          choiceP_intermediate[number_easy] = choiceP_temporary;
-        }
-      }
+        number_generated = 0
+        while (number_generated < num_int_upper_perBin_perDynblk){
+          number_iterations = number_iterations + 1;
+          
+          newchoiceoption[1:3] = c(runif(1, min = possible_risky_value_range[1], max = possible_risky_value_range[2]),
+                                   0,
+                                   runif(1, min = possible_safe_value_range[1], max = possible_safe_value_range[2]));
+          
+          choiceP_temporary = choice_probability(temp_parameters,newchoiceoption);
+          newchoiceoption[4] = choiceP_temporary;
+          newchoiceoption[5] = 1; # 1 = intermediate
+          newchoiceoption[6] = 1; # accept
+          newchoiceoption[7] = numDynBlk; # number of the dynamic block
+          
+          # Evaluate if the new option meets criteria
+          if((tmp_lower_bin_edge < choiceP_temporary) & (choiceP_temporary < tmp_upper_bin_edge)){
+            number_generated = number_generated + 1; # If so, count it!
+            newchoices_intermediate = rbind(newchoices_intermediate,as.numeric(newchoiceoption));
+          } # end of evaluation IF
+        } # end of generation WHILE
+      } # end of bin FOR
       print(sprintf('Intermediate iterations: %i',number_iterations))
       
-      ### Make EASY choices ----
-      #### Easy LOWER (i.e. reject) ----
+      #### Make EASY choices ----
+      ##### Easy LOWER (i.e. reject) ----
       number_iterations = 0;
-      while (number_easy < (total_number_easy/2)){
-        number_iterations = number_iterations + 1;
+      for (binN in 1:nbins_easy_lower){
+        tmp_lower_bin_edge = bin_edges_easy_lower[binN]
+        tmp_upper_bin_edge = bin_edges_easy_lower[binN + 1]
         
-        newchoiceoption[1:3] = c(runif(1, min = possible_risky_value_range[1], max = possible_risky_value_range[2]),
-                                 0,
-                                 runif(1, min = possible_safe_value_range[1], max = possible_safe_value_range[2]));
+        number_generated = 0
+        while (number_generated < num_easy_lower_perBin_perDynblk){
+          number_iterations = number_iterations + 1;
+          
+          newchoiceoption[1:3] = c(runif(1, min = possible_risky_value_range[1], max = possible_risky_value_range[2]),
+                                   0,
+                                   runif(1, min = possible_safe_value_range[1], max = possible_safe_value_range[2]));
+          
+          choiceP_temporary = choice_probability(temp_parameters,newchoiceoption);
+          newchoiceoption[4] = choiceP_temporary;
+          newchoiceoption[5] = 0; # 0 = easy
+          newchoiceoption[6] = 0; # reject
+          newchoiceoption[7] = numDynBlk; # number of the dynamic block
         
-        choiceP_temporary = choice_probability(temp_parameters,newchoiceoption);
-        newchoiceoption[4] = choiceP_temporary;
-        newchoiceoption[5] = 0; # 0 = easy
-        newchoiceoption[6] = 0; # reject
-        newchoiceoption[7] = numDynBlk; # number of the dynamic block
+          # Evaluate if the new option meets criteria
+          if((tmp_lower_bin_edge < choiceP_temporary) & (choiceP_temporary < tmp_upper_bin_edge)){
+            number_generated = number_generated + 1; # If so, count it!
+            newchoices_easy = rbind(newchoices_easy,as.numeric(newchoiceoption));
+          } # end of evaluation IF
+        } # end of generation WHILE
+      } # end of bin FOR
+      
+      ##### Easy UPPER (i.e. accept) ----
+      for (binN in 1:nbins_easy_upper){
+        tmp_lower_bin_edge = bin_edges_easy_upper[binN]
+        tmp_upper_bin_edge = bin_edges_easy_upper[binN + 1]
         
-        if(choiceP_temporary < choiceP_range_easy_lower){
-          number_easy = number_easy + 1;
-          newchoices_easy[number_easy,] = as.numeric(newchoiceoption);
-          choiceP_easy[number_easy] = choiceP_temporary;
-        }
-      }
-      #### Easy UPPER (i.e. accept) ----
-      while (number_easy < total_number_easy){
-        number_iterations = number_iterations + 1;
+        number_generated = 0
+        while (number_generated < num_easy_upper_perBin_perDynblk){
+          number_iterations = number_iterations + 1;
+          
+          newchoiceoption[1:3] = c(runif(1, min = possible_risky_value_range[1], max = possible_risky_value_range[2]),
+                                   0,
+                                   runif(1, min = possible_safe_value_range[1], max = possible_safe_value_range[2]));
+          
+          choiceP_temporary = choice_probability(temp_parameters,newchoiceoption);
+          newchoiceoption[4] = choiceP_temporary;
+          newchoiceoption[5] = 0; # 0 = easy
+          newchoiceoption[6] = 1; # accept
+          newchoiceoption[7] = numDynBlk; # number of the dynamic block
         
-        newchoiceoption[1:3] = c(runif(1, min = possible_risky_value_range[1], max = possible_risky_value_range[2]),
-                                 0,
-                                 runif(1, min = possible_safe_value_range[1], max = possible_safe_value_range[2]));
-        
-        choiceP_temporary = choice_probability(temp_parameters,newchoiceoption);
-        newchoiceoption[4] = choiceP_temporary;
-        newchoiceoption[5] = 0; # 0 = easy
-        newchoiceoption[6] = 1; # accept
-        newchoiceoption[7] = numDynBlk; # number of the dynamic block
-        
-        if(choiceP_temporary > choiceP_range_easy_upper){
-          number_easy = number_easy + 1;
-          newchoices_easy[number_easy,] = as.numeric(newchoiceoption);
-          choiceP_easy[number_easy] = choiceP_temporary;
-        }
-      }
+          # Evaluate if the new option meets criteria
+          if((tmp_lower_bin_edge < choiceP_temporary) & (choiceP_temporary < tmp_upper_bin_edge)){
+            number_generated = number_generated + 1; # If so, count it!
+            newchoices_easy = rbind(newchoices_easy,as.numeric(newchoiceoption));
+          } # end of evaluation IF
+        } # end of generation WHILE
+      } # end of bin FOR
       print(sprintf('Easy iterations: %i',number_iterations))
-    }
+    } # end of Dynamic Block FOR
     
     new_choiceset = rbind(newchoices_easy, newchoices_intermediate, newchoices_difficult) # bind the 3 choicesets together
     colnames(new_choiceset) <- colnames_out
@@ -259,9 +282,9 @@ for(r in 1:n_rho_values){
     
     write.csv(new_choiceset, file = fname, row.names = F);
     
-  }
-  cat(sprintf('Done with rho #%i of %i.\n',r,n_rho_values))
-}
+    cat(sprintf('Finished rho %i/%i and mu %i/%i.\n',r, n_rho_values, m, n_mu_values))
+  } # End of mu FOR
+} # End of rho FOR
 toc()
 
 # All finished!
