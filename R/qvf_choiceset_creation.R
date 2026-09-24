@@ -36,7 +36,7 @@ choice_probability <- function(parameters, choiceset) {
   utility_safe_option = choiceset$safeoption^rho;
   
   # normalize values using this term
-  div <- max(choiceset[,1:3])^rho; # decorrelates rho & mu
+  div <- 30^rho; # decorrelates rho & mu
   
   # calculate the probability of selecting the risky option
   p = 1/(1+exp(-mu/div*(utility_risky_option - utility_safe_option)));
@@ -54,7 +54,7 @@ n_mu_values = 201; # IBID
 print(sprintf('You have decided to make %i choice sets!',n_rho_values*n_mu_values))
 
 rho_values = seq(from = 0.3, to = 2.2, length.out = n_rho_values); # the range of fit-able values
-mu_values = seq(from = 7, to = 80, length.out = n_mu_values); # the range of fit-able values
+mu_values = seq(from = 10, to = 80, length.out = n_mu_values); # the range of fit-able values
 
 ## Defining Choice Set contents ----
 # Set up variables defining choice set creation
@@ -115,10 +115,10 @@ setwd('/Users/sokolhessner/Documents/gitrepos/qvf/R/bespoke_choicesets/');
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
 
 tic();
-# for(r in 1:n_rho_values){
-#   for(m in 1:n_mu_values){
-for(r in c(10, 40, 60, 100, 150)){ # for testing
-  for(m in c(15, 45, 65, 105, 155)){ # for testing
+for(r in 1:n_rho_values){
+  for(m in 1:n_mu_values){
+# for(r in c(10, 40, 60, 100, 150)){ # for testing
+#   for(m in c(15, 45, 65, 105, 155)){ # for testing
     ## Carry out the subject loop ----
     temp_parameters = c(rho_values[r],mu_values[m]);
     
