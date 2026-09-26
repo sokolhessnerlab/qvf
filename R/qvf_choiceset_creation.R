@@ -53,7 +53,7 @@ choice_probability <- function(parameters, choiceset) {
 n_rho_values = 200; # SET THIS TO THE DESIRED DEGREE OF FINENESS
 n_mu_values = 201; # IBID
 
-print(sprintf('You have decided to make %i choice sets!',n_rho_values*n_mu_values))
+cat(sprintf('You have decided to make %i choice sets!\n\n',n_rho_values*n_mu_values))
 
 rho_values = seq(from = 0.35, to = 2.2, length.out = n_rho_values); # the range of fit-able values
 mu_values = seq(from = 11, to = 80, length.out = n_mu_values); # the range of fit-able values
@@ -134,7 +134,7 @@ for(r in 1:n_rho_values){
   )
   doParallel::registerDoParallel(cl = my.cluster)
   
-  foreach(m=1:10) %dorng% { # for parallelization
+  foreach(m=1:n_mu_values) %dorng% { # for parallelization
     
 #   for(m in 1:n_mu_values){ # for non-parallel version
     
