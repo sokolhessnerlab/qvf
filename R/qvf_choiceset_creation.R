@@ -53,8 +53,8 @@ n_mu_values = 201; # IBID
 
 print(sprintf('You have decided to make %i choice sets!',n_rho_values*n_mu_values))
 
-rho_values = seq(from = 0.3, to = 2.2, length.out = n_rho_values); # the range of fit-able values
-mu_values = seq(from = 10, to = 80, length.out = n_mu_values); # the range of fit-able values
+rho_values = seq(from = 0.35, to = 2.2, length.out = n_rho_values); # the range of fit-able values
+mu_values = seq(from = 11, to = 80, length.out = n_mu_values); # the range of fit-able values
 
 ## Defining Choice Set contents ----
 # Set up variables defining choice set creation
@@ -97,8 +97,8 @@ num_easy_lower_perBin_perDynblk = total_number_easy/(nbins_easy_lower * 2 * 2) #
 num_easy_upper_perBin_perDynblk = total_number_easy/(nbins_easy_upper * 2 * 2) # 2 = num of dynamic blocks; 2 = upper/lower
 
 # allowable $ values
-possible_risky_value_range = c(0.05, 30); 
-possible_safe_value_range = c(0.05, 15);
+possible_risky_value_range = c(0.01, 30); 
+possible_safe_value_range = c(0.01, 15);
 
 colnames_out = c('riskyoption1', 'riskyoption2', 'safeoption', 
                  'choiceP', 'type_e0i1d2', 'reject0accept1', 'dynamicblocknum');
