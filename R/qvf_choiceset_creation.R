@@ -1,4 +1,4 @@
-# CGT SCRIPT FOR FITTING PARTICIPANTS' CHOICES AND CREATING NOVEL CHOICE SETS
+# QVF SCRIPT FOR FITTING PARTICIPANTS' CHOICES AND CREATING NOVEL CHOICE SETS
 
 # Setup ----
 rm(list = ls()); # clear the workspace
@@ -56,11 +56,7 @@ n_mu_values = 201; # IBID
 print(sprintf('You have decided to make %i choice sets!',n_rho_values*n_mu_values))
 
 rho_values = seq(from = 0.35, to = 2.2, length.out = n_rho_values); # the range of fit-able values
-<<<<<<< Updated upstream
 mu_values = seq(from = 11, to = 80, length.out = n_mu_values); # the range of fit-able values
-=======
-mu_values = seq(from = 10, to = 80, length.out = n_mu_values); # the range of fit-able values
->>>>>>> Stashed changes
 
 ## Defining Choice Set contents ----
 # Set up variables defining choice set creation
@@ -139,7 +135,9 @@ for(r in 1:n_rho_values){
   doParallel::registerDoParallel(cl = my.cluster)
   
   foreach(m=1:10) %dorng% { # for parallelization
-  # for(m in 1:n_mu_values){ # for non-parallel version
+    
+#   for(m in 1:n_mu_values){ # for non-parallel version
+    
 # for(r in c(10, 40, 60, 100, 150)){ # for testing
 #   for(m in c(15, 45, 65, 105, 155)){ # for testing
     ## Carry out the subject loop ----
