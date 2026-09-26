@@ -5,6 +5,8 @@ rm(list = ls()); # clear the workspace
 setwd('/Users/sokolhessner/Documents/gitrepos/qvf/R/');
 
 library(tictoc)
+library(doParallel)
+library(doRNG)
 
 tic()
 
@@ -54,7 +56,11 @@ n_mu_values = 201; # IBID
 print(sprintf('You have decided to make %i choice sets!',n_rho_values*n_mu_values))
 
 rho_values = seq(from = 0.35, to = 2.2, length.out = n_rho_values); # the range of fit-able values
+<<<<<<< Updated upstream
 mu_values = seq(from = 11, to = 80, length.out = n_mu_values); # the range of fit-able values
+=======
+mu_values = seq(from = 10, to = 80, length.out = n_mu_values); # the range of fit-able values
+>>>>>>> Stashed changes
 
 ## Defining Choice Set contents ----
 # Set up variables defining choice set creation
@@ -106,6 +112,15 @@ ncols_out = length(colnames_out)
 
 setwd('/Users/sokolhessner/Documents/gitrepos/qvf/R/bespoke_choicesets/');
 
+# Set up the parallelization
+n.cores <- parallel::detectCores() - 1; # Use 1 less than the full number of cores.
+
+my.cluster <- parallel::makeCluster(
+  n.cores,
+  type = "FORK"
+)
+doParallel::registerDoParallel(cl = my.cluster)
+
 # Loop through and create choice sets ----
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
@@ -116,7 +131,15 @@ setwd('/Users/sokolhessner/Documents/gitrepos/qvf/R/bespoke_choicesets/');
 
 tic();
 for(r in 1:n_rho_values){
-  for(m in 1:n_mu_values){
+  
+  my.cluster <- parallel::makeCluster(
+    n.cores,
+    type = "FORK"
+  )
+  doParallel::registerDoParallel(cl = my.cluster)
+  
+  foreach(m=1:10) %dorng% { # for parallelization
+  # for(m in 1:n_mu_values){ # for non-parallel version
 # for(r in c(10, 40, 60, 100, 150)){ # for testing
 #   for(m in c(15, 45, 65, 105, 155)){ # for testing
     ## Carry out the subject loop ----
@@ -163,7 +186,7 @@ for(r in 1:n_rho_values){
           } # end of evaluation IF
         } # end of generation WHILE
       } # end of bin FOR
-      print(sprintf('Difficult iterations: %i',number_iterations))
+      # print(sprintf('Difficult iterations: %i',number_iterations))
       
       #### Make INTERMEDIATE choices ----
       number_iterations = 0;
@@ -220,7 +243,7 @@ for(r in 1:n_rho_values){
           } # end of evaluation IF
         } # end of generation WHILE
       } # end of bin FOR
-      print(sprintf('Intermediate iterations: %i',number_iterations))
+      # print(sprintf('Intermediate iterations: %i',number_iterations))
       
       #### Make EASY choices ----
       ##### Easy LOWER (i.e. reject) ----
@@ -277,7 +300,7 @@ for(r in 1:n_rho_values){
           } # end of evaluation IF
         } # end of generation WHILE
       } # end of bin FOR
-      print(sprintf('Easy iterations: %i',number_iterations))
+      # print(sprintf('Easy iterations: %i',number_iterations))
     } # end of Dynamic Block FOR
     
     ## Save out the new choice set ----
@@ -291,8 +314,11 @@ for(r in 1:n_rho_values){
     
     write.csv(new_choiceset, file = fname, row.names = F);
     
-    cat(sprintf('Finished rho %i/%i and mu %i/%i.\n',r, n_rho_values, m, n_mu_values))
+    # cat(sprintf('Finished rho %i/%i and mu %i/%i.\n',r, n_rho_values, m, n_mu_values)) # only works with non-parallel implementation
   } # End of mu FOR
+  
+  stopCluster(my.cluster)
+  cat(sprintf('Finished rho %i/%i.\n',r, n_rho_values)) # only works with parallel implementation
 } # End of rho FOR
 toc()
 
