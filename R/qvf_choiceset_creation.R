@@ -147,7 +147,7 @@ tic();
 # for(r in 1:n_rho_values){ # for sequential
 #   for(m in 1:n_mu_values){ 
 
-# for(r in seq(from = 1, by = 9, to = 200)){ # for testing
+# for(r in seq(from = 1, by = 9, to = 200)){ # for testing sequential
 #   for(m in seq(from = 1, by = 9, to = 200)){ 
 
 # foreach(r=seq(from = 1, by = 9, to = 200)) %dorng% { # for testing parallelization
