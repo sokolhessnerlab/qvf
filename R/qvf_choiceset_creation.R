@@ -5,8 +5,8 @@ rm(list = ls()); # clear the workspace
 setwd('/Users/sokolhessner/Documents/gitrepos/qvf/R/');
 
 library(tictoc)
-
-tic()
+library(doParallel)
+library(doRNG)
 
 # Create function to calculate choice probabilities ----
 choice_probability <- function(parameters, choiceset) {
@@ -126,14 +126,26 @@ ncols_out = length(colnames_out)
 
 setwd('/Users/sokolhessner/Documents/gitrepos/qvf/R/bespoke_choicesets/');
 
+# Set up the parallelization
+n.cores <- parallel::detectCores() - 1; # Use 1 less than the full number of cores.
+
+my.cluster <- parallel::makeCluster(
+  n.cores,
+  type = "FORK"
+)
+doParallel::registerDoParallel(cl = my.cluster)
+
 # Loop through and create choice sets ----
 
 tic();
-# for(r in 1:n_rho_values){
+# for(r in 1:n_rho_values){ # for sequential
 #   for(m in 1:n_mu_values){ 
+
+# for(r in seq(from = 1, by = 9, to = 200)){ # for testing
+#   for(m in seq(from = 1, by = 9, to = 200)){ 
     
-for(r in c(1, 30, 50, 74, 90, 110, 120, 135, 152, 160, 180, 199)){
-  for(m in c(1, 30, 50, 74, 90, 110, 120, 135, 152, 160, 180, 199)){ # for non-parallel version
+foreach(r=seq(from = 1, by = 9, to = 200)) %dorng% { # for parallelization
+  for(m in seq(from = 1, by = 9, to = 200)){ 
     ## Carry out the subject loop ----
     temp_parameters = c(rho_values[r],mu_values[m]);
     cat(sprintf('\u03C1 = %.2f   \u03BC = %.2f', temp_parameters[1], temp_parameters[2]))
@@ -296,6 +308,7 @@ for(r in c(1, 30, 50, 74, 90, 110, 120, 135, 152, 160, 180, 199)){
   
   cat(sprintf('Finished \u03C1 %i/%i.\n',r, n_rho_values)) # only works with parallel implementation
 } # End of rho FOR
+stopCluster(my.cluster)
 x = toc()
 
 sec_elapsed = x$toc-x$tic # seconds
