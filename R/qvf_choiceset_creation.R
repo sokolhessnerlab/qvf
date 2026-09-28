@@ -137,6 +137,12 @@ doParallel::registerDoParallel(cl = my.cluster)
 
 # Loop through and create choice sets ----
 
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+#                                          #
+#               May take 9 hrs?            #
+#                                          #
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+
 tic();
 # for(r in 1:n_rho_values){ # for sequential
 #   for(m in 1:n_mu_values){ 
@@ -312,7 +318,7 @@ stopCluster(my.cluster)
 x = toc()
 
 sec_elapsed = x$toc-x$tic # seconds
-expected_hours = sec_elapsed/144*40200/60/60
+expected_hours = sec_elapsed/529*40200/60/60
 
 cat(sprintf('\n\nExpected total time for 40,200 choice sets = %.1f hours. Plan accordingly!\n', expected_hours))
 
