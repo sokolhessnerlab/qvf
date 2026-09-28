@@ -16,7 +16,7 @@ choice_probability <- function(parameters, choiceset) {
   # Assumes choiceset has columns riskyoption1, riskyoption2, and safeoption
   #
   # PSH & AR June 2022
-
+  
   # extract  parameters
   rho = as.double(parameters[1]); # risk attitudes
   mu = as.double(parameters[2]); # choice consistency
@@ -149,9 +149,13 @@ tic();
 
 # for(r in seq(from = 1, by = 9, to = 200)){ # for testing
 #   for(m in seq(from = 1, by = 9, to = 200)){ 
+
+# foreach(r=seq(from = 1, by = 9, to = 200)) %dorng% { # for testing parallelization
+#   for(m in seq(from = 1, by = 9, to = 200)){ 
+
+foreach(r=1:n_rho_values) %dorng% { # for parallelization
+  for(m in 1:n_mu_values){ 
     
-foreach(r=seq(from = 1, by = 9, to = 200)) %dorng% { # for parallelization
-  for(m in seq(from = 1, by = 9, to = 200)){ 
     ## Carry out the subject loop ----
     temp_parameters = c(rho_values[r],mu_values[m]);
     cat(sprintf('\u03C1 = %.2f   \u03BC = %.2f', temp_parameters[1], temp_parameters[2]))
@@ -192,7 +196,7 @@ foreach(r=seq(from = 1, by = 9, to = 200)) %dorng% { # for parallelization
         
         new_choiceset = rbind(new_choiceset,tmp_choiceset)
       } # end of bin FOR
-
+      
       #### Make INTERMEDIATE choices ----
       ##### INT. LOWER choices (i.e. reject) ----
       for (binN in 1:nbins_int_lower){
@@ -219,7 +223,7 @@ foreach(r=seq(from = 1, by = 9, to = 200)) %dorng% { # for parallelization
         
         new_choiceset = rbind(new_choiceset,tmp_choiceset)
       } # end of bin FOR
-
+      
       ##### INT. UPPER choices (i.e. accept) ----
       for (binN in 1:nbins_int_upper){
         tmp_lower_bin_edge = bin_edges_int_upper[binN]
@@ -245,7 +249,7 @@ foreach(r=seq(from = 1, by = 9, to = 200)) %dorng% { # for parallelization
         
         new_choiceset = rbind(new_choiceset,tmp_choiceset)        
       } # end of bin FOR
-
+      
       #### Make EASY choices ----
       ##### Easy LOWER (i.e. reject) ----
       for (binN in 1:nbins_easy_lower){
@@ -272,12 +276,12 @@ foreach(r=seq(from = 1, by = 9, to = 200)) %dorng% { # for parallelization
         
         new_choiceset = rbind(new_choiceset,tmp_choiceset)
       } # end of bin FOR
-
+      
       ##### Easy UPPER (i.e. accept) ----
       for (binN in 1:nbins_easy_upper){
         tmp_lower_bin_edge = bin_edges_easy_upper[binN]
         tmp_upper_bin_edge = bin_edges_easy_upper[binN + 1]
-
+        
         ind_meet_criteria = which((full_possible_choiceset$choiceP > tmp_lower_bin_edge) & 
                                     (full_possible_choiceset$choiceP <= tmp_upper_bin_edge))
         ind_meet_criteria_selected = sample(ind_meet_criteria, 
@@ -318,9 +322,12 @@ stopCluster(my.cluster)
 x = toc()
 
 sec_elapsed = x$toc-x$tic # seconds
-expected_hours = sec_elapsed/529*40200/60/60
 
-cat(sprintf('\n\nExpected total time for 40,200 choice sets = %.1f hours. Plan accordingly!\n', expected_hours))
+cat(sprintf('\n\nTook %.1f hours. Whew!\n',sec_elapsed/60/60))
+
+# expected_hours = sec_elapsed/529*40200/60/60
+# 
+# cat(sprintf('\n\nExpected total time for 40,200 choice sets = %.1f hours. Plan accordingly!\n', expected_hours))
 
 # All finished!
 
