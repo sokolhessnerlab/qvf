@@ -1,12 +1,12 @@
-# CGT SCRIPT FOR FITTING PARTICIPANTS' CHOICES AND CREATING NOVEL CHOICE SETS
+# QVF SCRIPT FOR FITTING PARTICIPANTS' CHOICES AND CREATING NOVEL CHOICE SETS
 
 # Setup ----
 rm(list = ls()); # clear the workspace
 setwd('/Users/sokolhessner/Documents/gitrepos/qvf/R/');
 
 library(tictoc)
-
-tic()
+library(doParallel)
+library(doRNG)
 
 # Create function to calculate choice probabilities ----
 choice_probability <- function(parameters, choiceset) {
@@ -16,7 +16,7 @@ choice_probability <- function(parameters, choiceset) {
   # Assumes choiceset has columns riskyoption1, riskyoption2, and safeoption
   #
   # PSH & AR June 2022
-
+  
   # extract  parameters
   rho = as.double(parameters[1]); # risk attitudes
   mu = as.double(parameters[2]); # choice consistency
@@ -36,7 +36,7 @@ choice_probability <- function(parameters, choiceset) {
   utility_safe_option = choiceset$safeoption^rho;
   
   # normalize values using this term
-  div <- max(choiceset[,1:3])^rho; # decorrelates rho & mu
+  div <- 30^rho; # decorrelates rho & mu
   
   # calculate the probability of selecting the risky option
   p = 1/(1+exp(-mu/div*(utility_risky_option - utility_safe_option)));
@@ -51,182 +51,285 @@ choice_probability <- function(parameters, choiceset) {
 n_rho_values = 200; # SET THIS TO THE DESIRED DEGREE OF FINENESS
 n_mu_values = 201; # IBID
 
-print(sprintf('You have decided to make %i choice sets!',n_rho_values*n_mu_values))
+cat(sprintf('You have decided to make %i choice sets!\n\n',n_rho_values*n_mu_values))
 
-rho_values = seq(from = 0.3, to = 2.2, length.out = n_rho_values); # the range of fit-able values
-mu_values = seq(from = 7, to = 80, length.out = n_mu_values); # the range of fit-able values
+rho_values = seq(from = 0.35, to = 2.2, length.out = n_rho_values); # the range of fit-able values
+mu_values = seq(from = 11, to = 80, length.out = n_mu_values); # the range of fit-able values
 
 ## Defining Choice Set contents ----
 # Set up variables defining choice set creation
 total_number_difficult = 80; # total number of choices in each type
-total_number_intermediate = 80; # total number of choices in each type
+total_number_intermediate = 84; # total number of choices in each type
 total_number_easy = 80;
+
+number_dynamic_blocks = 2
+
+number_difficult_perDynBlk = total_number_difficult/number_dynamic_blocks;
+number_intermediate_perDynBlk = total_number_intermediate/number_dynamic_blocks;
+number_easy_perDynBlk = total_number_easy/number_dynamic_blocks;
 
 # Probability ranges for easy & difficult categories
 choiceP_range_difficult = c(0.45, 0.55);
-choiceP_range_int_lower = c(0.25, 0.35);
-choiceP_range_int_upper = c(0.65, 0.75);
-choiceP_range_easy_lower = 0.10; # implicitly between 0 and this value
-choiceP_range_easy_upper = 0.9; # implicitly between this value and 1
+choiceP_range_int_lower = c(0.08, 0.22);
+choiceP_range_int_upper = c(0.78, 0.92);
+choiceP_range_easy_lower = c(0, 0.02);
+choiceP_range_easy_upper = c(0.98, 1);
+
+# Bin Edges
+bin_edges_difficult = seq(from = choiceP_range_difficult[1], to = choiceP_range_difficult[2], by = 0.01)
+bin_edges_easy_lower = seq(from = choiceP_range_easy_lower[1], to = choiceP_range_easy_lower[2], by = 0.01)
+bin_edges_easy_upper = seq(from = choiceP_range_easy_upper[1], to = choiceP_range_easy_upper[2], by = 0.01)
+bin_edges_int_lower = seq(from = choiceP_range_int_lower[1], to = choiceP_range_int_lower[2], by = 0.02) # Need bins of width 2% to make the trial numbers work out evenly
+bin_edges_int_upper = seq(from = choiceP_range_int_upper[1], to = choiceP_range_int_upper[2], by = 0.02)
+
+# Number of Bins
+nbins_difficult = length(bin_edges_difficult) - 1
+nbins_int_lower = length(bin_edges_int_lower) - 1
+nbins_int_upper = length(bin_edges_int_upper) - 1
+nbins_easy_lower = length(bin_edges_easy_lower) - 1
+nbins_easy_upper = length(bin_edges_easy_upper) - 1
+
+# Number of trials/bin/dynamic block
+num_difficult_perBin_perDynblk = total_number_difficult/(nbins_difficult * 2) # 2 = num of dynamic blocks
+num_int_lower_perBin_perDynblk = total_number_intermediate/(nbins_int_lower * 2 * 2) # 2 = num of dynamic blocks; 2 = upper/lower
+num_int_upper_perBin_perDynblk = total_number_intermediate/(nbins_int_upper * 2 * 2) # 2 = num of dynamic blocks; 2 = upper/lower
+num_easy_lower_perBin_perDynblk = total_number_easy/(nbins_easy_lower * 2 * 2) # 2 = num of dynamic blocks; 2 = upper/lower
+num_easy_upper_perBin_perDynblk = total_number_easy/(nbins_easy_upper * 2 * 2) # 2 = num of dynamic blocks; 2 = upper/lower
 
 # allowable $ values
-possible_risky_value_range = c(0.05, 30); 
-possible_safe_value_range = c(0.05, 12);
+possible_risky_value_range = c(0.01, 30); 
+possible_safe_value_range = c(0.01, 21);
 
-colnames_out = c('riskyoption1', 'riskyoption2', 'safeoption', 'choiceP', 'type_e0i1d2', 'reject0accept1');
+all_possible_safe_values = seq(from = possible_safe_value_range[1], 
+                               to = possible_safe_value_range[2], by = 0.01)
+all_possible_risky_values = seq(from = possible_risky_value_range[1], 
+                                to = possible_risky_value_range[2], by = 0.01)
+
+nvals_safe = length(all_possible_safe_values)
+nvals_risky = length(all_possible_risky_values)
+npairs = nvals_risky * nvals_safe
+
+full_possible_choiceset = array(dim = c(npairs, 4))
+full_possible_choiceset[,1] = rep(all_possible_risky_values, times = nvals_safe) # riskyoption1
+full_possible_choiceset[,2] = 0 # riskyoption2
+full_possible_choiceset[,3] = rep(all_possible_safe_values, each = nvals_risky) # safe
+
+colnames(full_possible_choiceset) <- c('riskyoption1', 
+                                       'riskyoption2', 
+                                       'safeoption', 
+                                       'choiceP');
+full_possible_choiceset = as.data.frame(full_possible_choiceset)
+
+colnames_out = c('riskyoption1', 'riskyoption2', 'safeoption', 
+                 'choiceP', 'type_e0i1d2', 'reject0accept1', 'dynamicblocknum');
 ncols_out = length(colnames_out)
 
 setwd('/Users/sokolhessner/Documents/gitrepos/qvf/R/bespoke_choicesets/');
 
-## Loop through and create choice sets ----
-# NOTE: This will take a long time! 
-tic();
-for(r in 1:n_rho_values){
-  for(m in 1:n_mu_values){
-    ### Carry out the subject loop ----
-    temp_parameters = c(rho_values[r],mu_values[m]);
-    
-    newchoices_difficult = array(dim = c(total_number_difficult,ncols_out)); # -> riskyoption1, riskyoption2, safeoption, choiceP, easy/intermediate/difficult, reject0accept1
-    newchoices_intermediate = array(dim = c(total_number_intermediate,ncols_out));
-    newchoices_easy = array(dim = c(total_number_easy,ncols_out));
-    
-    choiceP_difficult = array(dim = c(total_number_difficult,1));
-    choiceP_intermediate = array(dim = c(total_number_intermediate,1));
-    choiceP_easy = array(dim = c(total_number_easy,1));
-    
-    number_difficult = 0;
-    number_intermediate = 0;
-    number_easy = 0;
-    
-    newchoiceoption = array(dim = c(1,ncols_out));
-    colnames(newchoiceoption) <- colnames_out;
-    newchoiceoption = as.data.frame(newchoiceoption);
-    
-    number_iterations = 0;
-    
-    ### Make DIFFICULT choices ----
-    while (number_difficult < total_number_difficult){
-      number_iterations = number_iterations + 1;
-      
-      newchoiceoption[1:3] = c(runif(1, min = possible_risky_value_range[1], max = possible_risky_value_range[2]),
-                            0,
-                            runif(1, min = possible_safe_value_range[1], max = possible_safe_value_range[2]));
-      
-      choiceP_temporary = choice_probability(temp_parameters,newchoiceoption);
-      newchoiceoption[4] = choiceP_temporary;
-      newchoiceoption[5] = 2; # 2 = difficult
-      newchoiceoption[6] = 2; # 2 = neither accept nor reject (it's difficult)
-      
-      if((choiceP_temporary > choiceP_range_difficult[1]) & (choiceP_temporary < choiceP_range_difficult[2])){
-        number_difficult = number_difficult + 1;
-        newchoices_difficult[number_difficult,] = as.numeric(newchoiceoption);
-        choiceP_difficult[number_difficult] = choiceP_temporary;
-      }
-    }
-    print(sprintf('Difficult iterations: %i',number_iterations))
+# Set up the parallelization
+n.cores <- parallel::detectCores() - 1; # Use 1 less than the full number of cores.
 
-    ### Make INTERMEDIATE choices ----
-    number_iterations = 0;
-    #### INT. LOWER choices (i.e. reject) ----
-    while (number_intermediate < (total_number_intermediate/2)){
-      number_iterations = number_iterations + 1;
-      
-      newchoiceoption[1:3] = c(runif(1, min = possible_risky_value_range[1], max = possible_risky_value_range[2]),
-                               0,
-                               runif(1, min = possible_safe_value_range[1], max = possible_safe_value_range[2]));
-      
-      choiceP_temporary = choice_probability(temp_parameters,newchoiceoption);
-      newchoiceoption[4] = choiceP_temporary;
-      newchoiceoption[5] = 1; # 1 = intermediate
-      newchoiceoption[6] = 0; # reject
-      
-      if((choiceP_temporary > choiceP_range_int_lower[1]) & (choiceP_temporary < choiceP_range_int_lower[2])){
-        number_intermediate = number_intermediate + 1;
-        newchoices_intermediate[number_intermediate,] = as.numeric(newchoiceoption);
-        choiceP_intermediate[number_intermediate] = choiceP_temporary;
-      }
-    }
+my.cluster <- parallel::makeCluster(
+  n.cores,
+  type = "FORK"
+)
+doParallel::registerDoParallel(cl = my.cluster)
+
+# Loop through and create choice sets ----
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+#                                          #
+#               May take 9 hrs?            #
+#                                          #
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% #
+
+tic();
+# for(r in 1:n_rho_values){ # for sequential
+#   for(m in 1:n_mu_values){ 
+
+# for(r in seq(from = 1, by = 9, to = 200)){ # for testing sequential
+#   for(m in seq(from = 1, by = 9, to = 200)){ 
+
+# foreach(r=seq(from = 1, by = 9, to = 200)) %dorng% { # for testing parallelization
+#   for(m in seq(from = 1, by = 9, to = 200)){ 
+
+foreach(r=1:n_rho_values) %dorng% { # for parallelization
+  for(m in 1:n_mu_values){ 
     
-    #### INT. UPPER choices (i.e. accept) ----
-    while (number_intermediate < total_number_intermediate){
-      number_iterations = number_iterations + 1;
+    ## Carry out the subject loop ----
+    temp_parameters = c(rho_values[r],mu_values[m]);
+    cat(sprintf('\u03C1 = %.2f   \u03BC = %.2f', temp_parameters[1], temp_parameters[2]))
+    
+    # Calculate all possible choice probabilities for all possible choices
+    full_possible_choiceset$choiceP = choice_probability(temp_parameters,full_possible_choiceset) 
+    
+    new_choiceset = array(dim = c(0,length(colnames_out)))
+    colnames(new_choiceset) <- colnames_out
+    new_choiceset = as.data.frame(new_choiceset); 
+    
+    ### Cycle through DYNAMIC BLOCKS ----
+    for (numDynBlk in 1:number_dynamic_blocks){
       
-      newchoiceoption[1:3] = c(runif(1, min = possible_risky_value_range[1], max = possible_risky_value_range[2]),
-                               0,
-                               runif(1, min = possible_safe_value_range[1], max = possible_safe_value_range[2]));
-      
-      choiceP_temporary = choice_probability(temp_parameters,newchoiceoption);
-      newchoiceoption[4] = choiceP_temporary;
-      newchoiceoption[5] = 1; # 1 = intermediate
-      newchoiceoption[6] = 1; # accept
-      
-      if((choiceP_temporary > choiceP_range_int_upper[1]) & (choiceP_temporary < choiceP_range_int_upper[2])){
-        number_intermediate = number_intermediate + 1;
-        newchoices_intermediate[number_intermediate,] = as.numeric(newchoiceoption);
-        choiceP_intermediate[number_easy] = choiceP_temporary;
-      }
-    }
-    print(sprintf('Intermediate iterations: %i',number_iterations))
+      #### Make DIFFICULT choices ----
+      for (binN in 1:nbins_difficult){
+        # Set up bin edges (in choice probability space)
+        tmp_lower_bin_edge = bin_edges_difficult[binN] # define lower bin edge
+        tmp_upper_bin_edge = bin_edges_difficult[binN + 1] # define upper bin edge
         
-    ### Make EASY choices ----
-    #### Easy LOWER (i.e. reject) ----
-    number_iterations = 0;
-    while (number_easy < (total_number_easy/2)){
-      number_iterations = number_iterations + 1;
+        ind_meet_criteria = which((full_possible_choiceset$choiceP > tmp_lower_bin_edge) & 
+                                    (full_possible_choiceset$choiceP <= tmp_upper_bin_edge))
+        ind_meet_criteria_selected = sample(ind_meet_criteria, 
+                                            size = num_difficult_perBin_perDynblk)
+        
+        tmp_choiceset = array(dim = c(num_difficult_perBin_perDynblk,
+                                      length(colnames_out)))
+        colnames(tmp_choiceset) <- colnames_out
+        tmp_choiceset = as.data.frame(tmp_choiceset); 
+        
+        tmp_choiceset$riskyoption1 = full_possible_choiceset$riskyoption1[ind_meet_criteria_selected]
+        tmp_choiceset$riskyoption2 = full_possible_choiceset$riskyoption2[ind_meet_criteria_selected]
+        tmp_choiceset$safeoption = full_possible_choiceset$safeoption[ind_meet_criteria_selected]
+        tmp_choiceset$choiceP = full_possible_choiceset$choiceP[ind_meet_criteria_selected]
+        tmp_choiceset$type_e0i1d2 = 2; # 2 = difficult
+        tmp_choiceset$reject0accept1 = 2; # 2 = neither accept nor reject (it's difficult)
+        tmp_choiceset$dynamicblocknum = numDynBlk; # number of the dynamic block
+        
+        new_choiceset = rbind(new_choiceset,tmp_choiceset)
+      } # end of bin FOR
       
-      newchoiceoption[1:3] = c(runif(1, min = possible_risky_value_range[1], max = possible_risky_value_range[2]),
-                            0,
-                            runif(1, min = possible_safe_value_range[1], max = possible_safe_value_range[2]));
+      #### Make INTERMEDIATE choices ----
+      ##### INT. LOWER choices (i.e. reject) ----
+      for (binN in 1:nbins_int_lower){
+        tmp_lower_bin_edge = bin_edges_int_lower[binN]
+        tmp_upper_bin_edge = bin_edges_int_lower[binN + 1]
+        
+        ind_meet_criteria = which((full_possible_choiceset$choiceP > tmp_lower_bin_edge) & 
+                                    (full_possible_choiceset$choiceP <= tmp_upper_bin_edge))
+        ind_meet_criteria_selected = sample(ind_meet_criteria, 
+                                            size = num_int_lower_perBin_perDynblk)
+        
+        tmp_choiceset = array(dim = c(num_int_lower_perBin_perDynblk,
+                                      length(colnames_out)))
+        colnames(tmp_choiceset) <- colnames_out
+        tmp_choiceset = as.data.frame(tmp_choiceset); 
+        
+        tmp_choiceset$riskyoption1 = full_possible_choiceset$riskyoption1[ind_meet_criteria_selected]
+        tmp_choiceset$riskyoption2 = full_possible_choiceset$riskyoption2[ind_meet_criteria_selected]
+        tmp_choiceset$safeoption = full_possible_choiceset$safeoption[ind_meet_criteria_selected]
+        tmp_choiceset$choiceP = full_possible_choiceset$choiceP[ind_meet_criteria_selected]
+        tmp_choiceset$type_e0i1d2 = 1; # 1 = intermediate
+        tmp_choiceset$reject0accept1 = 0; # reject
+        tmp_choiceset$dynamicblocknum = numDynBlk; # number of the dynamic block
+        
+        new_choiceset = rbind(new_choiceset,tmp_choiceset)
+      } # end of bin FOR
       
-      choiceP_temporary = choice_probability(temp_parameters,newchoiceoption);
-      newchoiceoption[4] = choiceP_temporary;
-      newchoiceoption[5] = 0; # 0 = easy
-      newchoiceoption[6] = 0; # reject
+      ##### INT. UPPER choices (i.e. accept) ----
+      for (binN in 1:nbins_int_upper){
+        tmp_lower_bin_edge = bin_edges_int_upper[binN]
+        tmp_upper_bin_edge = bin_edges_int_upper[binN + 1]
+        
+        ind_meet_criteria = which((full_possible_choiceset$choiceP > tmp_lower_bin_edge) & 
+                                    (full_possible_choiceset$choiceP <= tmp_upper_bin_edge))
+        ind_meet_criteria_selected = sample(ind_meet_criteria, 
+                                            size = num_int_upper_perBin_perDynblk)
+        
+        tmp_choiceset = array(dim = c(num_int_upper_perBin_perDynblk,
+                                      length(colnames_out)))
+        colnames(tmp_choiceset) <- colnames_out
+        tmp_choiceset = as.data.frame(tmp_choiceset); 
+        
+        tmp_choiceset$riskyoption1 = full_possible_choiceset$riskyoption1[ind_meet_criteria_selected]
+        tmp_choiceset$riskyoption2 = full_possible_choiceset$riskyoption2[ind_meet_criteria_selected]
+        tmp_choiceset$safeoption = full_possible_choiceset$safeoption[ind_meet_criteria_selected]
+        tmp_choiceset$choiceP = full_possible_choiceset$choiceP[ind_meet_criteria_selected]
+        tmp_choiceset$type_e0i1d2 = 1; # 1 = intermediate
+        tmp_choiceset$reject0accept1 = 1; # accept
+        tmp_choiceset$dynamicblocknum = numDynBlk; # number of the dynamic block
+        
+        new_choiceset = rbind(new_choiceset,tmp_choiceset)        
+      } # end of bin FOR
       
-      if(choiceP_temporary < choiceP_range_easy_lower){
-        number_easy = number_easy + 1;
-        newchoices_easy[number_easy,] = as.numeric(newchoiceoption);
-        choiceP_easy[number_easy] = choiceP_temporary;
-      }
-    }
-    #### Easy UPPER (i.e. accept) ----
-    while (number_easy < total_number_easy){
-      number_iterations = number_iterations + 1;
+      #### Make EASY choices ----
+      ##### Easy LOWER (i.e. reject) ----
+      for (binN in 1:nbins_easy_lower){
+        tmp_lower_bin_edge = bin_edges_easy_lower[binN]
+        tmp_upper_bin_edge = bin_edges_easy_lower[binN + 1]
+        
+        ind_meet_criteria = which((full_possible_choiceset$choiceP > tmp_lower_bin_edge) & 
+                                    (full_possible_choiceset$choiceP <= tmp_upper_bin_edge))
+        ind_meet_criteria_selected = sample(ind_meet_criteria, 
+                                            size = num_easy_lower_perBin_perDynblk)
+        
+        tmp_choiceset = array(dim = c(num_easy_lower_perBin_perDynblk,
+                                      length(colnames_out)))
+        colnames(tmp_choiceset) <- colnames_out
+        tmp_choiceset = as.data.frame(tmp_choiceset); 
+        
+        tmp_choiceset$riskyoption1 = full_possible_choiceset$riskyoption1[ind_meet_criteria_selected]
+        tmp_choiceset$riskyoption2 = full_possible_choiceset$riskyoption2[ind_meet_criteria_selected]
+        tmp_choiceset$safeoption = full_possible_choiceset$safeoption[ind_meet_criteria_selected]
+        tmp_choiceset$choiceP = full_possible_choiceset$choiceP[ind_meet_criteria_selected]
+        tmp_choiceset$type_e0i1d2 = 0; # 0 = easy
+        tmp_choiceset$reject0accept1 = 0; # reject
+        tmp_choiceset$dynamicblocknum = numDynBlk; # number of the dynamic block
+        
+        new_choiceset = rbind(new_choiceset,tmp_choiceset)
+      } # end of bin FOR
       
-      newchoiceoption[1:3] = c(runif(1, min = possible_risky_value_range[1], max = possible_risky_value_range[2]),
-                            0,
-                            runif(1, min = possible_safe_value_range[1], max = possible_safe_value_range[2]));
-      
-      choiceP_temporary = choice_probability(temp_parameters,newchoiceoption);
-      newchoiceoption[4] = choiceP_temporary;
-      newchoiceoption[5] = 0; # 0 = easy
-      newchoiceoption[6] = 1; # accept
-      
-      if(choiceP_temporary > choiceP_range_easy_upper){
-        number_easy = number_easy + 1;
-        newchoices_easy[number_easy,] = as.numeric(newchoiceoption);
-        choiceP_easy[number_easy] = choiceP_temporary;
-      }
-    }
-    print(sprintf('Easy iterations: %i',number_iterations))
+      ##### Easy UPPER (i.e. accept) ----
+      for (binN in 1:nbins_easy_upper){
+        tmp_lower_bin_edge = bin_edges_easy_upper[binN]
+        tmp_upper_bin_edge = bin_edges_easy_upper[binN + 1]
+        
+        ind_meet_criteria = which((full_possible_choiceset$choiceP > tmp_lower_bin_edge) & 
+                                    (full_possible_choiceset$choiceP <= tmp_upper_bin_edge))
+        ind_meet_criteria_selected = sample(ind_meet_criteria, 
+                                            size = num_easy_upper_perBin_perDynblk)
+        
+        tmp_choiceset = array(dim = c(num_easy_upper_perBin_perDynblk,
+                                      length(colnames_out)))
+        colnames(tmp_choiceset) <- colnames_out
+        tmp_choiceset = as.data.frame(tmp_choiceset); 
+        
+        tmp_choiceset$riskyoption1 = full_possible_choiceset$riskyoption1[ind_meet_criteria_selected]
+        tmp_choiceset$riskyoption2 = full_possible_choiceset$riskyoption2[ind_meet_criteria_selected]
+        tmp_choiceset$safeoption = full_possible_choiceset$safeoption[ind_meet_criteria_selected]
+        tmp_choiceset$choiceP = full_possible_choiceset$choiceP[ind_meet_criteria_selected]
+        tmp_choiceset$type_e0i1d2 = 0; # 0 = easy
+        tmp_choiceset$reject0accept1 = 1; # accept
+        tmp_choiceset$dynamicblocknum = numDynBlk; # number of the dynamic block
+        
+        new_choiceset = rbind(new_choiceset,tmp_choiceset)
+      } # end of bin FOR
+    } # end of Dynamic Block FOR
+    cat('; done.\n')
     
-    new_choiceset = rbind(newchoices_easy, newchoices_intermediate, newchoices_difficult) # bind the 3 choicesets together
+    ## Save out the new choice set ----
     colnames(new_choiceset) <- colnames_out
     new_choiceset = new_choiceset[sample(nrow(new_choiceset)),]; # Randomly sort the choiceset
     new_choiceset = as.data.frame(new_choiceset); # make it a dataframe for saving
     
-    fname = sprintf('bespoke_choiceset_rhoInd%03i_muInd%03i.csv', r, m); # Use of %03i creates a three-digit text string with leading 0's as needed for the relevant index; this standardizes file name length
+    fname = sprintf('qvf_bespoke_choiceset_rhoInd%03i_muInd%03i.csv', r, m); # Use of %03i creates a three-digit text string with leading 0's as needed for the relevant index; this standardizes file name length
     # Files are ~14 KB in size. 40,200 such files should be ~560MB (half a gig).
     
     write.csv(new_choiceset, file = fname, row.names = F);
-    
-  }
-  cat(sprintf('Done with rho #%i of %i.\n',r,n_rho_values))
-}
-toc()
+  } # End of mu FOR
+  
+  cat(sprintf('Finished \u03C1 %i/%i.\n',r, n_rho_values)) # only works with parallel implementation
+} # End of rho FOR
+stopCluster(my.cluster)
+x = toc()
+
+sec_elapsed = x$toc-x$tic # seconds
+
+cat(sprintf('\n\nTook %.1f hours. Whew!\n',sec_elapsed/60/60))
+
+# expected_hours = sec_elapsed/529*40200/60/60
+# 
+# cat(sprintf('\n\nExpected total time for 40,200 choice sets = %.1f hours. Plan accordingly!\n', expected_hours))
 
 # All finished!
-
 
 
 
