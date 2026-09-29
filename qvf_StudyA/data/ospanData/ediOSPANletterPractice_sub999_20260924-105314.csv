@@ -1,0 +1,3 @@
+,setSize,lettersShown,lettersRecall,correctCount,trial
+1,3,"['T', 'F', 'S']","['T', 'F', 'S']",3,0
+2,3,"['Y', 'R', 'F']","['Y', 'R', 'F']",3,1

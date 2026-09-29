@@ -1,0 +1,7 @@
+,imageName,imageNumber,symmetrical,symResponse,symResponseBinom,symResponseCorrect,solveSymRT,symYesNoRT,setSize,setNumber,trialPerSet,redSquarePos,redSquareNumber,squareRecall,squareCorrectCount,percentCorrectSym,totalSymErrorsInSet
+1,/Users/Display/Desktop/Github/qvf/qvf_StudyA/qvf_StudyA_tasks\symspan/symBitmaps\symm14.bmp,14,1.0,Yes,1,1,0.8533000284005539,0.6914287475046876,2,0,0,"[230.39999999999998, 230.4]","[3, 0]",,,,
+2,/Users/Display/Desktop/Github/qvf/qvf_StudyA/qvf_StudyA_tasks\symspan/symBitmaps\symm11.bmp,11,1.0,Yes,1,1,2.31181338704846,0.43460799879176193,2,0,1,"[-230.39999999999998, 230.4]","[3, 0]","['3', '0']",2,100.0,0.0
+3,/Users/Display/Desktop/Github/qvf/qvf_StudyA/qvf_StudyA_tasks\symspan/symBitmaps\symm31.bmp,31,0.0,No,0,1,0.9523887780342193,0.7545166485797381,2,1,0,"[230.39999999999998, 76.8]","[7, 13]",,,,
+4,/Users/Display/Desktop/Github/qvf/qvf_StudyA/qvf_StudyA_tasks\symspan/symBitmaps\symm10.bmp,10,1.0,Yes,1,1,2.032251871227345,0.5318032975956157,2,1,1,"[-76.8, -230.4]","[7, 13]","['7', '13']",2,100.0,0.0
+5,/Users/Display/Desktop/Github/qvf/qvf_StudyA/qvf_StudyA_tasks\symspan/symBitmaps\symm36.bmp,36,0.0,No,0,1,0.6211466814056621,0.506858969321911,2,2,0,"[-76.8, -230.4]","[13, 4]",,,,
+6,/Users/Display/Desktop/Github/qvf/qvf_StudyA/qvf_StudyA_tasks\symspan/symBitmaps\symm30.bmp,30,0.0,No,0,1,0.7185896734445123,0.722624268328218,2,2,1,"[-230.39999999999998, 76.8]","[13, 4]","['13', '4']",2,100.0,0.0
