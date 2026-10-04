@@ -12,11 +12,13 @@
 Overview:
     
     Study: Quitting vs. Facilitation (QVF) - Study B
+    
             Across our previous studies, CGT (Cognitive Gambling Task; Anna Rini), CGE (Cognitive Gambling and Eyetracking; J. Von R. Monteza), and 
         EDI (Effort, Decision-making, and Interoception; Sophie Forcier), we investigated how easy and difficult trials (choice difficulty) affected cognitive effort in
         risky decision-making (the primary research interest of the SH Lab). Specifically, we were interested in how previous trial difficulty affected cognitive effort on
         the current trials. Generally, across our previous studies, we found that 1) people were slower on more difficult current trials, 2) people were faster on the 
         current trial after a previously difficult trial, and 3) the effect of previous trial difficulty was amplified in the lower working memory capacity (WMC) group. 
+            
             An outstanding question is whether faster decision-making (decision times) after a difficult trial reflects disengagement (quitting) or engagement (adapting). 
         This (dis)engagement should be reflected in their choice quality operationalized as the predicted choice based on their risk attitude. If a person is disengaged after
         a difficult trial, then they should respond quickly on the current trial and their choice quality should be "bad/inaccurate." If a person is engaged after a 
@@ -24,6 +26,7 @@ Overview:
         Additionally, choice quality should be more consistent in the former and less consistent in the latter.
         
     Task: Bespoke Gambling Paradigm (BGP)
+    
             This monetary risky decision-making (gambling) task measures a person's risk attitude in Phase I (Static Choice Set) and then presents the person with a
         set of bespoke choice difficulty trials in Phase II (Dynamic Choice Set). The set of bespoke choice difficulty trials (e.g., easy) were previously generated to
         capture a wide range of risk attitudes from extremely risk-averse to extremely risk-averse. Choice preferences like risk attutudes affect the valuation of 
@@ -31,14 +34,17 @@ Overview:
         risk-seeking person and vice versa. Controlling for risk attitudes may more accurately capture the underlying cognitive (and affective) processes that affect decision-making.
     
     Version: Trinary Difficulty (Finely Sampled Discrete Ranges of the Spectrum of Choice Difficulty) | Model Predicted Intermediate Difficulty
+    
             This version of the BGP includes intermediate difficulty to investigate changes in choice quality. Changes in choice quality could not be investigated in
         in previous versions of the BGP which used binary choice difficulty: easy vs. difficult. Easy choices, regardless of context, were designed to be
         "completely" predictable. The probability of choosing one option over the other is extremely high (pGamble >= .85). The "best" option is always obvious. 
         Difficult choices, regardless of context, were designed to be "completely" unpredictable. The probability of choosing one option over the other is extremely low (pGamble ≈ .50).
         The "best" option is never obvious. In other words, although we could examine the effects of previous trial difficulty on cognitive effort on the current trial, 
         we could not examine the effects of previous trial difficulty on choice quality. With intermediate difficulty, choices are predictable, but sensitive to contexts.
+            
             In previous versions of the BGP, the sampling of ranges of choice difficulty were skewed. This primarily occurred for easy choices. Most of the sampling occurred
         towards the tail of risk acceptance or rejection. In this version, the ranges of choice difficulty were more finely sampled using specified sized bins.
+            
             In this version of the BGP, intermediate choice difficulty was operationalized using models to predict where choice quality (i.e., choice consistency) was
         likely to change across various choice proabilities. 
     
@@ -75,7 +81,7 @@ isReal = 0 # 1 = yes, a real run vs. 0 = no, a test run
 doET = 0 # 1 = yes, do eye-tracking vs. 0 = no, only do behavioral
 
 # set to visually count the trials
-countTrial = 1 # 1 = yes, count trials vs. 0 = no, don't count trials
+countTrial = 0 # 1 = yes, count trials vs. 0 = no, don't count trials
 
 # ---------------------------------------------------------------------------------------
 # PACKAGE & MODULE SETUP #
@@ -157,6 +163,7 @@ ocTime = 1 # outcome window
 itiStatic = [] # intertrial interval window (created below)
 itiDynamic = []
 breakTime = 60
+readTime = 5
 
 # ---------------------------------------------------------------------------------------
 # WINDOW SETUP #
@@ -239,13 +246,13 @@ if doET:
     pylink.openGraphicsEx(genv)
     et.doTrackerSetup()
     
-    #
-    ##
-    ### HEAD MOUNT INSTRUCTION SETUP ###
-    if doET == 0:
-        etInstruction = ''
-    elif doET == 1:
-        etInstruction = '~ Keep your head still on the eye-tracking head mount ~\n\n'
+#
+##
+### HEAD MOUNT INSTRUCTION SETUP ###
+if doET == 0:
+    etInstruction = ''
+elif doET == 1:
+    etInstruction = '~ Keep your head still on the eye-tracking head mount ~\n\n'
 
 # ---------------------------------------------------------------------------------------
 # STIMULI SETUP #
@@ -481,7 +488,7 @@ ocRiskyHide = visual.Rect(
 # save choice behavior data
 def save_choiceBehaviorData():
     dateTime = time.strftime("%Y%m%d-%H%M%S")
-    BGP_choiceBehaviorData_fileName = os.path.join(BGP_choiceBehavior_dataFolder, f"{studyName}{subID}_{taskName}_choiceBehaviorData_EndTask_{dateTime}.csv")
+    BGP_choiceBehaviorData_fileName = os.path.join(BGP_choiceBehavior_dataFolder, f"{studyName}{subID}_{taskName}_choiceBehaviorData_{dateTime}.csv")
     bgpDF.to_csv(BGP_choiceBehaviorData_fileName, header = True, index = False)
 
 # save eye-tracking data
@@ -782,15 +789,15 @@ timer = core.Clock()
 bgpStartTxt.draw()
 win.flip()
 
-bgpInstrStart = timer.getTime()
+taskOpenInstrStart = timer.getTime()
 response = event.waitKeys(keyList = ['return', 'escape'], timeStamped = timer)
 if response[0][0] == 'escape':
     endTask()
-bgpInstrEnd = response[0][1]
-bgpInstrDur = bgpInstrEnd - bgpInstrStart
+taskOpenInstrEnd = response[0][1]
+taskOpenInstrDur = taskOpenInstrEnd - taskOpenInstrStart
 
 bgpDF.loc[len(bgpDF), ["instrStart", "instrEnd", "instrTimeDur"]] = [
-                        bgpInstrStart, bgpInstrEnd, bgpInstrDur]
+                        taskOpenInstrStart, taskOpenInstrEnd, taskOpenInstrDur]
 
 # ---------------------------------------------------------------------------------------
 # PRACTICE CHOICE SET #
@@ -1131,23 +1138,6 @@ dynamicBlock02 = (dynamicDF[dynamicDF["dynamicblocknum"] == 2].sample(frac=1).re
 itiDynamic = [3, 3.5] * (dynamicSet // 2) # jittered between 3 and 3.5 seconds for all trials
 shuffle(itiDynamic)
 
-## Number of actual dynamic trials
-#nDynamicTrials = len(dynamicBlock01) + len(dynamicBlock02)
-#
-## Create one ITI for every actual dynamic trial
-#itiDynamic = [3, 3.5] * (nDynamicTrials // 2)
-#
-## If there is an odd number of trials, add one more ITI
-#if len(itiDynamic) < nDynamicTrials:
-#    itiDynamic.append(3)
-#
-#shuffle(itiDynamic)
-#
-#print("Dynamic block 1:", len(dynamicBlock01))
-#print("Dynamic block 2:", len(dynamicBlock02))
-#print("Total dynamic trials:", nDynamicTrials)
-#print("ITI list length:", len(itiDynamic))
-
 #
 ##
 ### DYNAMIC CHOICE SET: BLOCK 01 ###
@@ -1364,14 +1354,29 @@ for d in range(len(dynamicBlock02)):
 #        win.flip()
 #        response = event.waitKeys(keyList = ['v', 'n'], timeStamped = timer)
 #        pracInstructionsEnd = response[0][1]
+#    # Saving Data
+#    bgpDF.loc[len(bgpDF), ["trialNumber", "gainValue", "lossValue", "safeValue", "choiceKey", "choiceMade", "outcomeValue",
+#                           "checkTrial",
+#                           "choiceLocation", "riskSplitLocation", "gainLocation", "lossLocation", "safeLocation", "hideGainLocation", "hideLossLocation",
+#                           "choiceStart", "choiceEnd", "choiceTimeDur",
+#                           "isiStart", "isiEnd", "isiTimeDur", "isiTimeSet",
+#                           "outcomeStart", "outcomeEnd", "ocTimeDur", "outcomeTimeSet", 
+#                           "itiStart", "itiEnd", "itiTimeDur", "itiTimeSet"]] = [
+#                            trial, gainRounded, lossRounded, safeRounded, choiceKey, choiceMade, outcomeValue,
+#                            checkTrial,
+#                            loc, riskSplitLoc, gainTxtLoc, lossTxtLoc, safeTxtLoc, hideGainLoc, hideLossLoc,
+#                            choiceStart, choiceEnd, choiceDur,
+#                            isiStart, isiEnd, isiDur, isiTime,
+#                            outcomeStart, outcomeEnd, outcomeDur, ocTime,
+#                            itiStart, itiEnd, itiDur, itiTime]
 
 #########################################################################################
 ##### TIME TO END THINGS! ###############################################################
 #########################################################################################
 
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 # CLOSING INSTRUCTIONS #
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 
 taskEndTxt.draw()
 win.flip()
@@ -1381,10 +1386,10 @@ response = event.waitKeys(keyList = ['space', 'escape'], timeStamped = timer)
 if response[0][0] == 'escape':
     endTask()
 taskCloseInstrEnd = response[0][1]
-taskClosekDur = taskCloseInstrEnd - taskCloseInstrStart
+taskCloseInstrDur = taskCloseInstrEnd - taskCloseInstrStart
 
 bgpDF.loc[len(bgpDF), ["instrStart", "instrEnd", "instrTimeDur"]] = [
-                        taskCloseInstrStart, taskCloseInstrEnd, endTaskDur]
+                        taskCloseInstrStart, taskCloseInstrEnd, taskCloseInstrDur]
 
 # ---------------------------------------------------------------------------------------
 # SAVE DATA #
