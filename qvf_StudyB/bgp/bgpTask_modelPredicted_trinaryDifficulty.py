@@ -51,13 +51,35 @@ Author: J. Von R. Monteza (Created: 2026.09.22 | Updated: 2026.10.03)
 
 """
 
-######################################################################################
-##### TIME TO SET THINGS UP! #########################################################
-######################################################################################
+#########################################################################################
+##### TIME TO SET THINGS UP! ############################################################
+#########################################################################################
 
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
+# PARTICIPANT SESSION SETUP #
+# ---------------------------------------------------------------------------------------
+
+# name of the study
+studyName = 'qvfB'
+
+# set the participant ID
+subID = 'XXX'
+
+# name of the task
+taskName = 'BGP'
+
+# set if it is a real or test run
+isReal = 0 # 1 = yes, a real run vs. 0 = no, a test run
+
+# set to collect eye-tracking data
+doET = 0 # 1 = yes, do eye-tracking vs. 0 = no, only do behavioral
+
+# set to visually count the trials
+countTrial = 1 # 1 = yes, count trials vs. 0 = no, don't count trials
+
+# ---------------------------------------------------------------------------------------
 # PACKAGE & MODULE SETUP #
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 
 # directory and filing
 import os
@@ -75,30 +97,9 @@ import pandas as pd
 import numpy as np 
 import math
 
-# ------------------------------------------------------------------------------------
-# PARTICIPANT SESSION SETUP #
-# ------------------------------------------------------------------------------------
-
-# name of the study
-studyName = 'qvfB'
-
-# set the participant ID
-subID = 'XXX'
-
-# name of the task
-taskName = 'BGP'
-
-# set if it is a real or test run
-isReal = 0 # 1 = yes, a real run vs. 0 = no, a test run
-
-# set to collect eye-tracking data
-doET = 0 # 1 = yes, do eye-tracking vs. 0 = no, only do behavioral
-
-countTrial = 1 # 1 = yes, count trials vs. 0 = no, don't count trials
-
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 # DIRECTORY SETUP #
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 
 # create the various directories
 BGP_taskFolder = os.path.abspath(os.path.dirname(os.path.abspath(__file__))) # BGP Task Folder - to run the BGP (current directory)
@@ -115,9 +116,9 @@ print (BGP_eyeTracking_dataFolder)
 # set the current directory to the BGP folder to run the BGP
 os.chdir(BGP_taskFolder)
 
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 # GENERAL OBJECT FORMATTING SETUP #
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 
 # luminance equated colors
 colr01 = [0.5216,0.5216,0.5216] # gray color for background, choice option text, and risky option line
@@ -157,9 +158,9 @@ itiStatic = [] # intertrial interval window (created below)
 itiDynamic = []
 breakTime = 60
 
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 # WINDOW SETUP #
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 
 win = visual.Window(
     size = [1280, 1024], 
@@ -169,9 +170,9 @@ win = visual.Window(
     color = colr01
 ) 
 
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 # EYE-TRACKING DATA COLLECTION SETUP #
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 
 if doET:
     
@@ -246,9 +247,9 @@ if doET:
     elif doET == 1:
         etInstruction = '~ Keep your head still on the eye-tracking head mount ~\n\n'
 
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 # STIMULI SETUP #
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 
 # ~ Instructions ~
 
@@ -308,6 +309,37 @@ fittingStartTxt = visual.TextStim(
 dynaStartTxt = visual.TextStim(
     win,
     text = '',
+    font = font01,
+    height = instrTxtHgt,
+    wrapWidth = txtWrap,
+    pos = center,
+    color = colr02
+)
+
+# dynamic choice set: break start instructions
+breakStartTxt = visual.TextStim(
+    win,
+    text = ('FIRST HALF OF ROUND 2 COMPLETE!\n'
+            'STARTING YOUR BREAK\n\n'
+            f'{etInstruction}'
+            'You have completed the first half of the second real round\n\n'
+            'You may now take a break for one minute. Further instructions will be provided after the break.'),
+    font = font01,
+    height = instrTxtHgt,
+    wrapWidth = txtWrap,
+    pos = center,
+    color = colr02
+)
+
+# dynamic choice set: break end instructions
+breakEndTxt = visual.TextStim(
+    win,
+    text = ('STARTING THE SECOND HALF OF ROUND 2\n\n'
+            f'{etInstruction}'
+            'We are now moving on to the second half of ROUND 2\n\n'
+            'Keep in mind that responding quickly in this task will NOT speed up the task. '
+            'Please take enough time to view and consider each choice option before you make a choice within the four (4) second decision window.\n\n'
+            'Press "V" or "N" to continue ROUND 2'),
     font = font01,
     height = instrTxtHgt,
     wrapWidth = txtWrap,
@@ -438,9 +470,9 @@ ocRiskyHide = visual.Rect(
     lineColor = colr01,
 )
 
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 # FUNCTION SETUP #
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 
 #
 ##
@@ -715,13 +747,13 @@ def iti_Window(itiTime): # each of the choice set's iti's are done differently -
     wait_OR_escape(itiTime)
     itiEnd = timer.getTime()
 
-######################################################################################
-##### TIME TO START THE TASK! ########################################################
-######################################################################################
+#########################################################################################
+##### TIME TO START THE TASK! ###########################################################
+#########################################################################################
 
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 # BGP DATA FRAME SETUP #
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 
 bgpDF = pd.DataFrame(
     columns = [
@@ -737,15 +769,15 @@ bgpDF = pd.DataFrame(
     ]
 )
 
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 # TIMER SETUP #
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 
 timer = core.Clock()
 
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 # GENERAL INSTRUCTIONS START #
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 
 bgpStartTxt.draw()
 win.flip()
@@ -760,9 +792,9 @@ bgpInstrDur = bgpInstrEnd - bgpInstrStart
 bgpDF.loc[len(bgpDF), ["instrStart", "instrEnd", "instrTimeDur"]] = [
                         bgpInstrStart, bgpInstrEnd, bgpInstrDur]
 
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 # PRACTICE CHOICE SET #
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 
 # load task stimuli file 
 practiceDF = pd.read_excel("BGP_practiceTrials.xlsx") # sequentially presented
@@ -851,17 +883,6 @@ for p in range(practiceSet):
     itiDur = itiEnd - itiStart
     
     # Saving Data
-    empty_data_appending()
-    bgpData[data_appending_index()][0] = trial 
-    bgpData[data_appending_index()][2:5] = [gainRounded, lossRounded, safeRounded] 
-    bgpData[data_appending_index()][7:17] = [choiceMade, choiceKey, outcomeValue, 
-                                          loc, riskSplitLoc, gainTxtLoc, lossTxtLoc, safeTxtLoc, hideGainLoc, hideLossLoc]
-    bgpData[data_appending_index()][19:27] = [choiceStart, choiceEnd, 
-                                           isiStart, isiEnd, 
-                                           outcomeStart, outcomeEnd,
-                                           itiStart, itiEnd]
-    
-    # Saving Data
     bgpDF.loc[len(bgpDF), ["trialNumber", "gainValue", "lossValue", "safeValue", "choiceKey", "choiceMade", "outcomeValue",
                            "choiceLocation", "riskSplitLocation", "gainLocation", "lossLocation", "safeLocation", "hideGainLocation", "hideLossLocation",
                            "choiceStart", "choiceEnd", "choiceTimeDur",
@@ -876,9 +897,9 @@ for p in range(practiceSet):
                             itiStart, itiEnd, itiDur, itiTime]
 
 
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 # STATIC CHOICE SET #
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 
 # load task stimuli file 
 staticDF = pd.read_csv("BGP_staticTrials.csv") # create before I officially joined the lab - I never noticed before - I wonder why the practice is an excel while the static is a csv
@@ -966,17 +987,6 @@ for s in range(staticSet):
     checkTrial = staticRandTrial.ischecktrial[s]
     
     # Saving Data
-    empty_data_appending()
-    bgpData[data_appending_index()][0:2] = [trial, checkTrial] 
-    bgpData[data_appending_index()][2:5] = [gainRounded, lossRounded, safeRounded] 
-    bgpData[data_appending_index()][7:17] = [choiceMade, choiceKey, outcomeValue, 
-                                          loc, riskSplitLoc, gainTxtLoc, lossTxtLoc, safeTxtLoc, hideGainLoc, hideLossLoc]
-    bgpData[data_appending_index()][19:27] = [choiceStart, choiceEnd, 
-                                           isiStart, isiEnd, 
-                                           outcomeStart, outcomeEnd,
-                                           itiStart, itiEnd]
-    
-    # Saving Data
     bgpDF.loc[len(bgpDF), ["trialNumber", "gainValue", "lossValue", "safeValue", "choiceKey", "choiceMade", "outcomeValue",
                            "checkTrial",
                            "choiceLocation", "riskSplitLocation", "gainLocation", "lossLocation", "safeLocation", "hideGainLocation", "hideLossLocation",
@@ -999,9 +1009,9 @@ for s in range(staticSet):
     choices.append(choiceMade)
     
 
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 # GRID SEARCH - APPROXIMIZATION OPTIMIZATION PROCEDURE #
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 
 # Prepare choice set values to remove any nans
 finiteGainVals = []
@@ -1066,8 +1076,6 @@ wait_OR_escape(decisionTime) # added this waiting time - original would end grid
 if 'escape' in event.getKeys(keyList=['escape']):
             endTask()
 fitInstrEnd = timer.getTime()
-empty_data_appending()
-bgpData[data_appending_index()][17:19] = [fitInstrStart, fitInstrEnd]
 
 # Saving Prospect Theory Model Fitting Values and Time Values
 fitInstrDur = fitInstrEnd - fitInstrStart
@@ -1076,9 +1084,9 @@ bgpDF.loc[len(bgpDF), ["bestRho", "bestMu", "bestNLL",
                         bestR, bestM, best_nll_value,
                         fitInstrStart, fitInstrEnd, fitInstrDur]
 
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 # DYNAMIC CHOICE SET #
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 
 # load task stimuli file 
 dynamicDF = pd.read_csv(dynamicChoiceSetFilename) # create before I officially joined the lab - I never noticed before - I wonder why the practice is an excel while the static is a csv
@@ -1140,35 +1148,6 @@ shuffle(itiDynamic)
 #print("Total dynamic trials:", nDynamicTrials)
 #print("ITI list length:", len(itiDynamic))
 
-breakStartTxt = visual.TextStim(
-    win,
-    text = ('FIRST HALF OF ROUND 2 COMPLETE!\n'
-            'STARTING YOUR BREAK\n\n'
-            f'{etInstruction}'
-            'You have completed the first half of the second real round\n\n'
-            'You may now take a break for one minute. Further instructions will be provided after the break.'),
-    font = font01,
-    height = instrTxtHgt,
-    wrapWidth = txtWrap,
-    pos = center,
-    color = colr02
-)
-
-breakEndTxt = visual.TextStim(
-    win,
-    text = ('STARTING THE SECOND HALF OF ROUND 2\n\n'
-            f'{etInstruction}'
-            'We are now moving on to the second half of ROUND 2\n\n'
-            'Keep in mind that responding quickly in this task will NOT speed up the task. '
-            'Please take enough time to view and consider each choice option before you make a choice within the four (4) second decision window.\n\n'
-            'Press "V" or "N" to continue ROUND 2'),
-    font = font01,
-    height = instrTxtHgt,
-    wrapWidth = txtWrap,
-    pos = center,
-    color = colr02
-)
-
 #
 ##
 ### DYNAMIC CHOICE SET: BLOCK 01 ###
@@ -1212,18 +1191,6 @@ for d in range(len(dynamicBlock01)):
     difficulty = dynamicBlock01.type_e0i1d2[d]
     predicted = dynamicBlock01.reject0accept1[d]
     block = dynamicBlock01.dynamicblocknum[d]
-    
-    # Saving Data
-    empty_data_appending()
-    bgpData[data_appending_index()][0] = trial 
-    bgpData[data_appending_index()][2:5] = [gainRounded, lossRounded, safeRounded] 
-    bgpData[data_appending_index()][5:7] = [choiceP, difficulty]
-    bgpData[data_appending_index()][7:17] = [choiceMade, choiceKey, outcomeValue, 
-                                          loc, riskSplitLoc, gainTxtLoc, lossTxtLoc, safeTxtLoc, hideGainLoc, hideLossLoc]
-    bgpData[data_appending_index()][19:27] = [choiceStart, choiceEnd, 
-                                           isiStart, isiEnd, 
-                                           outcomeStart, outcomeEnd,
-                                           itiStart, itiEnd]
     
     # Saving Data
     bgpDF.loc[len(bgpDF), ["trialNumber", "gainValue", "lossValue", "safeValue", "choiceKey", "choiceMade", "outcomeValue",
@@ -1301,18 +1268,6 @@ for d in range(len(dynamicBlock02)):
     difficulty = dynamicBlock01.type_e0i1d2[d]
     predicted = dynamicBlock01.reject0accept1[d]
     block = dynamicBlock01.dynamicblocknum[d]
-    
-    # Saving Data
-    empty_data_appending()
-    bgpData[data_appending_index()][0] = trial 
-    bgpData[data_appending_index()][2:5] = [gainRounded, lossRounded, safeRounded] 
-    bgpData[data_appending_index()][5:7] = [choiceP, difficulty]
-    bgpData[data_appending_index()][7:17] = [choiceMade, choiceKey, outcomeValue, 
-                                          loc, riskSplitLoc, gainTxtLoc, lossTxtLoc, safeTxtLoc, hideGainLoc, hideLossLoc]
-    bgpData[data_appending_index()][19:27] = [choiceStart, choiceEnd, 
-                                           isiStart, isiEnd, 
-                                           outcomeStart, outcomeEnd,
-                                           itiStart, itiEnd]
 
     # Saving Data
     bgpDF.loc[len(bgpDF), ["trialNumber", "gainValue", "lossValue", "safeValue", "choiceKey", "choiceMade", "outcomeValue",
@@ -1330,60 +1285,6 @@ for d in range(len(dynamicBlock02)):
                             outcomeStart, outcomeEnd, outcomeDur, ocTime,
                             itiStart, itiEnd, itiDur, itiTime]
 
-
-
-
-
-## evenly split task stimuli file (let's make it a function?)
-#def equal_split_by_difficulty(fileDF, trialCount, choiceType = "type_e0i1d2", optionType = "reject0accept"):
-#    
-#    # equally split the choice types: easy (0), intermediate (1), difficult (2)
-#    easy = fileDF[fileDF[choiceType] == 0]
-#    intermediate = fileDF[fileDF[choiceType] == 1]
-#    difficult = fileDF[fileDF[choiceType] == 2]
-#    
-#    equalSplit = trialCount // 3 # dividing by 3
-#    
-#    equalEasy = equalSplit
-#    equalIntermediate = equalSplit
-#    equalDifficult = equalSplit
-#    
-#    # equally split the choice type BY option type: reject (0: easy and intermediate), accept (1:easy and intermediate), 2s (difficult)
-#    easyReject = easy[easy[optionType] == 0]
-#    easyAccept = easy[easy[optionType] == 1]
-#    
-#    easyTrials = pd.concat([
-#        easyReject.sample(n = equalSplit // 2),
-#        easyAccept.sample(n = equalSplit // 2)
-#        ])
-#    
-#    intermediateReject = intermediate[intermediate[optionType] == 0]
-#    intermediateAccept = intermediate[intermediate[optionType] == 1]
-#    
-#    intermediateTrials = pd.concat([
-#        intermediateReject.sample(n = equalSplit // 2),
-#        intermediateAccept.sample(n = equalSplit // 2)
-#        ])
-#    
-#    #difficultUnknown = difficult[difficult[optionType] == 2]
-#    difficultTrials = difficult.sample(n = equalSplit)
-#    
-#    # put it all into a new data frame
-#    return pd.concat([
-#        easyTrials,
-#        intermediateTrials,
-#        difficultTrials
-#        ]).sample(frac = 1).reset_index(drop = True)
-#
-## randomize trials 
-##dynamicRandTrial = dynamicDF.sample(frac = 1).reset_index(drop = True) # use pandas to take all the rows and randomize them
-#dynamicRandTrial = equal_split_by_difficulty(
-#    dynamicDF,
-#    dynamicSet,
-#    choiceType = "type_e0i1d2",
-#    optionType = "reject0accept1"
-#    )
-#
 ## break logic (a break in halfway through the trials)
 #if dynamicSet % 2 == 0:
 #    breakTime = dynamicSet // 2
@@ -1393,121 +1294,14 @@ for d in range(len(dynamicBlock02)):
 #        dynamicSet // 2+1
 #    ])
 #
-#breakTxt = visual.TextStim(
-#    win,
-#    text = 'Do not move your head from the mount.\n\n You may take a break for one minute.',
-#    font = a,
-#    height = instructionsH,
-#    pos = center,
-#    color = c2
-#)
-#
-#breakDoneTxt = visual.TextStim(
-#    win,
-#    text = 'Do not move your head from the mount.\n\n You may take a break for one minute.\n\n Press "V" or "N" to move forward.',
-#    font = a,
-#    height = instructionsH,
-#    pos = center,
-#    color = c2
-#)
-#
-## dynamic choice set task
-#for d in range(dynamicSet):
-#            
-#    # Give the participant a break halfway through
-#    if d == breakTime:
-#        breakTimer = core.Clock()
-#        onBreak = True
-#        # during the minute break
-#        while onBreak and breakTimer.getTime() < 60:
-#            breakTxt.draw()
-#            win.flip()
-#            core.wait(0.01)
-#        # after the minute break
-#        breakDoneTxt.draw()
-#        win.flip()
-#        response = event.waitKeys(keyList = ['v', 'n'], timeStamped = timer)
-#        pracInstructionsEnd = response[0][1]
-#        empty_data_appending()
-#        bgpData[data_appending_index()][17:19] = [pracInstructionsStart, pracInstructionsEnd]
-#            
-#    # Need to call in the practice file for the gain, loss, and safe text 
-#    gain = dynamicRandTrial.riskyoption1[d]
-#    loss = dynamicRandTrial.riskyoption2[d]
-#    safe = dynamicRandTrial.safeoption[d]
-#
-#    # Adjusting Trial Start - Python starts at 0: This makes trials start at 1
-#    trial = d + 1 
-#
-#    # Dynamic Choice Set Specific Data
-#    choiceP = dynamicRandTrial.choiceP[d]
-#    difficulty = dynamicRandTrial.type_e0i1d2[d]
-#
-#    # Round Choice Option Monetary Values to be Shown
-#    choice_value_rounding()
-#
-#    # Randomize Choice Option Locations
-#    choice_location_randomizing()
-#
-#    # Start of Trial
-#    decision_window_starting()
-#
-#    # End Task if Wanted/Needed
-#    endTask()
-#
-#    # Choice Made
-#    decision_making()
-#    
-#    # ISI
-#    isi_waiting()
-#    
-#    # Choice Outcome
-#    outcome_showing()
-#    
-#    # ITI
-#    iti_waiting()
-#    
-#    itiStart = timer.getTime()
-#    core.wait(itiDynamic[d])
-#    itiEnd = timer.getTime()
-#    
-#    # Saving Data
-#    empty_data_appending()
-#    bgpData[data_appending_index()][0] = trial 
-#    bgpData[data_appending_index()][2:5] = [gainRounded, lossRounded, safeRounded] 
-#    bgpData[data_appending_index()][5:7] = [choiceP, difficulty]
-#    bgpData[data_appending_index()][7:17] = [choiceMade, choiceKey, outcomeValue, 
-#                                          loc, riskSplitLoc, gainTxtLoc, lossTxtLoc, safeTxtLoc, hideGainLoc, hideLossLoc]
-#    bgpData[data_appending_index()][19:27] = [choiceStart, choiceEnd, 
-#                                           isiStart, isiEnd, 
-#                                           outcomeStart, outcomeEnd,
-#                                           itiStart, itiEnd]
-
 
 ## separate the dynamic choice set into blocks
 #dynamicBlock01 = dynamicDF[dynamicDF["dynamicblocknum"] == 1].sample(frac=1).reset_index(drop=True)
 #dynamicBlock02 = dynamicDF[dynamicDF["dynamicblocknum"] == 2].sample(frac=1).reset_index(drop=True)
 #dynamicBlocks = [dynamicBlock01, dynamicBlock02]
 #
-## create dynamic choice set break text in between the blocks
-#breakTxt = visual.TextStim(
-#    win,
-#    text='Do not move your head from the mount.\n\n You may take a break for one minute.',
-#    font=a,
-#    height=instructionsH,
-#    pos=center,
-#    color=c2
-#)
-#
-#breakDoneTxt = visual.TextStim(
-#    win,
-#    text='Do not move your head from the mount.\n\n You may take a break for one minute.\n\n Press "V" or "N" to move forward.',
-#    font=a,
-#    height=instructionsH,
-#    pos=center,
-#    color=c2
-#)
-#
+
+
 ## dynamic choice set task
 #trial = 0 # start the trials at 0 
 #
@@ -1555,17 +1349,6 @@ for d in range(len(dynamicBlock02)):
 #        core.wait(itiDynamic[trial - 1])
 #        itiEnd = timer.getTime()
 #
-#        # Saving Data
-#        empty_data_appending()
-#        bgpData[data_appending_index()][0] = trial
-#        bgpData[data_appending_index()][2:5] = [gainRounded, lossRounded, safeRounded]
-#        bgpData[data_appending_index()][5:7] = [choiceP, difficulty]
-#        bgpData[data_appending_index()][7:17] = [choiceMade, choiceKey, outcomeValue,
-#                                                 loc, riskSplitLoc, gainTxtLoc, lossTxtLoc, safeTxtLoc, hideGainLoc, hideLossLoc]
-#        bgpData[data_appending_index()][19:27] = [choiceStart, choiceEnd,
-#                                                  isiStart, isiEnd,
-#                                                  outcomeStart, outcomeEnd,
-#                                                  itiStart, itiEnd]
 #
 #    # Give the participant a break between the blocks
 #    if blockIndex == 0:
@@ -1581,12 +1364,10 @@ for d in range(len(dynamicBlock02)):
 #        win.flip()
 #        response = event.waitKeys(keyList = ['v', 'n'], timeStamped = timer)
 #        pracInstructionsEnd = response[0][1]
-#        empty_data_appending()
-#        bgpData[data_appending_index()][17:19] = [pracInstructionsStart, pracInstructionsEnd]
 
-######################################################################################
-##### TIME TO END THINGS! ############################################################
-######################################################################################
+#########################################################################################
+##### TIME TO END THINGS! ###############################################################
+#########################################################################################
 
 # ------------------------------------------------------------------------------------
 # CLOSING INSTRUCTIONS #
@@ -1605,9 +1386,9 @@ taskClosekDur = taskCloseInstrEnd - taskCloseInstrStart
 bgpDF.loc[len(bgpDF), ["instrStart", "instrEnd", "instrTimeDur"]] = [
                         taskCloseInstrStart, taskCloseInstrEnd, endTaskDur]
 
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 # SAVE DATA #
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------
 
 # save eye-tracking data
 save_eyeTrackingData()
