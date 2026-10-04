@@ -240,7 +240,7 @@ if doET:
     
     #
     ##
-    ### CALIBRATION AND VALIDATION SETUP ###
+    ### HEAD MOUNT INSTRUCTION SETUP ###
     if doET == 0:
         etInstruction = ''
     elif doET == 1:
@@ -809,7 +809,9 @@ pracInstrDur = pracInstrEnd - pracInstrStart
 bgpDF.loc[len(bgpDF), ["instrStart", "instrEnd", "instrTimeDur"]] = [
                         pracInstrStart, pracInstrEnd, pracInstrDur]
 
-# practice choice set task
+#
+##
+### PRACTICE CHOICE SET ###
 for p in range(practiceSet):
 
     # Trial (Python starts at 0: This makes trials start at 1)
@@ -922,7 +924,9 @@ riskyloss_values = [] # for loss (riskyoption2)
 certain_values = [] # for safe (safeoption)
 choices = [] # for choiceMade
 
-# static choice set task
+#
+##
+### STATIC CHOICE SET ###
 for s in range(staticSet):
 
     # Trial (Python starts at 0: This makes trials start at 1)
@@ -1165,7 +1169,9 @@ breakEndTxt = visual.TextStim(
     color = colr02
 )
 
-# dynamic choice set task: block 1
+#
+##
+### DYNAMIC CHOICE SET: BLOCK 01 ###
 for d in range(len(dynamicBlock01)):
     
     # Trial (Python starts at 0: This makes trials start at 1)
@@ -1252,7 +1258,9 @@ breakInstrDur = breakInstrEnd - breakInstrStart
 bgpDF.loc[len(bgpDF), ["instrStart", "instrEnd", "instrTimeDur"]] = [
                         breakInstrStart, breakInstrEnd, breakInstrDur]
 
-# dynamic choice set task: block 2
+#
+##
+### DYNAMIC CHOICE SET: BLOCK 02 ###
 for d in range(len(dynamicBlock02)):
     
     # Trial (Python starts at 0: This makes trials start at 1 and then continue from from dynamicBlock01)
