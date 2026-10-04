@@ -1,16 +1,38 @@
 
 # ------------------------------------------------------------------------------------
-# QUITTING VS. FACILIATION (QVF) STUDY B: BESPOKE GAMBLING PARADIGM (BGP) - DISCRETE RANGES FULL CONTINUUM (MODEL PREDICTED TRINARY DIFFICULTY)
+# STUDY NAME: QUITTING VS. FACILIATION (QVF) - STUDY B
+# ------------------------------------------------------------------------------------
+# TASK NAME: BESPOKE GAMBLING PARADIGM (BGP) 
+# ------------------------------------------------------------------------------------
+# TASK VERSION: TRINARY DIFFICULTY (FINELY SAMPLED DISCRETE RANGES OF THE FULL CONTINUUM ) | MODEL PREDICTED INTERMEDIATE DIFFICULTY
 # ------------------------------------------------------------------------------------
 
 """
 
-Bespoke Gambling Paradigm (BGP) - Discrete Ranges Full Continuum (Model Predicted Trinary Difficulty)
-
-Author: J. Von R. Monteza (2026.09.22)
-
 Overview:
     
+    Study: Quitting vs. Facilitation (QVF) - Study B
+            Across our previous studies, CGT (Cognitive Gambling Task; Anna Rini), CGE (Cognitive Gambling and Eyetracking; J. Von R. Monteza), and 
+        EDI (Effort, Decision-making, and Interoception; Sophie Forcier), we investigated how easy and difficult trials (choice difficulty) affected cognitive effort in
+        risky decision-making (the primary research interest of the SH Lab). Specifically, we were interested in how previous trial difficulty affected cognitive effort on
+        the current trials. This line of research was built upon Hayley Brook's research examining temporal context effects (immediate, neighborhood, and global contexts) in
+        risky decision-making. Generally, Hayley found that 1) people were more risk-averse after large gains, 2) people were less risk-averse after generally winning several
+        large gains, and 3) people were less risk-averse if they were generally doing well. Hayley's research, however, was primarily focused on the choices made and the
+        effects of previous outcomes. This line of research investigates the temporal contexts effects of cognitive effort in risky decision-making. This research is
+        significant because the domain of decision-making research has primarily focused on the outcomes (the choices made) of the decision-making process and less on the
+        underlying cognitive (and affective) processes that affect choices (the how and why, not just the what). To address these limits, our research was informed by 
+        the domain of cognitive control, which has extensively investigated the temporal contexts of cognitive effort (Gratton Effect/Conflict Adaptation/Congruency Sequence Effect).
+            Generally, across our previous studies, we found that 1) people were slower on more difficult current trials, 2) people were faster on the current trial after a 
+        previously difficult trial, and 3) the effect of previous trial difficulty was amplified in the lower working memory capacity (WMC) group. Although our first and
+        third results generally supported our hypotheses, the second result appeared to contradict typical results found in cognitive control. In cognitive control, after an
+        incongruent trial, participants are typically faster on a current incongruent trial. The heightened state of cognitive effort on the previous trial is argued to
+        carry over on to the current trial and allow participants make faster, and sometimes more accurate, choices. Arguably, this conflict adaptation effect could have 
+        occurred acrross our previous studies. However, the effect of previous difficulty did not differentially affect easy or difficult current trials. The effect was
+        also amplified in the lower WMC group indicating that participants were giving up. Additionally, unlike in cognitive control paradigms, risky decision-making paradigms do
+        not have an objective performance measure. Participants are not instructed with a specific goal. They are instructed to make choices based on what they value. 
+        In other words, if conflict adaptation was occurring, then we should also generally see consistent or improved choice quality as well as faster decision-making. 
+            The goal of this study is to examine whether people quit or adapt after a difficult tral. 
+        
     This BGP design addresses the limitations of previous BGP iterations in CGT (Anna Rini), CGE (Von Monteza), and EDI (Sophie Forcier). 
     In previous iterations of the BGP, choice difficulty was binary: easy vs. difficult. This allowed us to clearly compare the effects of 
     easy and difficult choices on cognitive effort within and across trials. HOWEVER, this design limited our ability to examine whether or
@@ -33,6 +55,8 @@ Overview:
     may reflect more cognitive effort. The types of choices must also be considered: "bad"/inaccurate or "good"/accurate. In "bad"/inaccurate choices,
     faster decision times most likely reflect less cognitive effort. In "good"/accurate choices, faster decision times may reflect less cognitive effort due to
     learning over time (getting better at the task), or it may reflect an intense but short duration of cognitive effort to determine the "better"/accurate choice.
+
+Author: J. Von R. Monteza (Created: 2026.09.22 | Updated: 2026.10.03)
 
 """
 
