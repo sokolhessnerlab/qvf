@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------------
 # TASK NAME: BESPOKE GAMBLING PARADIGM (BGP) 
 # ------------------------------------------------------------------------------------
-# TASK VERSION: TRINARY DIFFICULTY (FINELY SAMPLED DISCRETE RANGES OF THE FULL CONTINUUM ) | MODEL PREDICTED INTERMEDIATE DIFFICULTY
+# TASK VERSION: TRINARY DIFFICULTY (FINELY SAMPLED DISCRETE RANGES OF THE SPECTRUM OF CHOICE DIFFICULTY) | MODEL PREDICTED INTERMEDIATE DIFFICULTY
 # ------------------------------------------------------------------------------------
 
 """
@@ -15,41 +15,32 @@ Overview:
             Across our previous studies, CGT (Cognitive Gambling Task; Anna Rini), CGE (Cognitive Gambling and Eyetracking; J. Von R. Monteza), and 
         EDI (Effort, Decision-making, and Interoception; Sophie Forcier), we investigated how easy and difficult trials (choice difficulty) affected cognitive effort in
         risky decision-making (the primary research interest of the SH Lab). Specifically, we were interested in how previous trial difficulty affected cognitive effort on
-        the current trials. This line of research was built upon Hayley Brook's research examining temporal context effects (immediate, neighborhood, and global contexts) in
-        risky decision-making. Generally, Hayley found that 1) people were more risk-averse after large gains, 2) people were less risk-averse after generally winning several
-        large gains, and 3) people were less risk-averse if they were generally doing well. Hayley's research, however, was primarily focused on the choices made and the
-        effects of previous outcomes. This line of research investigates the temporal contexts effects of cognitive effort in risky decision-making. This research is
-        significant because the domain of decision-making research has primarily focused on the outcomes (the choices made) of the decision-making process and less on the
-        underlying cognitive (and affective) processes that affect choices (the how and why, not just the what). To address these limits, our research was informed by 
-        the domain of cognitive control, which has extensively investigated the temporal contexts of cognitive effort (Gratton Effect/Conflict Adaptation/Congruency Sequence Effect).
-            Generally, across our previous studies, we found that 1) people were slower on more difficult current trials, 2) people were faster on the current trial after a 
-        previously difficult trial, and 3) the effect of previous trial difficulty was amplified in the lower working memory capacity (WMC) group. Although our first and
-        third results generally supported our hypotheses, the second result appeared to contradict typical results found in cognitive control. In cognitive control, after an
-        incongruent trial, participants are typically faster on a current incongruent trial. The heightened state of cognitive effort on the previous trial is argued to
-        carry over on to the current trial and allow participants make faster, and sometimes more accurate, choices. Arguably, this conflict adaptation effect could have 
-        occurred acrross our previous studies. However, the effect of previous difficulty did not differentially affect easy or difficult current trials. The effect was
-        also amplified in the lower WMC group indicating that participants were giving up. Additionally, unlike in cognitive control paradigms, risky decision-making paradigms do
-        not have an objective performance measure. Participants are not instructed with a specific goal. They are instructed to make choices based on what they value. 
-        In other words, if conflict adaptation was occurring, then we should also generally see consistent or improved choice quality as well as faster decision-making. 
-            The goal of this study is to examine whether people quit or adapt after a difficult tral. 
+        the current trials. Generally, across our previous studies, we found that 1) people were slower on more difficult current trials, 2) people were faster on the 
+        current trial after a previously difficult trial, and 3) the effect of previous trial difficulty was amplified in the lower working memory capacity (WMC) group. 
+            An outstanding question is whether faster decision-making (decision times) after a difficult trial reflects disengagement (quitting) or engagement (adapting). 
+        This (dis)engagement should be reflected in their choice quality operationalized as the predicted choice based on their risk attitude. If a person is disengaged after
+        a difficult trial, then they should respond quickly on the current trial and their choice quality should be "bad/inaccurate." If a person is engaged after a 
+        difficult trial, then they should also respond quickly on the current trial but their choice quality on the current trial should be "good/accurate." 
+        Additionally, choice quality should be more consistent in the former and less consistent in the latter.
         
-    This BGP design addresses the limitations of previous BGP iterations in CGT (Anna Rini), CGE (Von Monteza), and EDI (Sophie Forcier). 
-    In previous iterations of the BGP, choice difficulty was binary: easy vs. difficult. This allowed us to clearly compare the effects of 
-    easy and difficult choices on cognitive effort within and across trials. HOWEVER, this design limited our ability to examine whether or
-    not previous choice difficulty was associated with (mal)adaptive choice behavior on the current trial. Easy choices, regardless of context, were
-    designed to be "completely" predictable. The probability of choosing one option over the other is extremely high (pGamble >= .85). The "best" option is 
-    always obvious. Difficult choices, regardless of context, were designed to be "completely" unpredictable. The probability of choosing one option over 
-    the other is extremely low (pGamble ≈ .50).The "best" option is never obvious. In other words, although we could examine the effects of 
-    previous trial difficulty on cognitive effort on the current trial, we could not examine the effects of previous trial difficulty on choice behavior.
-
-    To address this limitation of previous BGP iterations, we need choices that are predictable but not obvious. Something in between easy and difficult. 
-    In this BGP iteration (Discrete Ranges Full Continuum), we have included intermediate difficult choices (choices that are moderately difficult). 
-    Intermediate difficult choices are partially predictable. The probability of choosing one option over the other is modest (.65 < pGamble > .75). 
-    The "best" option is slightly obvious. In other words, choice behavior is more flexible, compared to easy and difficulty choices, and 
-    can thus be affected by previous choice difficulty. If previous choice difficulty is associated with disengagement: Quitting (due to cognitive fatigue, 
-    budgeting, etc.), then participants will both be faster on the current trial and make "bad" (the unpredicted "better" choice) and possibly more
-    variable choices. If previous difficulty is associated with adaptation: Faciliation (cognitive "gearing up"), then participants will both be faster on
-    the current trial and make "good" (the predicted "better" choice) and possible more consistent choices. 
+    Task: Bespoke Gambling Paradigm (BGP)
+            This monetary risky decision-making (gambling) task measures a person's risk attitude in Phase I (Static Choice Set) and then presents the person with a
+        set of bespoke choice difficulty trials in Phase II (Dynamic Choice Set). The set of bespoke choice difficulty trials (e.g., easy) were previously generated to
+        capture a wide range of risk attitudes from extremely risk-averse to extremely risk-averse. Choice preferences like risk attutudes affect the valuation of 
+        choices and respectively whether they are easy or difficult. An easy or difficult choice for a risk-averse person may may not be easy or difficult for a
+        risk-seeking person and vice versa. Controlling for risk attitudes may more accurately capture the underlying cognitive (and affective) processes that affect decision-making.
+    
+    Version: Trinary Difficulty (Finely Sampled Discrete Ranges of the Spectrum of Choice Difficulty) | Model Predicted Intermediate Difficulty
+            This version of the BGP includes intermediate difficulty to investigate changes in choice quality. Changes in choice quality could not be investigated in
+        in previous versions of the BGP which used binary choice difficulty: easy vs. difficult. Easy choices, regardless of context, were designed to be
+        "completely" predictable. The probability of choosing one option over the other is extremely high (pGamble >= .85). The "best" option is always obvious. 
+        Difficult choices, regardless of context, were designed to be "completely" unpredictable. The probability of choosing one option over the other is extremely low (pGamble ≈ .50).
+        The "best" option is never obvious. In other words, although we could examine the effects of previous trial difficulty on cognitive effort on the current trial, 
+        we could not examine the effects of previous trial difficulty on choice quality. With intermediate difficulty, choices are predictable, but sensitive to contexts.
+            In previous versions of the BGP, the sampling of ranges of choice difficulty were skewed. This primarily occurred for easy choices. Most of the sampling occurred
+        towards the tail of risk acceptance or rejection. In this version, the ranges of choice difficulty were more finely sampled using specified sized bins.
+            In this version of the BGP, intermediate choice difficulty was operationalized using models to predict where choice quality (i.e., choice consistency) was
+        likely to change across various choice proabilities. 
     
     Note* It is unclear how fast decision times reflect cognitive effort. On one hand, it may reflect less cognitive effort, and on the other, it
     may reflect more cognitive effort. The types of choices must also be considered: "bad"/inaccurate or "good"/accurate. In "bad"/inaccurate choices,
@@ -121,8 +112,6 @@ print (BGP_choiceBehavior_dataFolder)
 BGP_eyeTracking_dataFolder = os.path.join(QVF_dataFolder, "bgp_eyeTrackingData") # BGP Eye-Tracking Data Folder
 print (BGP_eyeTracking_dataFolder)
 
-# BGP_taskFolder, qvfTasks_folder, data_folder, BGP_choiceBehavior_dataFolder, BGP_eyeTracking_dataFolder
-
 # set the current directory to the BGP folder to run the BGP
 os.chdir(BGP_taskFolder)
 
@@ -133,9 +122,6 @@ os.chdir(BGP_taskFolder)
 # luminance equated colors
 colr01 = [0.5216,0.5216,0.5216] # gray color for background, choice option text, and risky option line
 colr02 = [-0.0667,0.6392,1] # blue color for choice option circles, OR text, and V-Left and N-Left text
-
-# monitor screen
-#screenSize = [1280, 1024] # How do I make it so that it gets the right screen size no matter what device?
 
 # font style
 font01 = 'Arial'
@@ -181,7 +167,7 @@ win = visual.Window(
     monitor ='testMonitor', 
     fullscr = True, 
     color = colr01
-) # Don't quite now yet the exact translation from height to pix in terms of size and location
+) 
 
 # ------------------------------------------------------------------------------------
 # EYE-TRACKING DATA COLLECTION SETUP #
@@ -200,7 +186,6 @@ if doET:
     #
     ##
     ### SETTING UP EYE-TRACKER ###
-    
     # Step 1: Connect to the EyeLink Host PC # The Host IP address, by default, is "100.1.1.1".
     et = pylink.EyeLink("100.1.1.1")
     # Step 2: Open an EDF data file on the Host PC
@@ -220,8 +205,7 @@ if doET:
     et.sendCommand("sample_rate 1000")
     # Choose a calibration type, H3, HV3, HV5, HV13 (HV = horizontal/vertical),
     et.sendCommand("calibration_type = HV9")
-
-if doET:
+    
     #
     ##
     ### CALIBRATION AND VALIDATION SETUP ###
@@ -238,8 +222,6 @@ if doET:
     # Viewer User Manual, "Protocol for EyeLink Data to Viewer Integration"
     dv_coords = "DISPLAY_COORDS  0 0 %d %d" % (scn_width - 1, scn_height - 1)
     et.sendMessage(dv_coords)
-
-if doET:
     
     # Configure a graphics environment (genv) for tracker calibration
     genv = EyeLinkCoreGraphicsPsychoPy(et, win)
@@ -256,10 +238,13 @@ if doET:
     pylink.openGraphicsEx(genv)
     et.doTrackerSetup()
     
-if doET == 0:
-    etInstruction = ''
-elif doET == 1:
-    etInstruction = '~ Keep your head still on the eye-tracking head mount ~\n\n'
+    #
+    ##
+    ### CALIBRATION AND VALIDATION SETUP ###
+    if doET == 0:
+        etInstruction = ''
+    elif doET == 1:
+        etInstruction = '~ Keep your head still on the eye-tracking head mount ~\n\n'
 
 # ------------------------------------------------------------------------------------
 # STIMULI SETUP #
@@ -329,17 +314,6 @@ dynaStartTxt = visual.TextStim(
     pos = center,
     color = colr02
 )
-
-## task closing instructions
-#endStartTxt = visual.TextStim(
-#    win,
-#    text = 'You have sucessfully completed the first task in this experiment!\n\nPlease take a brief 1 minute break. \n\nYou are welcome to take a longer break, but keep in mind this study should take no longer than 1 hour to complete. \n\nWhen you are ready to move on, press "enter to continue.\n',
-#    font = a,
-#    height = instructionsH,
-#    wrapWidth = txtWrap,
-#    pos = center,
-#    color = c2
-#)
 
 # task don + call experimenter instructions
 taskEndTxt = visual.TextStim(
@@ -498,18 +472,11 @@ def save_eyeTrackingData():
 
 # end the task
 def endTask(): 
-    
-    print("Escape detected - ending task")
-
     # save choice behavior data
-    print("Saving choice behavior data...")
     save_choiceBehaviorData()
-    print("Choice behavior data saved")
 
     # save eye-tracking data
-    print("Saving eye-tracking data...")
     save_eyeTrackingData()
-    print("Eye-tracking data saved")
 
     # close task
     print("Closing task...")
@@ -661,10 +628,9 @@ def isi_Window(isiTime):
     
     fixTxt.draw()
     win.flip()
-    isiStart = timer.getTime()
     
+    isiStart = timer.getTime()
     wait_OR_escape(isiTime)
-        
     isiEnd = timer.getTime()
 
 # showing outcome of the choice made
@@ -730,7 +696,7 @@ def outcome_Window():
         wait_OR_escape(ocTime)
         outcomeEnd = timer.getTime()
 
-# randomize iti time for both the trials in the static and dynamic choice sets
+# randomize iti time for both static and dynamic trials
 def shuffle(array):
     currentIndex = len(array)
     while currentIndex != 0:
@@ -744,23 +710,10 @@ def iti_Window(itiTime): # each of the choice set's iti's are done differently -
     
     fixTxt.draw()
     win.flip()
+    
     itiStart = timer.getTime()
-
     wait_OR_escape(itiTime)
-
     itiEnd = timer.getTime()
-
-#
-##
-### CREATING DATA APPENDING FUNCTIONS ###
-
-# append a new row of empty data ("") into the data structure that matches the length of the columns 
-def empty_data_appending():
-    bgpData.append([""] * len(bgpData[0]))
-
-# index the last row of the data structure for future appending (e.g., ediData[data_appending_index][<whatever column>])
-def data_appending_index():
-    return len(bgpData) - 1
 
 ######################################################################################
 ##### TIME TO START THE TASK! ########################################################
@@ -769,41 +722,6 @@ def data_appending_index():
 # ------------------------------------------------------------------------------------
 # BGP DATA FRAME SETUP #
 # ------------------------------------------------------------------------------------
-
-bgpData = []
-bgpData.append(
-    [
-        "trialNumber", # [0] # should incrementally increase by 1
-        "checkTrial", # [1] # should be "0" for no, not a check trial or "1" for yes, a check trial
-        "gainValue", # [2]
-        "lossValue", # [3] # should always be $0 (except if a check trial)
-        "safeValue", # [4]
-        "choiceProbability", # [5]
-        "type_e0i1d2", # [6] # easy0difficult1
-        "choiceMade", # [7] # should be "0" if safe option was chosen or "1" if the risky option was chosen
-        "choiceKey", # [8]
-        "outcomeValue", # [9] # if a choice was made, the value should match the value location and key response of choiceMade
-        "location", # [10]
-        "riskSplitLocation", # [11]
-        "gainLocation", # [12]
-        "lossLocation", # [13]
-        "safeLocation", # [14]
-        "hideGainLocation", # [15]
-        "hideLossLocation", # [16]
-        "instructionStart", # [17] # first point should be ground 0 for when the task starts # second point should be ground 0 for eye-tracking # last should be for closing instructions
-        "instructionEnd", # [18]
-        "choiceStart", # [19] # should be the same time as when the choice values and texts are shown - their Start (choices are shown)
-        "choiceEnd", # [20] # should be the same time as when the choice values and texts are disappear - their End (choice is made)
-        "isiStart", # [21] # should be just after or exactly at the moment of choiceEND
-        "isiEnd", # [22] # should be 1 sec
-        "outcomeStart", # [23] # should be just after or exactly at the moment of isiEND
-        "outcomeEnd", # [24] # should be 1 sec
-        "itiStart", # [25] # should be just after or exactly at the moment of outcomeEND
-        "itiEnd", # [26] # should be either 3 or 3.5 sec
-        "bestRho", # [27]
-        "bestMu" # [28]
-    ]
-)
 
 bgpDF = pd.DataFrame(
     columns = [
@@ -826,32 +744,19 @@ bgpDF = pd.DataFrame(
 timer = core.Clock()
 
 # ------------------------------------------------------------------------------------
-# COUNT TRIALS #
-# ------------------------------------------------------------------------------------
-
-#if countTrial == 0:
-#    countLoc = [0, 7]
-#    countColor = colr01
-#elif countTrial == 1:
-#    countLoc = [0, -.35]
-#    countColor = colr02
-
-# ------------------------------------------------------------------------------------
 # GENERAL INSTRUCTIONS START #
 # ------------------------------------------------------------------------------------
 
 bgpStartTxt.draw()
 win.flip()
+
 bgpInstrStart = timer.getTime()
 response = event.waitKeys(keyList = ['return', 'escape'], timeStamped = timer)
 if response[0][0] == 'escape':
     endTask()
 bgpInstrEnd = response[0][1]
-empty_data_appending()
-bgpData[data_appending_index()][17:19] = [bgpInstrStart, bgpInstrEnd]
-
-# Saving Time Values
 bgpInstrDur = bgpInstrEnd - bgpInstrStart
+
 bgpDF.loc[len(bgpDF), ["instrStart", "instrEnd", "instrTimeDur"]] = [
                         bgpInstrStart, bgpInstrEnd, bgpInstrDur]
 
@@ -878,6 +783,7 @@ pracStartTxt.text = ('STARTING THE PRACTICE ROUND\n\n'
                      'Press "V" or "N" to begin the PRACTICE ROUND')
 pracStartTxt.draw()
 win.flip()
+
 if doET:
     et.sendMessage('before practice instruction start')
 pracInstrStart = timer.getTime()
@@ -897,11 +803,9 @@ response = event.waitKeys(keyList = ['v', 'n', 'escape'], timeStamped = timer)
 if response[0][0] == 'escape':
     endTask()
 pracInstrEnd = response[0][1]
-empty_data_appending()
-bgpData[data_appending_index()][17:19] = [pracInstrStart, pracInstrEnd]
-
-# Saving Time Values
 pracInstrDur = pracInstrEnd - pracInstrStart
+
+# save data
 bgpDF.loc[len(bgpDF), ["instrStart", "instrEnd", "instrTimeDur"]] = [
                         pracInstrStart, pracInstrEnd, pracInstrDur]
 
@@ -993,15 +897,14 @@ statStartTxt.text = ('PRACTICE ROUND COMPLETE!\n STARTING ROUND 1\n\n'
                      'Press "V" or "N" to begin ROUND 1')
 statStartTxt.draw()
 win.flip()
+
 statInstrStart = timer.getTime()
 response = event.waitKeys(keyList = ['v', 'n', 'escape'], timeStamped = timer)
 if response[0][0] == 'escape':
     endTask()
 statInstrEnd = response[0][1]
-empty_data_appending()
-bgpData[data_appending_index()][17:19] = [statInstrStart, statInstrEnd]
 
-# Saving Time Values
+# save data
 statInstrDur = statInstrEnd - statInstrStart
 bgpDF.loc[len(bgpDF), ["instrStart", "instrEnd", "instrTimeDur"]] = [
                         statInstrStart, statInstrEnd, statInstrDur]
@@ -1147,19 +1050,9 @@ print('The best R index is', bestR, 'while the best M index is', bestM, ', with 
 # getting dynamic choice set files
 fname = []
 
-#fname.append("../edi/ediTasks/day1_rdm_wmc/ediRDM/ediRDMdynamic/bespoke_choiceset_rhoInd%03i_muInd%03i.csv" % (bestR, bestM))
-#bespokeFilename = os.path.join(ediRDMdir, "ediRDMdynamic", "bespoke_choiceset_rhoInd%03i_muInd%03i.csv" % (bestR, bestM))
 bespokeFilename = os.path.join(BGP_taskFolder, "BGP_dynamicTrials_modelPredicted_trinaryDifficulty", "qvf_bespoke_choiceset_rhoInd%03i_muInd%03i.csv" % (bestR, bestM)) # this calls the Dynamic Choice Set files with intermediate difficulty
 fname.append(bespokeFilename)
 dynamicChoiceSetFilename = fname[0] # dyanmic choice set file to be used for participant
-
-# saving out parameter data - "bestRho" & "bestMu"
-empty_data_appending()
-bgpData[data_appending_index()][27:29] = [bestR, bestM]
-
-## Saving Prospect Theory Model Fitting Values
-#bgpDF.loc[len(bgpDF), ["bestRho", "bestMu", "bestNLL"]] = [
-#                                bestR, bestM, best_nll_value]
 
 # prepping for dynamic choice set instructions
 fittingStartTxt.draw()
@@ -1203,22 +1096,17 @@ dynaStartTxt.text = ('ROUND 1 COMPLETE!\n STARTING ROUND 2\n\n'
                      'Press "V" or "N" to begin ROUND 2')
 dynaStartTxt.draw()
 win.flip()
+
 dynaInstrStart = timer.getTime()
 response = event.waitKeys(keyList = ['v', 'n', 'escape'], timeStamped = timer)
 if response[0][0] == 'escape':
     endTask()
 dynaInstrEnd = response[0][1]
-empty_data_appending()
-bgpData[data_appending_index()][17:19] = [dynaInstrStart, dynaInstrEnd]
 
-# Saving Prospect Theory Model Fitting Values and Time Values
+# Saving Data
 dynaInstrDur = dynaInstrEnd - dynaInstrStart
 bgpDF.loc[len(bgpDF), ["instrStart", "instrEnd", "instrTimeDur"]] = [
                         dynaInstrStart, dynaInstrEnd, dynaInstrDur]
-
-## separate the dynamic choice set into blocks
-#dynamicBlock01 = dynamicDF[dynamicDF["dynamicblocknum"] == 1].sample(frac=1).reset_index(drop=True)
-#dynamicBlock02 = dynamicDF[dynamicDF["dynamicblocknum"] == 2].sample(frac=1).reset_index(drop=True)
 
 # number of trials per dynamic block
 trialsPerBlock = dynamicSet // 2
@@ -1347,15 +1235,6 @@ for d in range(len(dynamicBlock01)):
                             outcomeStart, outcomeEnd, outcomeDur, ocTime,
                             itiStart, itiEnd, itiDur, itiTime]
 
-# break between each dynamic block
-#breakTimer = core.Clock()
-#onBreak = True
-## during the minute break
-#while onBreak and breakTimer.getTime() < 60: # can't i just do core wait now?
-#    breakTxt.draw()
-#    win.flip()
-#    breakStart = timer.getTime()
-#    core.wait(0.01)
 breakStartTxt.draw()
 win.flip()
 breakInstrStart = timer.getTime()
@@ -1367,10 +1246,8 @@ response = event.waitKeys(keyList = ['v', 'n', 'escape'], timeStamped = timer)
 if 'escape' in event.getKeys(keyList=['escape']):
             endTask()
 breakInstrEnd = response[0][1]
-empty_data_appending()
-bgpData[data_appending_index()][17:19] = [breakInstrStart, breakInstrEnd]
 
-# Saving Prospect Theory Model Fitting Values and Time Values
+# Saving Data
 breakInstrDur = breakInstrEnd - breakInstrStart
 bgpDF.loc[len(bgpDF), ["instrStart", "instrEnd", "instrTimeDur"]] = [
                         breakInstrStart, breakInstrEnd, breakInstrDur]
@@ -1707,93 +1584,31 @@ for d in range(len(dynamicBlock02)):
 # CLOSING INSTRUCTIONS #
 # ------------------------------------------------------------------------------------
 
-## break instructions
-#endStartTxt.draw()
-#win.flip()
-#endInstructionsStart = timer.getTime()
-#endTask()
-#response = event.waitKeys(keyList = ['return'], timeStamped = timer)
-#endInstructionsEnd = response[0][1]
-#empty_data_appending()
-#bgpData[data_appending_index()][17:19] = [endInstructionsStart, endInstructionsEnd]
-#
-## Saving Time Values
-#bgpTestDF.loc[len(bgpTestDF), ["instructionStart", "instructionEnd"]] = [
-#                                endInstructionsStart, endInstructionsEnd]
-
-# task done + call experimenter instructions
 taskEndTxt.draw()
 win.flip()
-taskEndInstrStart = timer.getTime()
+
+taskCloseInstrStart = timer.getTime()
 response = event.waitKeys(keyList = ['space', 'escape'], timeStamped = timer)
 if response[0][0] == 'escape':
     endTask()
-taskEndInstrEnd = response[0][1]
-empty_data_appending()
-bgpData[data_appending_index()][17:19] = [taskEndInstrStart, taskEndInstrEnd]
+taskCloseInstrEnd = response[0][1]
+taskClosekDur = taskCloseInstrEnd - taskCloseInstrStart
 
-# Saving Prospect Theory Model Fitting Values and Time Values
-endTaskDur = taskEndInstrEnd - taskEndInstrStart
 bgpDF.loc[len(bgpDF), ["instrStart", "instrEnd", "instrTimeDur"]] = [
-                        taskEndInstrStart, taskEndInstrEnd, endTaskDur]
+                        taskCloseInstrStart, taskCloseInstrEnd, endTaskDur]
 
 # ------------------------------------------------------------------------------------
 # SAVE DATA #
 # ------------------------------------------------------------------------------------
 
-#if doET:
-#    et.sendMessage('BGP Recording Stopped')
-#    et.sendMessage('post 100 pause')
-#    pylink.pumpDelay(100)
-#    et.stopRecording()
-#    et.closeDataFile()
-#    session_identifier = time.strftime("%Y%m%d-%H%M%S", time.localtime())
-#    #session_identifier = edf_fname + time_str
-#    #edf_dataDirName = os.path.join(BGP_eyeTracking_dataFolder, edf_fname + '_' + taskName +'_eyeTracking' + session_identifier + '.edf')
-#    #et.receiveDataFile(edf_fname + '.edf', edf_dataDirName)
-#    BGP_eyeTrackingData_fileName = os.path.join(BGP_eyeTracking_dataFolder, f"{studyName}{subID}_{taskName}_eyeTrackingData_{session_identifier}.edf")
-#    #et.receiveDataFile(edf_fname + '.edf', os.path.join(BGP_eyeTracking_dataFolder, edf_fname + '_' + taskName +'_eyeTrackingData' + session_identifier + '.edf'))
-#    et.receiveDataFile(edf_fname + '.edf', BGP_eyeTrackingData_fileName)
-#    et.close()
-#    
-#    subprocess.run(["edf2asc.exe", BGP_eyeTrackingData_fileName])
-
+# save eye-tracking data
 save_eyeTrackingData()
 
-#if doET:
- #   subprocess.run(["edf2asc.exe", edf_dataDirName])
-
-#if doET:
- #   subprocess.run(["edf2asc.exe", os.path.join(BGP_eyeTracking_dataFolder, edf_fname + '_' + taskName +'_eyeTracking' + session_identifier + '.edf')])
-
-win.close()
-
-
-# saving out data
-os.chdir(BGP_taskFolder)
-
-bgpDF_oldFormat = pd.DataFrame(bgpData)
-dateTime = time.strftime("%Y%m%d-%H%M%S")
-BGP_choiceBehavior_fileName = os.path.join(BGP_choiceBehavior_dataFolder, f"{studyName}{subID}_{taskName}_choiceBehavior_{dateTime}.csv")
-bgpDF_oldFormat.to_csv(BGP_choiceBehavior_fileName, header = False, index = False)
-
-#dateTime = time.strftime("%Y%m%d-%H%M%S")
-#BGP_choiceBehaviorData_fileName = os.path.join(BGP_choiceBehavior_dataFolder, f"{studyName}{subID}_TEST_{taskName}_choiceBehaviorData_{dateTime}.csv")
-#bgpDF.to_csv(BGP_choiceBehaviorData_fileName, header = True, index = False)
-
+# save choice behavior data
 save_choiceBehaviorData()
 
-# make it so that it creates a data folder in the desktop too # use if state to find desktop pathway if it exists or at least creates one
-#os.makedirs(qvfBGPdata_choiceBehavior_folder, exist_ok=True)
-#os.makedirs(qvfBGPdata_eyeTracking_folder, exist_ok=True)
+# close the task
+win.close()
 
-
-
-#qvfData_folder = os.path.join(qvfBGP_folder, "qvfData") # QVF Data Folder
-#qvfBGPdata_choiceBehavior_folder = (qvfData_folder, "qvfBGP_choiceBehaviorData") # BGP Choice Behavior Data Folder
-#qvfBGPdata_eyeTracking_folder = (qvfData_folder, "qvfBGP_eyeTrackingData") # BGP Eye-Tracking Data Folder
-
-
-        
 
 
