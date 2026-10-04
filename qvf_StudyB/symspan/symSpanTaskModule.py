@@ -32,6 +32,11 @@ def symSpanTask(subID, isReal, dirName, dataDirName):
         import glob
         import re
         
+        # name of the study
+        studyName = 'qvfB'
+        
+        # name of the task
+        taskName = 'SymSpan'
         
         #change directory
         #dirName = ("/Users/Display/Desktop/Github/qvf/qvf_StudyA/qvf_StudyA_tasks")
@@ -3181,7 +3186,8 @@ def symSpanTask(subID, isReal, dirName, dataDirName):
                 squarePracticeData.columns=["setSize","redSquarePos", "redSquareNumber","squareRecall","correctCount","trial"]    
                 squarePracticeData = squarePracticeData.iloc[1: , :] # drop the first row which are the variable names
             #filenameSquarePrac = dataDirectoryPath + "ediSYMSPANsquarePractice_" + "sub" + subID + "_" + datetime + ".csv"; # make filename
-            filenameSquarePrac = dataDirectoryPath + "qvfA" + subID + "_SymSpan_squarePractice_" + datetime + ".csv"; # make filename
+            filenameSquarePrac = os.path.join(dataDirectoryPath, f"{studyName}{subID}_{taskName}_squarePracData_{dateTime}.csv")
+            #dataDirectoryPath + "qvfB" + subID + "_SymSpan_squarePractice_" + datetime + ".csv"; # make filename
             squarePracticeData.to_csv(filenameSquarePrac)
     
         if 'symPracticeData' in locals():
@@ -3190,7 +3196,8 @@ def symSpanTask(subID, isReal, dirName, dataDirName):
                 symPracticeData.columns=["imageName","symmetrical","response", "responseCorrect","solveSymRT", "yesNoRT","trial"]# add column names
                 symPracticeData = symPracticeData.iloc[1: , :] # drop the first row which are the variable namesPracticeData.iloc[1: , :] # drop the first row which are the variable names
             #filenameSymPrac = dataDirectoryPath + "ediSYMSPANsymmetryPractice_" + "sub" + subID + "_" + datetime + ".csv"; # make filename
-            filenameSymPrac = dataDirectoryPath + "qvfA" + subID + "_SymSpan_symmetryPractice_" + datetime + ".csv"; # make filename
+            filenameSymPrac = os.path.join(dataDirectoryPath, f"{studyName}{subID}_{taskName}_symmetryPracData_{dateTime}.csv")
+            #dataDirectoryPath + "qvfB" + subID + "_SymSpan_symmetryPractice_" + datetime + ".csv"; # make filename
             symPracticeData.to_csv(filenameSymPrac)
                 
         if 'bothPracticeData' in locals():
@@ -3199,7 +3206,8 @@ def symSpanTask(subID, isReal, dirName, dataDirName):
                 bothPracticeData.columns=["imageName","imageNumber","symmetrical","symResponse","symResponseBinom","symResponseCorrect","solveSymRT","symYesNoRT","setSize","setNumber", "trialPerSet", "redSquarePos", "redSquareNumber","squareRecall","squareCorrectCount", "percentCorrectSym", "totalSymErrorsInSet"] # add column names
                 bothPracticeData = bothPracticeData.iloc[1: , :] # drop the first row which are the variable bothPracticeData.iloc[1: , :] # drop the first row which are the variable names
             #filenameBothPrac =dataDirectoryPath + "ediSYMSPANbothPractice_" + "sub" + subID + "_" + datetime + ".csv"; # make filename
-            filenameBothPrac = dataDirectoryPath + "qvfA" + subID + "_SymSpan_bothPractice_" + datetime + ".csv"; # make filename
+            filenameBothPrac = os.path.join(dataDirectoryPath, f"{studyName}{subID}_{taskName}_bothPracData_{dateTime}.csv")
+            #dataDirectoryPath + "qvfB" + subID + "_SymSpan_bothPractice_" + datetime + ".csv"; # make filename
             bothPracticeData.to_csv(filenameBothPrac)
         
         if 'bothRealData' in locals():
@@ -3208,7 +3216,8 @@ def symSpanTask(subID, isReal, dirName, dataDirName):
                 bothRealData.columns=["imageName","imageNumber","symmetrical","symResponse","symResponseBinom","symResponseCorrect","solveSymRT","symYesNoRT","setSize","setNumber", "trialPerSet", "redSquarePos", "redSquareNumber","squareRecall","squareCorrectCount", "percentCorrectSym", "totalSymErrorsInSet"] # add column names
                 bothRealData = bothRealData.iloc[1: , :] # drop the first row which are the variable bothPracticeData.iloc[1: , :] # drop the first row which are the variable names
             #filenameBothReal =dataDirectoryPath + "ediSYMSPANbothReal_" + "sub" + subID + "_" + datetime + ".csv"; # make filename
-            filenameBothReal = dataDirectoryPath + "qvfA" + subID + "_SymSpan_bothReal_" + datetime + ".csv"; # make filename
+            filenameBothReal = os.path.join(dataDirectoryPath, f"{studyName}{subID}_{taskName}_bothRealData_{dateTime}.csv")
+            #dataDirectoryPath + "qvfB" + subID + "_SymSpan_bothReal_" + datetime + ".csv"; # make filename
             bothRealData.to_csv(filenameBothReal)
             
             

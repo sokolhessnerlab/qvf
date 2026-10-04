@@ -31,12 +31,20 @@ def ospanTask(subID, isReal,dirName, dataDirName):
         import statistics
         #import numpy as np
         
+        # name of the study
+        studyName = 'qvfB'
+        
+        # name of the task
+        taskName = 'OSpan'
+        
         # change directory
         #dirName = ("/Users/Display/Desktop/Github/qvf/qvf_StudyA/qvf_StudyA_tasks")
+        #dirName = ("/Users/shlab/Documents/GitHub/qvf/qvf_StudyB")
         os.chdir(dirName + os.sep + "ospan")
         
         # set up data directory path
         #dataDirName = ("/Users/Display/Desktop/Github/qvf/qvf_StudyA/qvf_StudyA_tasks/data")
+        #dirName = ("/Users/shlab/Documents/GitHub/qvf/qvf_StudyB/data")
         dataDirectoryPath = dataDirName + os.sep + "ospanData" + os.sep
 
         
@@ -2540,7 +2548,8 @@ def ospanTask(subID, isReal,dirName, dataDirName):
                 mathPracticeData.columns = ["operation","response","responseCorrect", "solveMathRT","suggestedAnswer", "suggestAnswerCorrect","trueFalseRT","trial"]
                 mathPracticeData = mathPracticeData.iloc[1: , :] # drop the first row which are the variable names
             #filenameMathPrac = dataDirectoryPath + "qvfAOSPANmathPractice_" + "sub" + subID + "_" + datetime + ".csv"; # make filename
-            filenameMathPrac = dataDirectoryPath + "qvfA" + subID + "_OSpan_mathPractice_" + datetime + ".csv"; # make filename
+            filenameMathPrac = os.path.join(dataDirectoryPath, f"{studyName}{subID}_{taskName}_mathPracData_{dateTime}.csv")
+            #dataDirectoryPath + studyName + subID + "_" + taskName + "_mathPracData_" + datetime + ".csv"; # make filename
             mathPracticeData.to_csv(filenameMathPrac)
                 
         if 'letterPracticeData' in locals(): 
@@ -2549,7 +2558,8 @@ def ospanTask(subID, isReal,dirName, dataDirName):
                 letterPracticeData.columns=["setSize","lettersShown","lettersRecall","correctCount","trial"] # add column names
                 letterPracticeData = letterPracticeData.iloc[1: , :] # drop the first row which are the variable namesPracticeData.iloc[1: , :] # drop the first row which are the variable names
             #filenameLetterPrac = dataDirectoryPath + "qvfAOSPANletterPractice_" + "sub" + subID + "_" + datetime + ".csv"; # make filename
-            filenameLetterPrac = dataDirectoryPath + "qvfA" + subID + "_OSpan_letterPractice_" + datetime + ".csv"; # make filename
+            filenameLetterPrac = os.path.join(dataDirectoryPath, f"{studyName}{subID}_{taskName}_letterPracData_{dateTime}.csv")
+            #dataDirectoryPath + studyName + subID + "_" + taskName + "_letterPracData_" + datetime + ".csv"; # make filename
             letterPracticeData.to_csv(filenameLetterPrac)   
             
         if 'bothPracticeData' in locals(): 
@@ -2558,7 +2568,8 @@ def ospanTask(subID, isReal,dirName, dataDirName):
                 bothPracticeData.columns=["operation1","sum1","operation2","sign","sum2","totalSum","showCorrectAns","suggestedAnswer","mathResponse","mathResponseCorrect", "solveMathRT", "trueFalseRT", "setSize","setNumber","trialPerSet", "lettersShown", "lettersRecall", "correctCount","percentCorrectMath", "totalMathErrorsInSet"] # add column names
                 bothPracticeData = bothPracticeData.iloc[1: , :] # drop the first row which are the variable bothPracticeData.iloc[1: , :] # drop the first row which are the variable names
             #filenameBothPrac =dataDirectoryPath + "qvfAOSPANbothPractice_" + "sub" + subID + "_" + datetime + ".csv"; # make filename
-            filenameBothPrac = dataDirectoryPath + "qvfA" + subID + "_OSpan_bothPractice_" + datetime + ".csv"; # make filename
+            filenameBothPrac = os.path.join(dataDirectoryPath, f"{studyName}{subID}_{taskName}_bothPracData_{dateTime}.csv")
+            #dataDirectoryPath + studyName + subID + "_" + taskName + "_bothPracData_" + datetime + ".csv"; # make filename
             bothPracticeData.to_csv(filenameBothPrac)
             
         if 'bothRealData' in locals(): 
@@ -2567,7 +2578,8 @@ def ospanTask(subID, isReal,dirName, dataDirName):
                 bothRealData.columns=["operation1","sum1","operation2","sign","sum2","totalSum","showCorrectAns","suggestedAnswer","mathResponse","mathResponseCorrect", "solveMathRT", "trueFalseRT", "setSize","setNumber","trialPerSet", "lettersShown", "lettersRecall", "correctCount", "percentCorrectMath", "totalMathErrorsInSet"]# add column names
                 bothRealData = bothRealData.iloc[1: , :] # drop the first row which are the variable bothPracticeData.iloc[1: , :] # drop the first row which are the variable names
             #filenameBothReal =dataDirectoryPath + "qvfAOSPANbothReal_" + "sub" + subID + "_" + datetime + ".csv"; # make filename
-            filenameBothReal = dataDirectoryPath + "qvfA" + subID + "_OSpan_bothReal_" + datetime + ".csv"; # make filename
+            filenameBothReal = os.path.join(dataDirectoryPath, f"{studyName}{subID}_{taskName}_bothRealData_{dateTime}.csv")
+            #dataDirectoryPath + studyName + subID + "_" + taskName + "_bothRealData_" + datetime + ".csv"; # make filename
             bothRealData.to_csv(filenameBothReal)
             
             

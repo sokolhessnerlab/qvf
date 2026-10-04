@@ -1,0 +1,3 @@
+bestRho,bestMu,bestNLL,trialNumber,gainValue,lossValue,safeValue,choiceKey,choiceMade,outcomeValue,choiceProbability,choiceDifficulty,choicePredicted,checkTrial,blockNumber,choiceLocation,riskSplitLocation,gainLocation,lossLocation,safeLocation,hideGainLocation,hideLossLocation,instrStart,instrEnd,instrTimeDur,choiceStart,choiceEnd,choiceTimeDur,isiStart,isiEnd,isiTimeDur,isiTimeSet,outcomeStart,outcomeEnd,ocTimeDur,outcomeTimeSet,itiStart,itiEnd,itiTimeDur,itiTimeSet
+,,,,,,,,,,,,,,,,,,,,,,0.004686958040110767,0.7501496250042692,0.7454626669641584,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,0.7691644160076976,2.580241625022609,1.8110772090149112,,,,,,,,,,,,,,,

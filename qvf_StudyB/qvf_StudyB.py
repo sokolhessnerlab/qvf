@@ -19,7 +19,14 @@ Author: J. Von R. Monteza (2026/09/22)
 
 # Activate the PsychoPy Shell below by pressing enter. Then copy/paste code below into the Shell. Modify the code accordingly:
 # import os; os.chdir("/Users/Display/Desktop/Github/qvf/qvf_StudyA/qvf_StudyA_tasks/"); import qvf_StudyA; qvf_StudyA.qvf_StudyA('XXX',1,3,1,1)
-# import os; os.chdir("/Users/shlab/Documents/GitHub/qvf/qvf_StudyB/"); import qvf_StudyB; qvf_StudyB.qvf_StudyB('XXX',1,3,1,1)
+
+# DIRECTORY SETTING
+# import os; os.chdir("/Users/shlab/Documents/GitHub/qvf/qvf_StudyB/"); import qvf_StudyB; qvf_StudyB.qvf_StudyB('XXX',1,2,1,1)
+# import os; os.chdir(os.path.expanduser("~/Documents/GitHub/qvf/qvf_StudyB/")); import qvf_StudyB; qvf_StudyB.qvf_StudyB('XXX', 1, 2, 1, 1)
+# import os; from pathlib import Path; os.chdir(next(Path.home().rglob("/Documents/GitHub/qvf/qvf_StudyB"))); import qvf_StudyB; qvf_StudyB.qvf_StudyB('XXX', 1, 2, 1, 1)
+
+
+
 
 def qvf_StudyB(subID, isReal, compNum, taskSet, doET): # define the function and specify the argument(s)
 
@@ -55,36 +62,31 @@ def qvf_StudyB(subID, isReal, compNum, taskSet, doET): # define the function and
         dirName = ("C:\\Users\\jvonm\\Documents\\GitHub\\edi\\ediTasks\\day1_rdm_wmc\\ediRDM")
         dataDirName = ("\\GitHub\\edi\\ediTasks\\day1_rdm_wmc\\ediData")
     elif compNum ==2:
-#        dirName = ("/Users/shlab/Documents/Github/qvf/qvf_StudyB/")
-#        dataDirName = ("/Users/shlab/Documents/Github/qvf/qvf_StudyB/data")
         dirName = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
-        print (dirName)
-        dataDirName = ("/Users/shlab/Documents/Github/qvf/qvf_StudyB/data")
+        print (dirName) # ("/Users/shlab/Documents/Github/qvf/qvf_StudyB")
+        dataDirName = os.path.abspath(os.path.join(dirName, "data"))
+        print (dataDirName) # ("/Users/shlab/Documents/Github/qvf/qvf_StudyB/data")
     elif compNum ==3:
-        #dirName = os.path.abspath(os.path.dirname(os.path.abspath(__file__))) # BGP Task Folder - to run the BGP (current directory)
-        #print (dirName)
-        #mainDirName = os.path.abspath(os.path.dirname(dirName)) # QVF Tasks Folder
-        #print (mainDirName)
-        #dataDirName = os.path.abspath(os.path.join(mainDirName, "data")) # QVF Data Folder
-        #print (dataDirName)
-        dirName = ("/Users/Display/Desktop/Github/qvf/qvf_StudyA/qvf_StudyA_tasks")
-        dataDirName = ("/Users/Display/Desktop/Github/qvf/qvf_StudyA/qvf_StudyA_tasks/data")
+        dirName = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
+        print (dirName) # ("/Users/Display/Desktop/Github/qvf/qvf_StudyB")
+        dataDirName = os.path.abspath(os.path.join(dirName, "data"))
+        print (dataDirName) # ("/Users/Display/Desktop/Github/qvf/qvf_StudyB/data")
     
     os.chdir(dirName)
 
 #    # IMPORT TASK SCRIPTS #
 #    # BGP
-#    import bgp.bgpTask_splitDifference_trinaryDifficulty
+#    import bgp.bgpTask_modelPredicted_trinaryDifficulty
 #    # OSpan
 #    from ospan.ospanTaskModule import ospanTask
 #    # SymSpan
 #    from symspan.symSpanTaskModule import symSpanTask
 #    
 #    # SETTING TASK VARIABLES & PRESENTATION ORDER
-#    if taskSet ==1:
+#    if taskSet == 1:
 #        
 #        # risky decision-making task (input arguments determined above) 
-#        bgp.bgpTask_splitDifference_trinaryDifficulty
+#        bgp.bgpTask_modelPredicted_trinaryDifficulty
 #        
 #        # ospan instructions + instructions quiz + practice + task
 #        ospanTask(subID, isReal,dirName, dataDirName)
@@ -92,13 +94,13 @@ def qvf_StudyB(subID, isReal, compNum, taskSet, doET): # define the function and
 #        # symspan instructions + instructions quiz + practice + task
 #        symSpanTask(subID, isReal,dirName, dataDirName)
 #        
-#    elif taskSet==2:
+#    elif taskSet == 2:
 #        
 #        ospanTask(subID, isReal,dirName, dataDirName)
 #
 #        symSpanTask(subID, isReal,dirName, dataDirName)
 #        
-#    elif taskSet==3:
+#    elif taskSet == 3:
 #        
 #        symSpanTask(subID, isReal,dirName, dataDirName)
     
