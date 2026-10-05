@@ -16,11 +16,7 @@ The structure of the complex span tasks are very similar: instructions, practice
  
 """
 
-# TO RUN THIS TASK BY ITSELF #
-"""
-Activate the PsychoPy Shell below by pressing enter. Then copy/paste code below into the Shell. Modify the code accordingly:
-import os; os.chdir("/Users/Display/Desktop/Github/qvf/qvf_StudyB/ospan"); import ospanTaskModule; ospanTaskModule.ospanTask('XXX',1,("/Users/Display/Desktop/Github/qvf/qvf_StudyB"),("/Users/Display/Desktop/Github/qvf/qvf_StudyB/data"))
-"""
+# import os; os.chdir("/Users/Display/Desktop/Github/qvf/qvf_StudyA/qvf_StudyA_tasks/ospan"); import ospanTaskModule; ospanTaskModule.ospanTask('XXX',1,("/Users/Display/Desktop/Github/qvf/qvf_StudyA/qvf_StudyA_tasks"),("/Users/Display/Desktop/Github/qvf/qvf_StudyA/qvf_StudyA_tasks/data"))
 
 def ospanTask(subID, isReal,dirName, dataDirName):
 
@@ -2543,7 +2539,7 @@ def ospanTask(subID, isReal,dirName, dataDirName):
         #---- AT THE END OR IF THINGS BREAK - SAVE THE DATA WE HAVE ----#
         
         # if data exists, reformat to pd dataframe if it was not already above, then save it
-        dateTime = time.strftime("%Y%m%d-%H%M%S"); # save date and time
+        datetime = time.strftime("%Y%m%d-%H%M%S"); # save date and time
         
         
         if 'mathPracticeData' in locals(): 

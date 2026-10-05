@@ -140,9 +140,8 @@ optTxtHgt = .10
 fixTxtHgt = .05
 noRespTxtHgt = .10
 
-# text wrap 
-def txtWrap(win):
-    return win.size[0] / win.size[1] * .9 # based on the percentage of screen width ratio (window is created later)
+# text wrap
+txtWrap = 1.3
 
 # shape size
 choiceSize = [.5,.5]
@@ -253,7 +252,7 @@ if doET:
 if doET == 0:
     etInstruction = ''
 elif doET == 1:
-    etInstruction = '~ Keep your head still on the head support ~\n'
+    etInstruction = '~ Keep your head still on the eye-tracking head mount ~\n\n'
 
 # ---------------------------------------------------------------------------------------
 # STIMULI SETUP #
@@ -270,10 +269,10 @@ bgpStartTxt = visual.TextStim(
             'As discussed in the instructions, you will choose between a gamble and a guaranteed alternative choice option. '
             'Keep your left-index finger on the "V" key AND your right-index finger on the "N" key. '
             'Press the "V" key to select the option on the left OR the "N" key to select the option on the right.\n\n' 
-            'Press "Enter/Return" to begin the task'),
+            'Press "Enter/Return" to move on to the next screen'),
     font = font01,
     height = instrTxtHgt,
-    wrapWidth = txtWrap(win),
+    wrapWidth = txtWrap,
     pos = center,
     color = colr02
 )
@@ -284,7 +283,7 @@ pracStartTxt = visual.TextStim(
     text = '',
     font = font01,
     height = instrTxtHgt,
-    wrapWidth = txtWrap(win),
+    wrapWidth = txtWrap,
     pos = center,
     color = colr02
 )
@@ -295,7 +294,7 @@ statStartTxt = visual.TextStim(
     text = '',
     font = font01,
     height = instrTxtHgt,
-    wrapWidth = txtWrap(win),
+    wrapWidth = txtWrap,
     pos = center,
     color = colr02
 )
@@ -308,7 +307,7 @@ fittingStartTxt = visual.TextStim(
            'Please wait...',
     font = font01,
     height = instrTxtHgt,
-    wrapWidth = txtWrap(win),
+    wrapWidth = txtWrap,
     pos = center,
     color = colr02
 )
@@ -319,7 +318,7 @@ dynaStartTxt = visual.TextStim(
     text = '',
     font = font01,
     height = instrTxtHgt,
-    wrapWidth = txtWrap(win),
+    wrapWidth = txtWrap,
     pos = center,
     color = colr02
 )
@@ -328,14 +327,13 @@ dynaStartTxt = visual.TextStim(
 breakStartTxt = visual.TextStim(
     win,
     text = ('FIRST HALF OF ROUND 2 COMPLETE!\n'
-            'STARTING YOUR MENTAL BREAK\n\n'
+            'STARTING YOUR BREAK\n\n'
             f'{etInstruction}'
-            'You have completed the first half of ROUND 2\n'
-            'You may now take a mental break for one minute\n\n'
-            'Further instructions will be provided after the break'),
+            'You have completed the first half of the second real round\n\n'
+            'You may now take a break for one minute. Further instructions will be provided after the break.'),
     font = font01,
     height = instrTxtHgt,
-    wrapWidth = txtWrap(win),
+    wrapWidth = txtWrap,
     pos = center,
     color = colr02
 )
@@ -345,13 +343,13 @@ breakEndTxt = visual.TextStim(
     win,
     text = ('STARTING THE SECOND HALF OF ROUND 2\n\n'
             f'{etInstruction}'
-            'We are starting the second half of ROUND 2\n\n'
+            'We are now moving on to the second half of ROUND 2\n\n'
             'Keep in mind that responding quickly in this task will NOT speed up the task. '
             'Please take enough time to view and consider each choice option before you make a choice within the four (4) second decision window.\n\n'
             'Press "V" or "N" to continue ROUND 2'),
     font = font01,
     height = instrTxtHgt,
-    wrapWidth = txtWrap(win),
+    wrapWidth = txtWrap,
     pos = center,
     color = colr02
 )
@@ -360,11 +358,11 @@ breakEndTxt = visual.TextStim(
 taskEndTxt = visual.TextStim(
     win,
     text = 'DECISION-MAKING TASK COMPLETE!\n\n'
-           'Congratulations! You have sucessfully completed the first task in this study!\n\n'
+           'Congratulations! You have sucessfully completed the\n first task in this study!\n\n'
            'Please press the white doorbell button to\n call the researcher back in...',
     font = font01,
     height = instrTxtHgt,
-    wrapWidth = txtWrap(win),
+    wrapWidth = txtWrap,
     pos = center,
     color = colr02
 )
@@ -626,7 +624,7 @@ def trial_counting():
 
 # drawing decision window stimuli and retrieving trial times and choices
 def decision_Window():
-    global choiceStart, choiceEnd, choiceDur
+    global choiceStart, choiceEnd
     global response, choiceKey, choiceMade, outcomeValue
     
     vOpt.draw() # draw choice options
@@ -640,17 +638,18 @@ def decision_Window():
     nTxt.draw()
     trial_counting()
     win.flip() # show choice options
-    
     choiceStart = timer.getTime() # get time
+    
     response = event.waitKeys(maxWait = decisionTime, keyList = ['v', 'n', 'escape'], timeStamped = timer)
+    
     if response is not None and response[0][0] == 'escape':
         endTask()
+    
     if response is None:
         choiceMade = math.nan
         choiceKey = math.nan
         outcomeValue = math.nan
         choiceEnd = math.nan
-        choiceDur = choiceEnd - choiceStart
     elif response[0][0] == 'v' or response[0][0] == 'n':
         if (loc == 1 and response[0][0] == 'v') or (loc == 2 and response[0][0] == 'n'):
             choiceKey = response[0][0]
@@ -661,11 +660,10 @@ def decision_Window():
             choiceMade = 0 # chose the safe option
             outcomeValue = safeRounded
         choiceEnd = response[0][1]
-        choiceDur = choiceEnd - choiceStart
 
 # setting up isi
 def isi_Window(isiTime):
-    global isiStart, isiEnd, isiDur
+    global isiStart, isiEnd
     
     fixTxt.draw()
     win.flip()
@@ -673,11 +671,10 @@ def isi_Window(isiTime):
     isiStart = timer.getTime()
     wait_OR_escape(isiTime)
     isiEnd = timer.getTime()
-    isiDur = isiEnd - isiStart
 
 # showing outcome of the choice made
 def outcome_Window():
-    global outcomeStart, outcomeEnd, outcomeDur
+    global outcomeStart, outcomeEnd
     
     if response is None:
         noRespTxt.draw()
@@ -685,7 +682,6 @@ def outcome_Window():
         outcomeStart = timer.getTime()
         wait_OR_escape(ocTime)
         outcomeEnd = timer.getTime()
-        outcomeDur = outcomeEnd - outcomeStart
     elif (loc == 1 and response[0][0] == 'v'):
         if outcomeValue == gainRounded: # risky option on the left was chosen and won
             ocRiskyHide.setPos(hideLossLoc)
@@ -696,7 +692,6 @@ def outcome_Window():
             outcomeStart = timer.getTime()
             wait_OR_escape(ocTime)
             outcomeEnd = timer.getTime()
-            outcomeDur = outcomeEnd - outcomeStart
         elif outcomeValue == lossRounded: # risky option on the left was chosen and lost 
             ocRiskyHide.setPos(hideGainLoc)
             vOpt.draw()
@@ -706,7 +701,6 @@ def outcome_Window():
             outcomeStart = timer.getTime()
             wait_OR_escape(ocTime)
             outcomeEnd = timer.getTime()
-            outcomeDur = outcomeEnd - outcomeStart
     elif (loc == 2 and response[0][0] == 'n'):
         if outcomeValue == gainRounded: # risky option on the right was chosen and won
             ocRiskyHide.setPos(hideLossLoc)
@@ -717,7 +711,6 @@ def outcome_Window():
             outcomeStart = timer.getTime()
             wait_OR_escape(ocTime)
             outcomeEnd = timer.getTime()
-            outcomeDur = outcomeEnd - outcomeStart
         elif outcomeValue == lossRounded: # risky option on the right was chosen and lost
             ocRiskyHide.setPos(hideGainLoc)
             nOpt.draw()
@@ -727,7 +720,6 @@ def outcome_Window():
             outcomeStart = timer.getTime()
             wait_OR_escape(ocTime)
             outcomeEnd = timer.getTime()
-            outcomeDur = outcomeEnd - outcomeStart
     elif (loc == 1 and response[0][0] == 'n') and outcomeValue == safeRounded: # safe option on the right was chosen
         nOpt.draw()
         safeTxt.draw()
@@ -735,7 +727,6 @@ def outcome_Window():
         outcomeStart = timer.getTime()
         wait_OR_escape(ocTime)
         outcomeEnd = timer.getTime()
-        outcomeDur = outcomeEnd - outcomeStart
     elif (loc == 2 and response[0][0] == 'v') and outcomeValue == safeRounded: # safe option on the left was chosen
         vOpt.draw()
         safeTxt.draw()
@@ -743,7 +734,6 @@ def outcome_Window():
         outcomeStart = timer.getTime()
         wait_OR_escape(ocTime)
         outcomeEnd = timer.getTime()
-        outcomeDur = outcomeEnd - outcomeStart
 
 # randomize iti time for both static and dynamic trials
 def shuffle(array):
@@ -755,7 +745,7 @@ def shuffle(array):
 
 # setting up iti
 def iti_Window(itiTime): # each of the choice set's iti's are done differently - doesn't clearly work as well to do itiEnd
-    global itiStart, itiEnd, itiDur
+    global itiStart, itiEnd
     
     fixTxt.draw()
     win.flip()
@@ -763,7 +753,6 @@ def iti_Window(itiTime): # each of the choice set's iti's are done differently -
     itiStart = timer.getTime()
     wait_OR_escape(itiTime)
     itiEnd = timer.getTime()
-    itiDur = itiEnd - itiStart
 
 #########################################################################################
 ##### TIME TO START THE TASK! ###########################################################
@@ -826,7 +815,7 @@ elif isReal == 1:
 # practice choice set instructions
 pracStartTxt.text = ('STARTING THE PRACTICE ROUND\n\n'
                      f'{etInstruction}'
-                     'We are starting the PRACTICE ROUND\n'
+                     'We are now moving on to the PRACTICE ROUND\n'
                      f'There will be {practiceSet} practice trials\n\n'
                      'The structure of the practice round is identical to what you will encounter in the real rounds. ' 
                      'The goal of the practice round is to practice the timing of your decision-making within the four (4) second decision window.\n\n'
@@ -861,7 +850,7 @@ bgpDF.loc[len(bgpDF), ["instrStart", "instrEnd", "instrTimeDur"]] = [
 
 #
 ##
-### PRACTICE TRIALS ###
+### PRACTICE CHOICE SET ###
 for p in range(practiceSet):
 
     # Trial (Python starts at 0: This makes trials start at 1)
@@ -894,6 +883,12 @@ for p in range(practiceSet):
     itiTime = itiPractice # not really needed, but visually guides logic
     iti_Window(itiTime)
     
+    # Calculate Trial Time Data
+    choiceDur = choiceEnd - choiceStart
+    isiDur = isiEnd - isiStart
+    outcomeDur = outcomeEnd - outcomeStart
+    itiDur = itiEnd - itiStart
+    
     # Saving Data
     bgpDF.loc[len(bgpDF), ["trialNumber", "gainValue", "lossValue", "safeValue", "choiceKey", "choiceMade", "outcomeValue",
                            "choiceLocation", "riskSplitLocation", "gainLocation", "lossLocation", "safeLocation", "hideGainLocation", "hideLossLocation",
@@ -925,7 +920,7 @@ elif isReal == 1:
 # static choice set instructions
 statStartTxt.text = ('PRACTICE ROUND COMPLETE!\n STARTING ROUND 1\n\n'
                      f'{etInstruction}'
-                     'We are starting the first real round: ROUND 1\n'
+                     'We are now moving on to the first real round: ROUND 1\n'
                      f'There will be {staticSet} trials in the first real round\n\n'
                      'Keep in mind that responding quickly in this task will NOT speed up the task. '
                      'Please take enough time to view and consider each choice option before you make a choice within the four (4) second decision window.\n\n'
@@ -959,7 +954,7 @@ choices = [] # for choiceMade
 
 #
 ##
-### STATIC TRIALS ###
+### STATIC CHOICE SET ###
 for s in range(staticSet):
 
     # Trial (Python starts at 0: This makes trials start at 1)
@@ -988,6 +983,12 @@ for s in range(staticSet):
     # ITI
     itiTime = itiStatic[s]
     iti_Window(itiTime)
+    
+    # Calculate Trial Time Data
+    choiceDur = choiceEnd - choiceStart
+    isiDur = isiEnd - isiStart
+    outcomeDur = outcomeEnd - outcomeStart
+    itiDur = itiEnd - itiStart
     
     # Stimuli File Data
     checkTrial = staticRandTrial.ischecktrial[s]
@@ -1080,9 +1081,9 @@ win.flip()
 fitInstrStart = timer.getTime()
 wait_OR_escape(decisionTime) # added this waiting time - original would end grid search once it would run through everything
 fitInstrEnd = timer.getTime()
-fitInstrDur = fitInstrEnd - fitInstrStart
 
 # Saving Prospect Theory Model Fitting Values and Time Values
+fitInstrDur = fitInstrEnd - fitInstrStart
 bgpDF.loc[len(bgpDF), ["bestRho", "bestMu", "bestNLL",
                        "instrStart", "instrEnd", "instrTimeDur"]] = [
                         bestR, bestM, best_nll_value,
@@ -1097,16 +1098,16 @@ dynamicDF = pd.read_csv(dynamicChoiceSetFilename) # create before I officially j
 
 # set amount of trials 
 if isReal == 0:
-    dynamicSet = 2
+    dynamicSet = 4
 elif isReal == 1:
     dynamicSet = len(dynamicDF)
 
 # dynamic choice set instructions
 dynaStartTxt.text = ('ROUND 1 COMPLETE!\n STARTING ROUND 2\n\n'
                      f'{etInstruction}'
-                     'We are starting the second real round: ROUND 2\n'
+                     'We are now moving on to the second real round: ROUND 2\n'
                      f'There will be {dynamicSet} trials in the second real round\n'
-                     'You will have a mental break halfway through\n\n'
+                     'You will have a break halfway through the trials\n\n'
                      'Keep in mind that responding quickly in this task will NOT speed up the task. '
                      'Please take enough time to view and consider each choice option before you make a choice within the four (4) second decision window.\n\n'
                      'Press "V" or "N" to begin ROUND 2')
@@ -1137,7 +1138,7 @@ shuffle(itiDynamic)
 
 #
 ##
-### DYNAMIC TRIALS: BLOCK 01 ###
+### DYNAMIC CHOICE SET: BLOCK 01 ###
 for d in range(len(dynamicBlock01)):
     
     # Trial (Python starts at 0: This makes trials start at 1)
@@ -1166,6 +1167,12 @@ for d in range(len(dynamicBlock01)):
     # ITI
     itiTime = itiDynamic[d]
     iti_Window(itiTime)
+    
+    # Calculate Trial Time Data
+    choiceDur = choiceEnd - choiceStart
+    isiDur = isiEnd - isiStart
+    outcomeDur = outcomeEnd - outcomeStart
+    itiDur = itiEnd - itiStart
     
     # Stimuli File Data
     choiceP = dynamicBlock01.choiceP[d]
@@ -1208,7 +1215,7 @@ bgpDF.loc[len(bgpDF), ["instrStart", "instrEnd", "instrTimeDur"]] = [
 
 #
 ##
-### DYNAMIC TRIALS: BLOCK 02 ###
+### DYNAMIC CHOICE SET: BLOCK 02 ###
 for d in range(len(dynamicBlock02)):
     
     # Trial (Python starts at 0: This makes trials start at 1 and then continue from from dynamicBlock01)
@@ -1237,6 +1244,12 @@ for d in range(len(dynamicBlock02)):
     # ITI
     itiTime = itiDynamic[d + len(dynamicBlock01)]
     iti_Window(itiTime)
+    
+    # Calculate Trial Time Data
+    choiceDur = choiceEnd - choiceStart
+    isiDur = isiEnd - isiStart
+    outcomeDur = outcomeEnd - outcomeStart
+    itiDur = itiEnd - itiStart
     
     # Stimuli File Data
     choiceP = dynamicBlock01.choiceP[d]
@@ -1380,14 +1393,14 @@ bgpDF.loc[len(bgpDF), ["instrStart", "instrEnd", "instrTimeDur"]] = [
 # SAVE DATA #
 # ---------------------------------------------------------------------------------------
 
-# close the task
-win.close()
-
 # save eye-tracking data
 save_eyeTrackingData()
 
 # save choice behavior data
 save_choiceBehaviorData()
+
+# close the task
+win.close()
 
 
 

@@ -16,11 +16,7 @@ The structure of the complex span tasks are very similar: instructions, practice
  
 """
 
-# TO RUN THIS TASK BY ITSELF #
-"""
-Activate the PsychoPy Shell below by pressing enter. Then copy/paste code below into the Shell. Modify the code accordingly:
-import os; os.chdir("/Users/Display/Desktop/Github/qvf/qvf_StudyB/symspan"); import symSpanTaskModule; symSpanTaskModule.symSpanTask('XXX',1,("/Users/Display/Desktop/Github/qvf/qvf_StudyB"),("/Users/Display/Desktop/Github/qvf/qvf_StudyB/data"))
-"""
+# import os; os.chdir("/Users/Display/Desktop/Github/qvf/qvf_StudyA/qvf_StudyA_tasks/symspan"); import symSpanTaskModule; symSpanTaskModule.symSpanTask('XXX',1,("/Users/Display/Desktop/Github/qvf/qvf_StudyA/qvf_StudyA_tasks"),("/Users/Display/Desktop/Github/qvf/qvf_StudyA/qvf_StudyA_tasks/data"))
 
 def symSpanTask(subID, isReal, dirName, dataDirName):
         
@@ -3182,7 +3178,7 @@ def symSpanTask(subID, isReal, dirName, dataDirName):
         
         # If data exists, reformat as pd dataframe, save it
         
-        dateTime = time.strftime("%Y%m%d-%H%M%S"); # save date and time
+        datetime = time.strftime("%Y%m%d-%H%M%S"); # save date and time
         
         if 'squarePracticeData' in locals():
             if not isinstance(squarePracticeData, pd.DataFrame):
