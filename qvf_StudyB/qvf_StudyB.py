@@ -23,101 +23,75 @@ Activate the PsychoPy Shell below by pressing enter. Then copy/paste code below 
 import os; os.chdir("/Users/Display/Desktop/Github/qvf/qvf_StudyB/"); import qvf_StudyB; qvf_StudyB.qvf_StudyB('XXX', 1, 3, 1, 1)
 """
 
-# Activate the PsychoPy Shell below by pressing enter. Then copy/paste code below into the Shell. Modify the code accordingly:
-######
-
-######
-
-
-# import os; os.chdir("/Users/Display/Desktop/Github/qvf/qvf_StudyA/qvf_StudyA_tasks/"); import qvf_StudyA; qvf_StudyA.qvf_StudyA('XXX',1,3,1,1)
-# DIRECTORY SETTING
-# import os; os.chdir("/Users/shlab/Documents/GitHub/qvf/qvf_StudyB/"); import qvf_StudyB; qvf_StudyB.qvf_StudyB('XXX',1,2,1,1)
-# import os; os.chdir(os.path.expanduser("~/Documents/GitHub/qvf/qvf_StudyB/")); import qvf_StudyB; qvf_StudyB.qvf_StudyB('XXX', 1, 2, 1, 1)
-# import os; from pathlib import Path; os.chdir(next(Path.home().rglob("/Documents/GitHub/qvf/qvf_StudyB"))); import qvf_StudyB; qvf_StudyB.qvf_StudyB('XXX', 1, 2, 1, 1)
-
-
-
-
-def qvf_StudyB(subID, isReal, compNum, taskSet, doET): # define the function and specify the argument(s)
-
-    # subID
-            # Must be three digits (e.g., 001, 093, 458, etc.)
-    # isReal
-            # 0 - for testing
-            # 1 - for real
-    # compNum:
-            # 1 - VM Laptop
-            # 2 - Chicharron/Kebab
-            # 3 - tofu 
-    # taskSet:
-            # 1 - do all
-            # 2 - do ospan and symspan only
-            # 1 - do symspan only
-    # doET:
-            # 0 - No eye-tracking
-            # 1 - Do eye-tracking
+def qvf_StudyB(subID, isReal, taskSet, doET): # define the function and specify the argument(s)
     
     # let us know things are starting...
-    print('starting study for participant', subID)
-    # print (isReal, compNum, taskSet, doET
+    print('starting the study for participant', subID)
+    print (isReal, taskSet, doET)
 
+    # -------------------------------------------------------------------------------
     # IMPORT MODULES
+    # -------------------------------------------------------------------------------
     import os
     import pandas as pd
     import sys
     #from psychopy import core
 
-    # SET WORKING DIRECTORY #
-    if compNum ==1:
-        dirName = ("C:\\Users\\jvonm\\Documents\\GitHub\\edi\\ediTasks\\day1_rdm_wmc\\ediRDM")
-        dataDirName = ("\\GitHub\\edi\\ediTasks\\day1_rdm_wmc\\ediData")
-    elif compNum ==2:
-        dirName = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
-        print (dirName) # ("/Users/shlab/Documents/Github/qvf/qvf_StudyB")
-        dataDirName = os.path.abspath(os.path.join(dirName, "data"))
-        print (dataDirName) # ("/Users/shlab/Documents/Github/qvf/qvf_StudyB/data")
-    elif compNum ==3:
-#        dirName = ("/Users/Display/Desktop/Github/qvf/qvf_StudyB")
-#        dataDirName = ("/Users/Display/Desktop/Github/qvf/qvf_StudyB/data")
-        dirName = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
-        print (dirName) # ("/Users/Display/Desktop/Github/qvf/qvf_StudyB")
-        dataDirName = os.path.abspath(os.path.join(dirName, "data"))
-        print (dataDirName) # ("/Users/Display/Desktop/Github/qvf/qvf_StudyB/data")
-        
-    
+    # -------------------------------------------------------------------------------
+    # SET WORKING DIRECTORY # (more flexible code)
+    # -------------------------------------------------------------------------------
+    # get the study folder directory
+    dirName = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
+    print (dirName)
+    # get the study data folder directory
+    dataDirName = os.path.abspath(os.path.join(dirName, "data"))
+    print (dataDirName)
+    # change the current directory
     os.chdir(dirName)
 
+    # -------------------------------------------------------------------------------
     # IMPORT TASK SCRIPTS #
-    # BGP
-    import bgp.bgpTask_modelPredicted_trinaryDifficulty
-    # OSpan
+    # -------------------------------------------------------------------------------
+    # BGP (Bespoke Gambling Paradigm)
+    from bgp.bgpTask_modelPredicted_trinaryDifficulty import bgpTask
+    # OSpan (Operation Span)
     from ospan.ospanTaskModule import ospanTask
-    # SymSpan
+    # SymSpan (Symmetry Span)
     from symspan.symSpanTaskModule import symSpanTask
     
-    # SETTING TASK VARIABLES & PRESENTATION ORDER
+    # -------------------------------------------------------------------------------
+    # SETTING PRESENTATION ORDER & TASK VARIABLES #
+    # -------------------------------------------------------------------------------
+    # bgp, ospan, & symspan
     if taskSet == 1:
         
-        # risky decision-making task (input arguments determined above) 
-        bgp.bgpTask_modelPredicted_trinaryDifficulty
+        bgpTask(subID, isReal, doET)
         
-        # ospan instructions + instructions quiz + practice + task
-        ospanTask(subID, isReal,dirName, dataDirName)
+        ospanTask(subID, isReal, dirName, dataDirName)
         
-        # symspan instructions + instructions quiz + practice + task
-        symSpanTask(subID, isReal,dirName, dataDirName)
-        
+        symSpanTask(subID, isReal, dirName, dataDirName)
+    
+    # ospan & sympspan
     elif taskSet == 2:
         
-        ospanTask(subID, isReal,dirName, dataDirName)
+        ospanTask(subID, isReal, dirName, dataDirName)
 
-        symSpanTask(subID, isReal,dirName, dataDirName)
-        
+        symSpanTask(subID, isReal, dirName, dataDirName)
+    
+    # sympspan
     elif taskSet == 3:
         
-        symSpanTask(subID, isReal,dirName, dataDirName)
-    
-    
+        symSpanTask(subID, isReal, dirName, dataDirName)
+
+# -----------------------------------------------------------------------------------
+# RUN THE MAIN SCRIPT (1. change the values accordingly 2. click save 3. click play)
+# -----------------------------------------------------------------------------------
+qvf_StudyB('XXX', 0, 1, 0)
+    # qvf_StudyB(subID, isReal, taskSet, doET)
+        # subID: must be three digits (e.g., 001, 093, 458, etc.)
+        # isReal: 0 (test run) vs. 1 (real run)
+        # taskSet: 1 (bgp, ospan, & symspan) vs. 2 (ospan & sympspan) vs. 3 (symspan)
+        # doET: 0 (no eye-tracking) vs. 1 (do eye-tracking) - make sure to connect the eye-tracker
     
     
     

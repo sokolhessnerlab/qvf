@@ -22,7 +22,7 @@ Activate the PsychoPy Shell below by pressing enter. Then copy/paste code below 
 import os; os.chdir("/Users/Display/Desktop/Github/qvf/qvf_StudyB/ospan"); import ospanTaskModule; ospanTaskModule.ospanTask('XXX',1,("/Users/Display/Desktop/Github/qvf/qvf_StudyB"),("/Users/Display/Desktop/Github/qvf/qvf_StudyB/data"))
 """
 
-def ospanTask(subID, isReal,dirName, dataDirName):
+def ospanTask(subID, isReal, dirName, dataDirName):
 
     #subID = '001' # for testing
     try:
