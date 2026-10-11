@@ -539,11 +539,29 @@ def bgpTask(subID, isReal, doET): # take the arguments from the main script
     ##
     ### CREATING EYE TRACKING FUNCTIONS ###
 
-    # save eye-tracking data
+    # send eye-tracker messages
+    def send_etMessage(message):
+        if doET:
+            et.sendMessage(f'{studyName} {taskName} - {message}')
+
+    # start eye-tracker recording
+    def start_etRecording():
+        if doET: # if doing eye-tracking, then start recording
+            # put tracker in idle/offline mode before recording
+            et.setOfflineMode()
+            # start recording events
+            et.startRecording(1, 0, 0, 0)
+            # allocate some time for the tracker to cache some samples
+            send_etMessage('eye-tracker pre 100 pause')
+            pylink.pumpDelay(100)
+            # send message that recording has started
+            send_etMessage('start eye-tracker recording')
+            
+    # stop eye-tracker recording
     def stop_etRecording():
         if doET:
-            et.sendMessage('BGP Recording Stopped') # (f'{taskName} ET Recording Stopped')
-            et.sendMessage('post 100 pause')
+            send_etMessage('stop eye-tracker recording')
+            send_etMessage('eye-tracker post 100 pause')
             pylink.pumpDelay(100)
             et.stopRecording()
             et.closeDataFile()
@@ -878,21 +896,10 @@ def bgpTask(subID, isReal, doET): # take the arguments from the main script
     pracStartTxt.draw()
     win.flip()
 
-    if doET:
-        et.sendMessage('before practice instruction start')
+    send_etMessage('before practice instruction start')
     pracInstrStart = timer.getTime()
-    if doET:
-        et.sendMessage('after practice instruction start')
-    if doET: # if doing eye-tracking, then start recording
-        # put tracker in idle/offline mode before recording
-        et.setOfflineMode()
-        # start recording events
-        et.startRecording(1, 0, 0, 0)
-        # allocate some time for the tracker to cache some samples
-        et.sendMessage('pre 100 pause')
-        pylink.pumpDelay(100)
-        # send message that recording has started
-        et.sendMessage('BGP Pupillometry Recording Started - Practice Instructions Shown')
+    send_etMessage('after practice instruction start')
+    start_etRecording()
     instrResp = event.waitKeys(keyList = ['v', 'n', 'escape'], timeStamped = timer)
     if instrResp[0][0] == 'escape':
         endTask()
@@ -1222,10 +1229,10 @@ def bgpTask(subID, isReal, doET): # take the arguments from the main script
         iti_Window(itiTime)
         
         # Stimuli File Data
-        choiceP = dynamicBlock01.choiceP[d]
-        difficulty = dynamicBlock01.type_e0i1d2[d]
-        predicted = dynamicBlock01.reject0accept1[d]
-        block = dynamicBlock01.dynamicblocknum[d]
+        choiceProb = dynamicBlock01.choiceP[d]
+        choiceDiff = dynamicBlock01.type_e0i1d2[d]
+        choicePred = dynamicBlock01.reject0accept1[d]
+        choiceBloc = dynamicBlock01.dynamicblocknum[d]
         
         # Saving Data
         bgpDF.loc[len(bgpDF), ["trialNumber", "gainValue", "lossValue", "safeValue", "choiceKey", "choiceMade", "outcomeValue",
@@ -1293,10 +1300,10 @@ def bgpTask(subID, isReal, doET): # take the arguments from the main script
         iti_Window(itiTime)
         
         # Stimuli File Data
-        choiceP = dynamicBlock02.choiceP[d]
-        difficulty = dynamicBlock02.type_e0i1d2[d]
-        predicted = dynamicBlock02.reject0accept1[d]
-        block = dynamicBlock02.dynamicblocknum[d]
+        choiceProb = dynamicBlock02.choiceP[d]
+        choiceDiff = dynamicBlock02.type_e0i1d2[d]
+        choicePred = dynamicBlock02.reject0accept1[d]
+        choiceBloc = dynamicBlock02.dynamicblocknum[d]
 
         # Saving Data
         bgpDF.loc[len(bgpDF), ["trialNumber", "gainValue", "lossValue", "safeValue", "choiceKey", "choiceMade", "outcomeValue",
@@ -1307,7 +1314,7 @@ def bgpTask(subID, isReal, doET): # take the arguments from the main script
                                "outcomeStart", "outcomeEnd", "ocTimeDur", "outcomeTimeSet", 
                                "itiStart", "itiEnd", "itiTimeDur", "itiTimeSet"]] = [
                                 trial, gainRounded, lossRounded, safeRounded, choiceKey, choiceMade, outcomeValue,
-                                choiceP, difficulty, predicted, block,
+                                choiceProb, choiceDiff, choicePred, choiceBloc,
                                 loc, riskSplitLoc, gainTxtLoc, lossTxtLoc, safeTxtLoc, hideGainLoc, hideLossLoc,
                                 choiceStart, choiceEnd, choiceDur,
                                 isiStart, isiEnd, isiDur, isiTime,
@@ -1433,7 +1440,7 @@ def bgpTask(subID, isReal, doET): # take the arguments from the main script
     os.chdir(studyFolder)
 
 # -----------------------------------------------------------------------------------
-# RUN THE CURRENT TASK SCRIPT INDIVIDUALLY # (1. uncomment the code 2. change argument values accordindly 3. click save 4. click play)
+# RUN THE CURRENT TASK SCRIPT INDIVIDUALLY # (01. uncomment the code 02. change argument values accordindly 03. click save 04. click play)
 # -----------------------------------------------------------------------------------
 #bgpTask(subID, isReal, doET)
     # subID: must be three digits (e.g., 001, 093, 458, etc.)

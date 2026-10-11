@@ -84,7 +84,7 @@ def qvf_StudyB(subID, isReal, taskSet, doET): # define the function and specify 
         symSpanTask(subID, isReal, dirName, dataDirName)
 
 # -----------------------------------------------------------------------------------
-# RUN THE MAIN SCRIPT (1. change the values accordingly 2. click save 3. click play)
+# RUN THE MAIN SCRIPT (01. change the values accordingly 02. click save 03. click play)
 # -----------------------------------------------------------------------------------
 qvf_StudyB('XXX', 0, 1, 0)
     # qvf_StudyB(subID, isReal, taskSet, doET)
