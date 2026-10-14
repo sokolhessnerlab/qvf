@@ -10,6 +10,10 @@
 #
 # You can learn more at:
 #   https://cran.r-project.org/web/packages/config/vignettes/introduction.html.
+
 default:
   path:
-    data: "~/data"
+    data: 
+      main: "/Volumes/shlab/Projects/QVF/qvfB_data/"
+      raw: "/Volumes/shlab/Projects/QVF/qvfB_data/raw/"
+      processed: "/Volumes/shlab/Projects/QVF/qvfB_data/preprocessed/"

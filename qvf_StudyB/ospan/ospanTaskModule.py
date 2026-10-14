@@ -765,11 +765,10 @@ def ospanTask(subID, isReal, dirName, dataDirName):
         instructCount.text=text="screen 1/4"
         instructCount.draw()
         win.flip()
-        #event.waitKeys(keyList = ['return'], timeStamped = False) # waiting for key press or until max time allowed
+        event.waitKeys(keyList = ['return'], timeStamped = False) # waiting for key press or until max time allowed
         #keyPress = event.waitKeys(keyList = ['escape', 'return'], timeStamped = False) [0]
         #if keyPress == "escape":
         #    core.quit()
-        
         
         generalInstructionsPg2.draw()
         instructCount.text=text="screen 2/4"
@@ -2586,7 +2585,7 @@ def ospanTask(subID, isReal, dirName, dataDirName):
             #dataDirectoryPath + studyName + subID + "_" + taskName + "_bothRealData_" + datetime + ".csv"; # make filename
             bothRealData.to_csv(filenameBothReal)
             
-            
-            
-            
-        
+# -----------------------------------------------------------------------------------
+# RUN THE CURRENT TASK SCRIPT INDIVIDUALLY # (1. uncomment the code 2. change argument values accordindly 3. click save 4. click play)
+# -----------------------------------------------------------------------------------
+

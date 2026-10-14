@@ -853,7 +853,7 @@ def bgpTask(subID, isReal, doET): # take the arguments from the main script
     # MOUSE CURSOR #
     # ---------------------------------------------------------------------------------------
 
-    win.mouseVisible = False # hide it for the entire task
+    win.mouseVisible = False # hide cursor for the entire task
 
     # ---------------------------------------------------------------------------------------
     # GENERAL INSTRUCTIONS START #
@@ -861,7 +861,7 @@ def bgpTask(subID, isReal, doET): # take the arguments from the main script
 
     bgpStartTxt.draw()
     win.flip()
-
+    
     taskOpenInstrStart = timer.getTime()
     instrResp = event.waitKeys(keyList = ['return', 'escape'], timeStamped = timer)
     if instrResp[0][0] == 'escape':
@@ -1159,7 +1159,7 @@ def bgpTask(subID, isReal, doET): # take the arguments from the main script
 
     # set amount of trials 
     if isReal == 0:
-        dynamicSet = 2
+        dynamicSet = 4
     elif isReal == 1:
         dynamicSet = len(dynamicDF)
 
