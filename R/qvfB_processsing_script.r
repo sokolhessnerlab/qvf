@@ -173,7 +173,6 @@ for(s in 1:number_of_subjects){
         dm_data_to_add[t,13] = orig_stimuli$choiceP[rowInd] # ... and pull out that choiceP value and store it here. 
       }
     }
-    
   }
   
   ### OSPAN DATA ###
