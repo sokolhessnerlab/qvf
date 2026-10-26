@@ -8,6 +8,7 @@
 
 ## setting the working directory on kebab (and some others) -----
 setwd('/Users/shlab/Documents/GitHub/qvf/qvf_StudyB')
+setwd('/Users/sokolhessner/Documents/gitrepos/qvf/qvf_StudyB')
 
 
 # STEP 2: RUN FROM SHLAB DRIVE #####
@@ -30,6 +31,8 @@ for (rfn in 1:length(rdmfn)){
 }
 
 number_of_subjects = length(subjectIDs)
+
+subjects_to_replace_choiceP = c(3, 4, 5, 6, 7, 8) # had a data storage error resulting in duplicate choiceP entries in the data file
 
 # STEP 3: SAVE OUT DATA #####
 
@@ -57,7 +60,8 @@ column_names_dm = c(
   'outcome',
   'ischecktrial',
   'static0dynamic1', # type_e0i1d2reject0accept1dynamicblocknum
-  'easyP1difficultN1', # needs intermediate
+  'e0i1d2', 
+  'easyP1difficultN1', # intermediate = 0 here, like static trials
   'choiceP',
   'bestRho',
   'bestMu',
@@ -68,11 +72,6 @@ column_names_dm = c(
 
 data_dm = array(data = NA, dim = c(0, length(column_names_dm)));
 colnames(data_dm) <- column_names_dm
-
-### store some basic information about the size of the decision-making task -----
-num_static_trials = 50
-num_dynamic_trials = 244 # is there a better way to do this?
-number_of_dm_trials_per_person = num_static_trials + num_dynamic_trials # static = 50, dynamic = 244
 
 ### set up variables to hold working memory data -----
 number_of_ospan_trials_per_person = 25
@@ -103,14 +102,19 @@ for(s in 1:number_of_subjects){
   # load decision-making data
   tmpdata = read.csv(rdmfn[s])
   
+  ### store some basic information about the size of the decision-making task -----
+  dm_index_static = is.finite(tmpdata$checkTrial)
+  dm_index_dynamic = is.finite(tmpdata$choiceDifficulty)
+  dm_index_realchoices = dm_index_static | dm_index_dynamic
+  
+  num_static_trials = sum(dm_index_static) # should always be 50
+  num_dynamic_trials = sum(dm_index_dynamic) # is 240 for subj. 1, 244 for everyone else
+  number_of_dm_trials_per_person = num_static_trials + num_dynamic_trials # 290 for subject 1, 294 for everyone else
+  
   # decision-making data array
   dm_data_to_add = array(data = NA, dim = c(number_of_dm_trials_per_person,length(column_names_dm)))
 
-  dm_index_static = is.finite(tmpdata$checkTrial)
-  dm_index_dynamic = is.finite(tmpdata$choiceDifficulty)
-
-  tmp_trialnum = c(tmpdata$trialNumber[dm_index_static],
-                   tmpdata$trialNumber[dm_index_dynamic] + num_static_trials)
+  tmp_trialnum = 1:number_of_dm_trials_per_person
 
   dm_data_to_add[,1] = tmp_trialnum # trial number
   dm_data_to_add[,2] = s # subject number
@@ -139,14 +143,38 @@ for(s in 1:number_of_subjects){
   dm_data_to_add[,10] = c(array(data = 0, dim = c(1,num_static_trials)),
                          array(data = 1, dim = c(1,num_dynamic_trials))) # static 0, dynamic 1
 
-  dm_data_to_add[,11] = c(array(data = 0, dim = c(1,num_static_trials)),
-                          tmpdata$easy0difficult1[dm_index_dynamic]*-2 + 1) # easy +1, difficult -1
+  dm_data_to_add[,11] = c(tmpdata$choiceDifficulty[dm_index_realchoices])  # e0i1d2
+  
+  dm_data_to_add[,12] = 1*(tmpdata$choiceDifficulty[dm_index_realchoices] == 0) - 
+    1*(tmpdata$choiceDifficulty[dm_index_realchoices] == 2)# easy +1, difficult -1
+  dm_data_to_add[is.na(dm_data_to_add[,12]),12] = 0 # give all the static trials a default value of 0
 
-  dm_data_to_add[,12] = c(array(data = NA, dim = c(1,num_static_trials)),
+  dm_data_to_add[,13] = c(array(data = NA, dim = c(1,num_static_trials)),
                           tmpdata$choiceProbability[dm_index_dynamic]) # choice probability on easy/diff dynamic trials
 
-  dm_data_to_add[,13] = tmpdata$bestRho[is.finite(tmpdata$bestRho)]
-  dm_data_to_add[,14] = tmpdata$bestMu[is.finite(tmpdata$bestMu)]
+  dm_data_to_add[,14] = tmpdata$bestRho[is.finite(tmpdata$bestRho)]
+  dm_data_to_add[,15] = tmpdata$bestMu[is.finite(tmpdata$bestMu)]
+  
+  # Loop to fix `choiceP` variable storage error
+  if(sub_id %in% subjects_to_replace_choiceP){ # if you are one of the subjects with this issue
+    bestRhoInd = unique(dm_data_to_add[,14])
+    bestMuInd = unique(dm_data_to_add[,15])
+    
+    choiceset_fn = sprintf('qvf_bespoke_choiceset_rhoInd%03i_muInd%03i.csv',bestRhoInd, bestMuInd)
+    choiceset_relpath = sprintf('../../stimuli/bespoke_choicesets/%s',choiceset_fn)
+    
+    orig_stimuli = read.csv(choiceset_relpath)
+    
+    for(t in 1:number_of_dm_trials_per_person){ # go through each trial one at a time
+      if(dm_data_to_add[t,10] == 1) { # if this is a dynamic trial... 
+        rowInd = which((dm_data_to_add[t,3] == orig_stimuli$riskyoption1) & #... identify which line in the orig_stimuli data matches the dollar values...
+                         (dm_data_to_add[t,4] == orig_stimuli$riskyoption2) & 
+                         (dm_data_to_add[t,5] == orig_stimuli$safeoption))
+        dm_data_to_add[t,13] = orig_stimuli$choiceP[rowInd] # ... and pull out that choiceP value and store it here. 
+      }
+    }
+    
+  }
   
   ### OSPAN DATA ###
   
@@ -217,6 +245,7 @@ for(s in 1:number_of_subjects){
 }
 
 data_dm = as.data.frame(data_dm) # make it a data frame so it plays nice
+colnames(data_dm) = column_names_dm
 
 cat('Done.\n')
 
