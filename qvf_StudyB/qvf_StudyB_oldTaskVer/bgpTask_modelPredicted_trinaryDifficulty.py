@@ -1038,11 +1038,11 @@ for t in range(len(choices)):
 n_rho_values = 200;
 n_mu_values = 201;
 
-rmin = 0.3
+rmin = 0.35
 rmax = 2.2
 rstep = (rmax - rmin)/(n_rho_values-1)
 
-mmin = 7
+mmin = 11
 mmax = 80
 mstep = (mmax - mmin)/(n_mu_values-1)
 
