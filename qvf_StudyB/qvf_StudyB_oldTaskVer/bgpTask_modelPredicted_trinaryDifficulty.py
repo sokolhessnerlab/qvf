@@ -551,7 +551,7 @@ def choice_probability(parameters, riskyGv, riskyLv, certv):
     utility_safe_option = [math.pow(value, rho) for value in certv]
     
     # Normalize values with div
-    div = max(riskyGv)**rho;
+    div = 30**rho;
     
     # Softmax
     p = [1/(1 + math.exp(-mu/div*(utility_risky_option[t] - utility_safe_option[t]))) for t in range(nTrials)];
