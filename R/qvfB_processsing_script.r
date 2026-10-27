@@ -4,6 +4,8 @@
 # QVF Study B (Model Predicted Intermediate Difficulty) Data Processing Script
 ###############################################################################
 
+rm(list=ls()); # Clear the workspace
+
 # STEP 1: SET YOUR WORKING DIRECTORY #####
 
 ## setting the working directory on kebab (and some others) -----
