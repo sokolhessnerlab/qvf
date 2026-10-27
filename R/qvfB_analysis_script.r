@@ -184,6 +184,14 @@ diff_mean_pgamble = array(dim = c(number_of_clean_subjects, 1));
 easyACC_mean_pgamble = array(dim = c(number_of_clean_subjects, 1));
 easyREJ_mean_pgamble = array(dim = c(number_of_clean_subjects, 1));
 
+# e0i1d2
+easy00_mean_pgamble = array(dim = c(number_of_clean_subjects, 1));
+inte01_mean_pgamble = array(dim = c(number_of_clean_subjects, 1));
+diff02_mean_pgamble = array(dim = c(number_of_clean_subjects, 1));
+easy00ACC_mean_pgamble = array(dim = c(number_of_clean_subjects, 1));
+easy00REJ_mean_pgamble = array(dim = c(number_of_clean_subjects, 1));
+inte01ACC_mean_pgamble = array(dim = c(number_of_clean_subjects, 1));
+inte01REJ_mean_pgamble = array(dim = c(number_of_clean_subjects, 1));
 
 for (subj in 1:number_of_clean_subjects){
   subj_id = keep_participants[subj];
@@ -194,8 +202,16 @@ for (subj in 1:number_of_clean_subjects){
   dynamic_mean_pgamble[subj] = mean(tmpdata$choice[tmpdata$static0dynamic1 == 1], na.rm=T);
   easy_mean_pgamble[subj] = mean(tmpdata$choice[tmpdata$easyP1difficultN1 == 1], na.rm = T);
   diff_mean_pgamble[subj] = mean(tmpdata$choice[tmpdata$easyP1difficultN1 == -1], na.rm = T);
-  easyACC_mean_pgamble[subj] = mean(tmpdata$choice[(tmpdata$easyP1difficultN1 == 1) & (tmpdata$choiceP > .5)], na.rm = T);
-  easyREJ_mean_pgamble[subj] = mean(tmpdata$choice[(tmpdata$easyP1difficultN1 == 1) & (tmpdata$choiceP < .5)], na.rm = T);
+  easyACC_mean_pgamble[subj] = mean(tmpdata$choice[(tmpdata$easyP1difficultN1 == 1) & (tmpdata$choiceP > .98)], na.rm = T);
+  easyREJ_mean_pgamble[subj] = mean(tmpdata$choice[(tmpdata$easyP1difficultN1 == 1) & (tmpdata$choiceP < .02)], na.rm = T);
+
+  easy00_mean_pgamble[subj] = mean(tmpdata$choice[tmpdata$e0i1d2 == 0], na.rm = T);
+  inte01_mean_pgamble[subj] = mean(tmpdata$choice[tmpdata$e0i1d2 == 1], na.rm = T);
+  diff02_mean_pgamble[subj] = mean(tmpdata$choice[tmpdata$e0i1d2 == 2], na.rm = T);
+  easy00ACC_mean_pgamble[subj] = mean(tmpdata$choice[(tmpdata$easyP1difficultN1 == 1) & (tmpdata$choiceP > .98)], na.rm = T);
+  easy00REJ_mean_pgamble[subj] = mean(tmpdata$choice[(tmpdata$easyP1difficultN1 == 1) & (tmpdata$choiceP < .02)], na.rm = T);
+  inte01ACC_mean_pgamble[subj] = mean(tmpdata$choice[(tmpdata$easyP1difficultN1 == 1) & (tmpdata$choiceP > .78) & (tmpdata$choiceP < .92)], na.rm = T);
+  inte01REJ_mean_pgamble[subj] = mean(tmpdata$choice[(tmpdata$easyP1difficultN1 == 1) & (tmpdata$choiceP > .08) & (tmpdata$choiceP < .22)], na.rm = T);
 
   # Plot the choice data
   plot(tmpdata$riskyopt1[tmpdata$choice == 1],tmpdata$safe[tmpdata$choice == 1], col = 'green',
@@ -212,7 +228,14 @@ column_names_rdm = c(
   'easy_mean_pgamble',
   'diff_mean_pgamble',
   'easyACC_mean_pgamble',
-  'easyREJ_mean_pgamble'
+  'easyREJ_mean_pgamble',
+  'easy00_mean_pgamble',
+  'inte01_mean_pgamble',
+  'diff02_mean_pgamble',
+  'easyACC_mean_pgamble',
+  'easyREJ_mean_pgamble',
+  'inte01ACC_mean_pgamble',
+  'inte01REJ_mean_pgamble'
 );
 
 data_rdm = array(data = NA, dim = c(0, length(column_names_rdm)));
@@ -245,16 +268,26 @@ sem(mean_pgamble) # 0.01744603
 sem(static_mean_pgamble) # 0.01998875
 sem(dynamic_mean_pgamble) # 0.01989382
 
-mean(easyACC_mean_pgamble) # 0.9368784
-mean(easyREJ_mean_pgamble) # 0.07534148
-sem(easyACC_mean_pgamble) # 0.01653681
-sem(easyREJ_mean_pgamble) # 0.01185106
+mean(easyACC_mean_pgamble) # 0.9509031
+mean(easyREJ_mean_pgamble) # 0.05719322
+sem(easyACC_mean_pgamble) # 0.01528863
+sem(easyREJ_mean_pgamble) # 0.01166399
 
 mean(diff_mean_pgamble) # 0.520023
 sem(diff_mean_pgamble) # 0.03502338
 
 min(mean_pgamble) # 0.2176871
 max(mean_pgamble) # 0.6530612
+
+mean(easy00ACC_mean_pgamble) # 0.9509031
+mean(easy00REJ_mean_pgamble) # 0.05719322
+sem(easy00ACC_mean_pgamble) # 0.01528863
+sem(easy00REJ_mean_pgamble) # 0.01166399
+
+mean(inte01ACC_mean_pgamble) # 1
+mean(inte01REJ_mean_pgamble) # 0.025
+sem(inte01ACC_mean_pgamble) # 0.07155975
+sem(inte01REJ_mean_pgamble) # 0.07438333
 
 # Q: How did risk-taking compare across the different dynamic trial types?
 # e.g. easy accept vs. easy reject vs. difficult
