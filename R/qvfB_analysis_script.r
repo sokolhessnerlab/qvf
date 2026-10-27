@@ -76,8 +76,8 @@ rm(list=ls()); # Clear the workspace
 
 # STEP 02: SET WORKING DIRECTORY ##### 
 
-setwd('/Users/shlab/Documents/GitHub/qvf/qvf_StudyB')
-#setwd('/Users/sokolhessner/Documents/gitrepos/qvf/qvf_StudyB')
+# setwd('/Users/shlab/Documents/GitHub/qvf/qvf_StudyB')
+setwd('/Users/sokolhessner/Documents/gitrepos/qvf/qvf_StudyB')
 
 # STEP 03: RUN FROM SHLAB DRIVE #####
 
@@ -130,9 +130,9 @@ check_trial_criterion = 0.2; # The maximum percent of check trials that can be m
 # (there were 10 check trials)
 # chance is 0.5, perfect is 0.0.
 
-keep_check_trial = check_trial_failurerate <= check_trial_criterion; # 2 did not meet criteria: 16, 45, 76 (4/5/24)
+keep_check_trial = check_trial_failurerate <= check_trial_criterion; # 2 did not meet criteria
 
-### EXCLUSION: check trials -----
+### EXCLUSION: reaction times -----
 mean_rts = array(dim = c(number_of_subjects,1));
 
 for (subj in 1:number_of_subjects){
@@ -145,7 +145,7 @@ keep_dm_rt = mean_rts > 0.85; # drop no one
 
 mean_rts[keep_dm_rt]
 hist(mean_rts[keep_dm_rt]) # histogram of mean rts
-mean(mean_rts[keep_dm_rt]) # mean rt 1.548 seconds (2/25/25)
+mean(mean_rts[keep_dm_rt]) # mean rt 1.51 seconds (10/2026)
 
 # STEP 06: BASIC ANALYSES #####
 
@@ -157,7 +157,7 @@ clean_data_complexspan = complexSpanScores[complexSpanScores$subjectnumber %in% 
 #clean_data_survey = survey_data[survey_data$subjectID %in% keep_participants,]
 
 number_of_clean_subjects = length(keep_participants);
-number_of_clean_subjects # 71 participants (Feb '25)
+number_of_clean_subjects # 29 participants (10/2026)
 
 # Create a re-scaled version of trial number for use in subsequent analyses
 clean_data_dm$trialnumberRS = clean_data_dm$trialnumber/max(clean_data_dm$trialnumber)
@@ -202,16 +202,16 @@ for (subj in 1:number_of_clean_subjects){
   dynamic_mean_pgamble[subj] = mean(tmpdata$choice[tmpdata$static0dynamic1 == 1], na.rm=T);
   easy_mean_pgamble[subj] = mean(tmpdata$choice[tmpdata$easyP1difficultN1 == 1], na.rm = T);
   diff_mean_pgamble[subj] = mean(tmpdata$choice[tmpdata$easyP1difficultN1 == -1], na.rm = T);
-  easyACC_mean_pgamble[subj] = mean(tmpdata$choice[(tmpdata$easyP1difficultN1 == 1) & (tmpdata$choiceP > .98)], na.rm = T);
-  easyREJ_mean_pgamble[subj] = mean(tmpdata$choice[(tmpdata$easyP1difficultN1 == 1) & (tmpdata$choiceP < .02)], na.rm = T);
+  easyACC_mean_pgamble[subj] = mean(tmpdata$choice[(tmpdata$easyP1difficultN1 == 1) & (tmpdata$choiceP > .97)], na.rm = T);
+  easyREJ_mean_pgamble[subj] = mean(tmpdata$choice[(tmpdata$easyP1difficultN1 == 1) & (tmpdata$choiceP < .03)], na.rm = T);
 
   easy00_mean_pgamble[subj] = mean(tmpdata$choice[tmpdata$e0i1d2 == 0], na.rm = T);
   inte01_mean_pgamble[subj] = mean(tmpdata$choice[tmpdata$e0i1d2 == 1], na.rm = T);
   diff02_mean_pgamble[subj] = mean(tmpdata$choice[tmpdata$e0i1d2 == 2], na.rm = T);
-  easy00ACC_mean_pgamble[subj] = mean(tmpdata$choice[(tmpdata$easyP1difficultN1 == 1) & (tmpdata$choiceP > .98)], na.rm = T);
-  easy00REJ_mean_pgamble[subj] = mean(tmpdata$choice[(tmpdata$easyP1difficultN1 == 1) & (tmpdata$choiceP < .02)], na.rm = T);
-  inte01ACC_mean_pgamble[subj] = mean(tmpdata$choice[(tmpdata$easyP1difficultN1 == 1) & (tmpdata$choiceP > .78) & (tmpdata$choiceP < .92)], na.rm = T);
-  inte01REJ_mean_pgamble[subj] = mean(tmpdata$choice[(tmpdata$easyP1difficultN1 == 1) & (tmpdata$choiceP > .08) & (tmpdata$choiceP < .22)], na.rm = T);
+  easy00ACC_mean_pgamble[subj] = mean(tmpdata$choice[(tmpdata$e0i1d2 == 0) & (tmpdata$choiceP > .97)], na.rm = T);
+  easy00REJ_mean_pgamble[subj] = mean(tmpdata$choice[(tmpdata$e0i1d2 == 0) & (tmpdata$choiceP < .03)], na.rm = T);
+  inte01ACC_mean_pgamble[subj] = mean(tmpdata$choice[(tmpdata$e0i1d2 == 1) & (tmpdata$choiceP > .77) & (tmpdata$choiceP < .93)], na.rm = T);
+  inte01REJ_mean_pgamble[subj] = mean(tmpdata$choice[(tmpdata$e0i1d2 == 1) & (tmpdata$choiceP > .07) & (tmpdata$choiceP < .23)], na.rm = T);
 
   # Plot the choice data
   plot(tmpdata$riskyopt1[tmpdata$choice == 1],tmpdata$safe[tmpdata$choice == 1], col = 'green',
@@ -268,11 +268,6 @@ sem(mean_pgamble) # 0.01744603
 sem(static_mean_pgamble) # 0.01998875
 sem(dynamic_mean_pgamble) # 0.01989382
 
-mean(easyACC_mean_pgamble) # 0.9509031
-mean(easyREJ_mean_pgamble) # 0.05719322
-sem(easyACC_mean_pgamble) # 0.01528863
-sem(easyREJ_mean_pgamble) # 0.01166399
-
 mean(diff_mean_pgamble) # 0.520023
 sem(diff_mean_pgamble) # 0.03502338
 
@@ -292,13 +287,18 @@ sem(inte01REJ_mean_pgamble) # 0.07438333
 # Q: How did risk-taking compare across the different dynamic trial types?
 # e.g. easy accept vs. easy reject vs. difficult
 hist(easyACC_mean_pgamble,
-     col = rgb(0,1,0,.5), breaks = seq(from = 0, to = 1, by = 0.05), xlim = c(0,1),
+     col = rgb(0,1,0,.5), breaks = seq(from = 0, to = 1, by = 0.05), xlim = c(0,1), ylim = c(0,25),
      xlab = 'Mean Probability of Risk-Taking', ylab = 'Frequency',
      main = 'Average Risk-Taking Behavior By Trial Type')
 hist(easyREJ_mean_pgamble,
      col = rgb(1,0,0,.5), breaks = seq(from = 0, to = 1, by = 0.05), add = TRUE)
 hist(diff_mean_pgamble,
      col = rgb(0,0,1,.5), breaks = seq(from = 0, to = 1, by = 0.05), add = TRUE)
+hist(inte01ACC_mean_pgamble,
+     col = rgb(0,1,0,.8), breaks = seq(from = 0, to = 1, by = 0.05), add = TRUE)
+hist(inte01REJ_mean_pgamble,
+     col = rgb(1,0,0,.8), breaks = seq(from = 0, to = 1, by = 0.05), add = TRUE)
+
 # A: As expected red < blue < green (easy reject < difficult < easy accept), blue is more spread out
 
 
@@ -343,7 +343,7 @@ choice_probability <- function(parameters, choiceset) {
   utility_safe_option = choiceset$safeoption^rho;
 
   # normalize values using this term
-  div <- max(choiceset[,1:3])^rho; # decorrelates rho & mu
+  div <- 30^rho; # decorrelates rho & mu
 
   # calculate the probability of selecting the risky option
   p = 1/(1+exp(-mu/div*(utility_risky_option - utility_safe_option)));
@@ -446,21 +446,31 @@ for (subj in 1:number_of_clean_subjects){
 
 ### Q: Does optimized analysis match grid search analysis?###
 
+# NOTE:
+#  Grid Search Optimization from Subjects 1-31 used the wrong rho and mu values. 
+#  Choice set generation had used 0.35-2.2 (200 values) for rho, and 11-80 (201
+#  values) for mu. In the Python script for S1-31, the script used 0.3-2.2 (200
+#  values) for rho and 7-80 (201 values) for mu. As a result, the script 
+#  identified the incorrect indices for the bespoke choice sets. Degree of 
+#  error was greater the lower the estimated rho and mu values were as the 
+#  lower values in the ranges were where the difference between rho & mu values
+#  was present (upper values are identical). 
+
 n_rho_values = 200; # SET THIS TO THE DESIRED DEGREE OF FINENESS
 n_mu_values = 201; # IBID
 
-rho_values = seq(from = 0.3, to = 2.2, length.out = n_rho_values); # the range of fit-able values
-mu_values = seq(from = 7, to = 80, length.out = n_mu_values);
+rho_values = seq(from = 0.35, to = 2.2, length.out = n_rho_values); # the range of fit-able values
+mu_values = seq(from = 11, to = 80, length.out = n_mu_values); # the range of fit-able values
 
 best_rhos = array(dim = c(number_of_clean_subjects,1));
 best_mus = array(dim = c(number_of_clean_subjects,1));
 
-cat('Beginning Grid Search\n')
+cat('Beginning Fresh Grid Search\n')
 
 for (subj in 1:number_of_clean_subjects){
   subj_id = keep_participants[subj];
   print(subj_id)
-  #
+  
   tmpdata = clean_data_dm[(clean_data_dm$subjectnumber == subj_id) &
                             (clean_data_dm$static0dynamic1 == 0) &
                             is.finite(clean_data_dm$choice),]; # defines this person's data
@@ -483,63 +493,125 @@ for (subj in 1:number_of_clean_subjects){
   best_mus[subj] = mu_values[indexes[2]];
 }
 
-# look at all best rho & mu per participant
-grid_bestRho = array(dim = c(number_of_clean_subjects,1));
-grid_bestMu = array(dim = c(number_of_clean_subjects,1));
+# Identify the rho and mu values associated with the dynamic choice set that was
+# actually used with this participant.
+#
+# (Not always accurate b/c of error, see above)
+selectedchoiceset_bestRho = array(dim = c(number_of_clean_subjects,1));
+selectedchoiceset_bestMu = array(dim = c(number_of_clean_subjects,1));
+
+old_rho_values = seq(from = 0.3, to = 2.2, length.out = n_rho_values); # the range of fit-able values
+old_mu_values = seq(from = 7, to = 80, length.out = n_mu_values); # the range of fit-able values
+
 for (subj in 1:number_of_clean_subjects){
   subj_id = keep_participants[subj];
 
   tmpdata = clean_data_dm[clean_data_dm$subjectnumber == subj_id,];
-
-  grid_bestRho[subj] = rho_values[unique(tmpdata$bestRho)];
-  grid_bestMu[subj] = mu_values[unique(tmpdata$bestMu)];
+  
+  r_ind = unique(tmpdata$bestRho)
+  m_ind = unique(tmpdata$bestMu)
+  
+  selectedchoiceset_bestRho[subj] = rho_values[r_ind];
+  selectedchoiceset_bestMu[subj] = mu_values[m_ind];
 }
 
-# First, check fresh grid search best Rho & Mu against experiment-executed grid search Rho & Mu
-# (should be trivial and match!)
+# Plot the grid-search-fit Rho values against the rho values associated 
+# with the choiceset actually used with this participant (this will be off
+# for participants 1-31 b/c of above error). Should be accurate thereafter!
+plot(best_rhos[keep_participants <= 31], selectedchoiceset_bestRho[keep_participants <= 31],
+     col = 'purple', pch = 4, xlim = c(0,2.3), ylim = c(0, 2.3),
+     xlab = 'Grid Search Estimate', ylab = 'Choiceset Parameter Value', main = 'Rho Grid Search & Choice Set') # these will not be on the line
+lines(x = c(0,3), y = c(0,3))
+points(best_rhos[keep_participants > 31], selectedchoiceset_bestRho[keep_participants > 31]) # these should be on the line
 
-if (any((grid_bestRho - best_rhos) != 0)){
-  print('RHO MISMATCH!')
-}else{
-  print('RHO Grid search values match (as expected)')
-}
-
-if (any((grid_bestMu - best_mus) != 0)){
-  print('MU MISMATCH!')
-}else{
-  print('MU Grid search values match (as expected)')
-}
+plot(best_mus[keep_participants <= 31], selectedchoiceset_bestMu[keep_participants <= 31],
+     col = 'purple', pch = 4, xlim = c(0, 85), ylim = c(0, 85),
+     xlab = 'Grid Search Estimate', ylab = 'Choiceset Parameter Value', main = 'Mu Grid Search & Choice Set') # these will not be on the line
+lines(x = c(0,100), y = c(0,100))
+points(best_rhos[keep_participants > 31], selectedchoiceset_bestRho[keep_participants > 31]) # these should be on the line
 
 
-# Grid search does *not* replicate... WHY NOT? 
+# Q: How off were the rho values for the first 31 people?
+hist(best_rhos[keep_participants <= 31] - selectedchoiceset_bestRho[keep_participants <= 31])
+mean(best_rhos[keep_participants <= 31] - selectedchoiceset_bestRho[keep_participants <= 31])
+median(best_rhos[keep_participants <= 31] - selectedchoiceset_bestRho[keep_participants <= 31])
+# A: An average of 0.022 (median of 0.028; MAX possible should be ~0.05, MIN possible should be ~0)
+# Max error is possible at low rho values, min error is possible at high rho values.
+
+hist(best_mus[keep_participants <= 31] - selectedchoiceset_bestMu[keep_participants <= 31])
+mean(best_mus[keep_participants <= 31] - selectedchoiceset_bestMu[keep_participants <= 31])
+median(best_mus[keep_participants <= 31] - selectedchoiceset_bestMu[keep_participants <= 31])
+# A: An average of -1.30 (median of -1.73; MAX possible should be ~4, MIN possible should be ~0)
+# Max error is possible at low rho values, min error is possible at high rho values.
+
+# The errors are systematic but SMALL IN MAGNITUDE. 
 
 # Then check estimated parameters vs. grid search parameters
-plot(grid_bestRho,estimated_parameters[,1], main = 'RHO',
+plot(best_rhos,estimated_parameters[,1], main = 'RHO',
      xlab = 'Grid Search Estimate', ylab = 'Optimization estimate',
      xlim = c(0, 2), ylim = c(0, 2))
 lines(c(0, 2), c(0, 2))
 
-plot(grid_bestMu,estimated_parameters[,2], main = 'MU',
+plot(best_mus,estimated_parameters[,2], main = 'MU',
      xlab = 'Grid Search Estimate', ylab = 'Optimization estimate',
      xlim = c(0, 100), ylim = c(0, 100))
 lines(c(0, 100), c(0, 100))
 
-hist(grid_bestRho - estimated_parameters[,1], xlim = c(-2,2),
+hist(best_rhos - estimated_parameters[,1], xlim = c(-2,2),
      breaks = seq(from = -2, to = 2, by = 0.02), main = 'Difference in Rho Estimates',
      ylab = 'Participants', xlab = 'Grid estimate - MLE estimate')
-hist(grid_bestMu - estimated_parameters[,2], xlim = c(-100,100),
+hist(best_mus - estimated_parameters[,2], xlim = c(-100,100),
      breaks = seq(from = -100, to = 100, by = 0.5), main = 'Difference in Mu Estimates',
      ylab = 'Participants', xlab = 'Grid estimate - MLE estimate')
 # This is supposed to look silly! Should cluster around 0
 # ... and it does, as of 4/5/24!
 
-t.test(grid_bestRho, estimated_parameters[,1], paired = T) # no sig. diff (rho)... 4/11/24 (t(84) = 1.7804, p = 0.07862)
-t.test(grid_bestMu, estimated_parameters[,2], paired = T) # no sig. diff (mu)... 4/11/24 (t(84) = 1.8545, p = 0.06718)
+t.test(best_rhos, estimated_parameters[,1], paired = T) # no sig. diff (rho)... 4/11/24 (t(84) = 1.7804, p = 0.07862)
+t.test(best_mus, estimated_parameters[,2], paired = T) # no sig. diff (mu)... 4/11/24 (t(84) = 1.8545, p = 0.06718)
 
-cor.test(grid_bestRho, estimated_parameters[,1]) # both extremely highly correlated. r(83) = 0.9974685, p = 2.2e-16
-cor.test(grid_bestMu, estimated_parameters[,2]) # r(83) = 0.9997898, p = 2.2e-16
+cor.test(best_rhos, estimated_parameters[,1]) # both extremely highly correlated. r(83) = 0.9974685, p = 2.2e-16
+cor.test(best_mus, estimated_parameters[,2]) # r(83) = 0.9997898, p = 2.2e-16
 
 # A: YES, grid-search values match optimized values very closely.
+
+# There was an error in identifying the correct bespoke file for the first 
+# 31 participants. The consequence of this is that somewhat incorrect choice 
+# sets were selected (they were slightly off). Indices in 0.3-2.2 and 7-80 were
+# used to pick choicesets in 0.35-2.2 and 11-80 space. The ACTUAL parameter values
+# associated with a given choice set were thus systematically slightly too high.
+# The offset was generally very small (see above) in parameter space. 
+
+# Visualize mismatch between choiceP (choice set assumed choice likelihood) and
+# allchoiceP (estimated choice likelihood given behavior). 
+plot(clean_data_dm$choiceP[clean_data_dm$subjectnumber <= 31],
+     clean_data_dm$all_choiceP[clean_data_dm$subjectnumber <= 31], 
+     pch = 16, col = rgb(0,0,0,.2), xlim = c(0,1), ylim = c(0,1),
+     xaxs = "i", yaxs = 'i',
+     xlab = 'Assumed choice likelihoods', ylab = 'Actual fit choice likelihoods')
+# abline(v = c(0.02, 0.98, 0.08, 0.22, 0.78, 0.92, 0.45, 0.55))
+# abline(h = c(0.02, 0.98, 0.08, 0.22, 0.78, 0.92, 0.45, 0.55))
+polygon(x = c(0.45, 0.55, 0.55, 0.45, 0.45), # difficult box
+        y = c(0.45, 0.45, 0.55, 0.55, 0.45), border = 'red', lwd = 2)
+polygon(x = c(0.08, 0.22, 0.22, 0.08, 0.08), # lower intermediate box
+        y = c(0.08, 0.08, 0.22, 0.22, 0.08), border = 'purple', lwd = 2)
+polygon(x = c(0, 0.02, 0.02, 0, 0), # lower easy box
+        y = c(0, 0, 0.02, 0.02, 0), border = 'green', lwd = 2)
+polygon(x = c(0.78, 0.92, 0.92, 0.78, 0.78), # upper intermediate box
+        y = c(0.78, 0.78, 0.92, 0.92, 0.78), border = 'purple', lwd = 2)
+polygon(x = c(0.98, 1, 1, 0.98, 0.98), # upper easy box
+        y = c(0.98, 0.98, 1, 1, 0.98), border = 'green', lwd = 2)
+
+# CONSEQUENCES OF THE GRID SEARCH ERROR FOR ANALYSIS
+# - Stimulus set difficulty is slightly off.
+# - continuous difficulty metrics are trustworthy
+# - categorical approaches are weakened, as actual difficulty varies outside
+#   of bounds slightly more than expected.
+#
+# Reasons not to be concerned:
+# - We can still quantify difficulty on a per trial, per-person basis. 
+# - Easy/Intermediate/Difficult trial categories still rank appropriately (just
+#   more variable within-category than planned). 
+
 
 # Who are our subjects?
 mean_params = colMeans(estimated_parameters);
