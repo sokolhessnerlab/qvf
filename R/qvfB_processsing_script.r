@@ -230,9 +230,9 @@ for(s in 1:number_of_subjects){
   }; # ... else, leave it NA
 
   # Span scores
-  dm_data_to_add[,15] = complexSpanScores$ospanScore[s];
-  dm_data_to_add[,16] = complexSpanScores$symspanScore[s];
-  dm_data_to_add[,17] = complexSpanScores$compositeSpanScore[s];
+  dm_data_to_add[,16] = complexSpanScores$ospanScore[s];
+  dm_data_to_add[,17] = complexSpanScores$symspanScore[s];
+  dm_data_to_add[,18] = complexSpanScores$compositeSpanScore[s];
 
 #   # Survey data + Heartbeat Detection Data
 #   survey_data_to_add = drop(survey_data[s,2:ncol(survey_data)]);
