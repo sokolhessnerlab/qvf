@@ -998,16 +998,400 @@ legend("topleft", legend = c(expression(bold("Previous Difficulty")), "Easy Choi
 
 # SKIPPING TO WORKING MEMORY CAPACITY #####
 
+# Examine best-fitting threshold values
+best_testing_model = as.formula('sqrtRT ~ 1 + all_diff_cont * capacity_HighP1_lowN1_temp * trialnumberRS +
+                  prev_all_diff_cont * capacity_HighP1_lowN1_temp * trialnumberRS +
+                  (1 | subjectnumber)')
+best_model = as.formula('sqrtRT ~ 1 + all_diff_cont * capacity_HighP1_lowN1_best * trialnumberRS +
+                  prev_all_diff_cont * capacity_HighP1_lowN1_best * trialnumberRS +
+                  (1 | subjectnumber)')
+
+possible_threshold_values = sort(unique(compositeSpanScores))+.000001;
+possible_threshold_values = possible_threshold_values[1:(length(possible_threshold_values)-1)];
+
+all_aic_values = array(data = NA, dim = length(possible_threshold_values));
+
+clean_data_dm$capacity_HighP1_lowN1_temp = NA;
+
+for(ind in 1:length(possible_threshold_values)){
+  break_val = possible_threshold_values[ind];
+  clean_data_dm$capacity_HighP1_lowN1_temp[clean_data_dm$complexspan > break_val] = 1;
+  clean_data_dm$capacity_HighP1_lowN1_temp[clean_data_dm$complexspan < break_val] = -1;
+  
+  cat(sprintf('This many people are < break_val: %g\n',sum(clean_data_complexspan$compositeSpanScore<break_val, na.rm = T)))
+  
+  if((sum(clean_data_complexspan$compositeSpanScore<break_val, na.rm = T) == 1) | (sum(clean_data_complexspan$compositeSpanScore>break_val, na.rm = T) == 1)){
+    next # don't use any categorizations that create a 'group' with just 1 person
+  }
+  
+  m3_tmp = lmer(best_testing_model, data = clean_data_dm, REML = F);
+  all_aic_values[ind] = AIC(m3_tmp)
+}
+
+best_aic = min(all_aic_values, na.rm = T);
+best_threshold = possible_threshold_values[which(all_aic_values == best_aic)];
+
+cat(sprintf('The best fitting model uses a CompositeSpan threshold value of %g.\n', best_threshold)) # 0.142858
+cat(sprintf('The best AIC obtained with the CompositeSpan was %0.2f\n', best_aic)) # -5717.21
+
+plot(sort(clean_data_complexspan$compositeSpanScore), xlab = 'Participants', ylab = 'Span')
+abline(h = best_threshold, col = 'blue', lwd = 4)
+abline(h = median(clean_data_complexspan$compositeSpanScore, na.rm = T), col = 'red', lwd = 4, lty = 'dotted') # median value
+legend('topleft', legend = c('Span','Best threshold','Median span'), col = c('black','blue', 'red'), lty = 1)
+
+plot(x = possible_threshold_values, y = all_aic_values, type = 'l', col = 'green', xlab = 'Thresholds', ylab = 'AIC values (lower better)', lwd = 3, xlim = c(0.1, 0.9) )
+abline(v = median_compositespan, col = 'red', lwd = 4, lty = 'dotted')
+abline(v = best_threshold, col = 'blue', lwd = 4)
+legend('bottomleft', legend = c('AIC values', 'Median span', 'Best threshold'), col = c('green','red','blue'), lty = 1)
+# The best-fitting threshold (just slightly above the median value) is 0.6571439
+
+break_val = best_threshold; # as of 3/19/25, this was 0.6785724
+
+# capacity_HighP1_lowN1_Best = (clean_data_complexspan$compositeSpanScore > break_val)*2 - 1;
+
+# Make the variable in the DM dataframe
+clean_data_dm$capacity_HighP1_lowN1_best[clean_data_dm$complexspan > break_val] = 1;
+clean_data_dm$capacity_HighP1_lowN1_best[clean_data_dm$complexspan < break_val] = -1;
+
+# Make the variable in the Span dataframe
+clean_data_complexspan$capacity_HighP1_lowN1_best[clean_data_complexspan$compositeSpanScore > break_val] = 1;
+clean_data_complexspan$capacity_HighP1_lowN1_best[clean_data_complexspan$compositeSpanScore < break_val] = -1;
+
+
+
+
 # Continuous difficulty (including previous) and categorical capacity
 m3_prev_diffCont_capacityCat_intxn_rfx = lmer(sqrtRT ~ 1 +
                                                 all_diff_cont * prev_all_diff_cont * capacity_HighP1_lowN1 +
                                                 (1 | subjectnumber), data = clean_data_dm);
 summary(m3_prev_diffCont_capacityCat_intxn_rfx)
 
+m3_prev_diffCont_wmcCont_intxn_rfx = lmer(sqrtRT ~ 1 +
+                                                all_diff_cont * prev_all_diff_cont * capacity_HighP1_lowN1_best +
+                                                (1 | subjectnumber), data = clean_data_dm);
+summary(m3_prev_diffCont_wmcCont_intxn_rfx)
+
+
+
+
 # TAKEAWAY: NO EFFECT OF WMC EITHER?!?!?
 
 
 
+### Throwing In The Towel ############################################
+
+### Explaining lower RTs (faster choices) after difficult trials:
+# Are low-capacity participants "throwing in the towel" after difficult choices, or
+# is their choice process *facilitated*, and thus better?
+
+# APPROACH:
+#   1. Use all_choice_P values (calculated from estimates of rho & mu from static trials) to...
+#   2. Calculate the LIKELIHOOD of data on a per-trial basis in dynamic trials, and then...
+#   3. Calculate the MEAN LIKELIHOOD of dynamic trials that follow a difficult trial
+#      and compare it to the MEAN LIKELIHOOD of dynamic trials that follow an easy trial
+#   4. Calculate the difference in MEAN LIKELIHOOD (easy - difficult), and...
+#   5. Relate that difference to capacity group and/or continuous capacity.
+
+# 1. is already done.
+
+# 2. Calculate the likelihood of the choices.
+
+clean_data_dm$all_choice_likelihood = clean_data_dm$choice * clean_data_dm$all_choiceP + (1-clean_data_dm$choice) * (1-clean_data_dm$all_choiceP);
+
+# 3. Calculate the mean likelihood on dynamic trials after diff. vs. easy trials.
+
+mean_choice_lik_prevEasy = array(data = NA, dim = c(number_of_clean_subjects,1));
+mean_choice_lik_prevDiff = array(data = NA, dim = c(number_of_clean_subjects,1));
+
+for (s in 1:number_of_clean_subjects){
+  subj_id = keep_participants[s]
+  tmpdata = clean_data_dm[clean_data_dm$subjectnumber == subj_id,];
+  
+  mean_choice_lik_prevEasy[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == 1], na.rm = T); # na.rm b/c of missed trials
+  mean_choice_lik_prevDiff[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == -1], na.rm = T);
+  
+  # Use this code to run this test ONLY on current difficult trials
+  # mean_choice_lik_prevEasy[s] = mean(tmpdata$all_choice_likelihood[(tmpdata$easyP1difficultN1_prev == 1) & (tmpdata$easyP1difficultN1 == -1)], na.rm = T); # na.rm b/c of missed trials
+  # mean_choice_lik_prevDiff[s] = mean(tmpdata$all_choice_likelihood[(tmpdata$easyP1difficultN1_prev == -1) & (tmpdata$easyP1difficultN1 == -1)], na.rm = T);
+  
+  # Use this code to run this test ONLY on current easy trials
+  # mean_choice_lik_prevEasy[s] = mean(tmpdata$all_choice_likelihood[(tmpdata$easyP1difficultN1_prev == 1) & (tmpdata$easyP1difficultN1 == 1)], na.rm = T); # na.rm b/c of missed trials
+  # mean_choice_lik_prevDiff[s] = mean(tmpdata$all_choice_likelihood[(tmpdata$easyP1difficultN1_prev == -1) & (tmpdata$easyP1difficultN1 == 1)], na.rm = T);
+}
+
+t.test(mean_choice_lik_prevEasy, mean_choice_lik_prevDiff, paired = T) # t = 0.22866, df = 28, p-value = 0.8208
+wilcox.test(mean_choice_lik_prevEasy, mean_choice_lik_prevDiff, paired = T) # V = 227, p-value = 0.848
+# 
+
+cor.test(mean_choice_lik_prevEasy, mean_choice_lik_prevDiff) # t = 3.7522, df = 27, p-value = 0.0008494, r = 0.5854272 
+cor.test(mean_choice_lik_prevEasy, mean_choice_lik_prevDiff, method = 'spearman') # S = 2084, p-value = 0.00807
+# Correlated w/ each other, unsurprisingly.
+
+plot(mean_choice_lik_prevEasy, mean_choice_lik_prevDiff)
+lines(x = c(0, 1), y = c(0, 1))
+
+# 4. Calculate the difference in mean choice likelihood as a function of prev. difficulty
+
+mean_choice_lik_relative = mean_choice_lik_prevEasy - mean_choice_lik_prevDiff;
+# Positive numbers = Likelihood after easy is HIGHER than after difficult.
+# Negative numbers = likelihood after easy is LOWER than after difficult.
+#
+# We predict more positive numbers for low-capacity folks.
+
+# 5. Relate that difference to capacity group and/or continuous capacity.
+
+plot(mean_choice_lik_relative, compositeSpanScores[keep_participants])
+cor.test(mean_choice_lik_relative, compositeSpanScores[keep_participants]) # t = 1.4348, df = 23, p-value = 0.1648, r = 0.2866311 
+cor.test(mean_choice_lik_relative, compositeSpanScores[keep_participants], method = 'spearman')
+# Direction of the (non-sig.) correlation is negative, as expected
+# Low capacity folks have a greater gap between their choice likelihood
+# after easy vs. difficult (and easy is >> difficult).
+
+# t.test(mean_choice_lik_relative[capacity_HighP1_lowN1_Best == 1], mean_choice_lik_relative[capacity_HighP1_lowN1_Best == -1])
+# wilcox.test(mean_choice_lik_relative[capacity_HighP1_lowN1_Best == 1], mean_choice_lik_relative[capacity_HighP1_lowN1_Best == -1])
+# n.s. p = 0.63 on 2/25/24
+# High cap. mean difference = -0.017
+# Low cap. mean difference = -0.011 (more positive)
+
+
+# Try a regression-based approach to this whole question?
+likmodel_catDiff_catCap = lmer(all_choice_likelihood ~ 1 + easyP1difficultN1 * easyP1difficultN1_prev * capacity_HighP1_lowN1_best +
+                                 (1 | subjectnumber), data = clean_data_dm)
+summary(likmodel_catDiff_catCap)
+# no signs of anything going on in previous difficulty
+
+likmodel_contDiff_catCap = lmer(all_choice_likelihood ~ 1 + all_diff_cont * prev_all_diff_cont * capacity_HighP1_lowN1_best +
+                                  (1 | subjectnumber), data = clean_data_dm)
+summary(likmodel_contDiff_catCap)
+# no signs of anything going on in previous difficulty
+
+
+# Another Approach - look for lower choice consistency after difficult trials
+negLLprospect_cge_muPrevDiff <- function(parameters,choiceset,choices) {
+  # A negative log likelihood function for a prospect-theory estimation.
+  # Assumes parameters are [rho, mu, muchange]
+  # Assumes choiceset has columns riskyoption1, riskyoption2, safeoption, and all_diff_cont
+  # Assumes choices are binary/logical, with 1 = risky, 0 = safe.
+  #
+  # Peter Sokol-Hessner
+  # July 2021
+  
+  rho = parameters[1]
+  mu = parameters[2]
+  muchange = parameters[3]
+  
+  # Correct parameter bounds
+  if(rho <= 0){
+    rho = .Machine$double.eps;
+  }
+  
+  applied_mu = exp(mu + choiceset$prev_all_diff_cont*muchange)
+  
+  # calculate utility of the two options
+  utility_risky_option = 0.5 * choiceset$riskyoption1^rho +
+    0.5 * choiceset$riskyoption2^rho;
+  utility_safe_option = choiceset$safeoption^rho;
+  
+  # normalize values using this term
+  div <- max(choiceset[,1:3])^rho; # decorrelates rho & mu
+  
+  # calculate the probability of selecting the risky option
+  choiceP = 1/(1+exp(-applied_mu/div*(utility_risky_option - utility_safe_option)));
+  
+  likelihood = choices * choiceP + (1 - choices) * (1-choiceP);
+  likelihood[likelihood == 0] = .Machine$double.eps;
+  # likelihood[likelihood == 0] = 0.000000000000001; # 1e-15, i.e. 14 zeros followed by a 1; USE FOR consistency with psychopy script
+  
+  nll <- -sum(log(likelihood));
+  return(nll)
+}
+
+#### Optimization ############################################
+
+# Set up the parallelization
+n.cores <- parallel::detectCores() - 1; # Use 1 less than the full number of cores.
+
+# Bounds and parameters
+eps = .Machine$double.eps;
+lower_bounds = c(eps, -30, -10); # R, M, muchange (mu & muchange are theoretically unbounded)
+upper_bounds = c(2,5,10);
+number_of_parameters = length(lower_bounds);
+
+lb_constr = c(eps, 0); # R, M, muchange (mu & muchange are theoretically unbounded)
+ub_constr = c(2, 80);
+number_of_parameters_constr = length(lb_constr);
+
+# Create placeholders for parameters, errors, NLL (and anything else you want)
+number_of_iterations = 200; # 100 or more
+estimated_parameters = array(dim = c(number_of_clean_subjects,number_of_parameters));
+estimated_parameter_errors = array(dim = c(number_of_clean_subjects,number_of_parameters));
+NLLs = array(dim = c(number_of_clean_subjects,1));
+
+estimated_parameters_constr = array(dim = c(number_of_clean_subjects,number_of_parameters_constr));
+estimated_parameter_errors_constr = array(dim = c(number_of_clean_subjects,number_of_parameters_constr));
+NLLs_constr = array(dim = c(number_of_clean_subjects,1));
+
+cat('Beginning Optimization\n')
+
+my.cluster <- parallel::makeCluster(
+  n.cores,
+  type = "FORK"
+)
+doParallel::registerDoParallel(cl = my.cluster)
+
+
+##### Do the Estimations ###############################
+tic()
+for (subj in 1:number_of_clean_subjects){
+  # for (subj in 1){
+  subj_id = keep_participants[subj];
+  cat(sprintf('%i of %i\n',subj_id, number_of_clean_subjects))
+  
+  tmpdata = clean_data_dm[(clean_data_dm$subjectnumber == subj_id) &
+                            is.finite(clean_data_dm$choice) & 
+                            is.finite(clean_data_dm$prev_all_diff_cont),]; # defines this person's data
+  
+  choiceset = as.data.frame(cbind(tmpdata$riskyopt1, tmpdata$riskyopt2, tmpdata$safe, tmpdata$prev_all_diff_cont));
+  colnames(choiceset) <- c('riskyoption1', 'riskyoption2', 'safeoption', 'prev_all_diff_cont');
+  
+  # Mu Change Model
+  temp_parameters = array(dim = c(number_of_iterations,number_of_parameters));
+  temp_hessians = array(dim = c(number_of_iterations,number_of_parameters,number_of_parameters));
+  temp_NLLs = array(dim = c(number_of_iterations,1));
+  
+  tmpoutput <- foreach(iter=1:number_of_iterations, .combine=rbind) %dorng% {
+    # you need to randomize the initial so you can end up at different points
+    initial_values = runif(number_of_parameters, min = lower_bounds, max = upper_bounds)
+    
+    # The estimation itself
+    output <- optim(initial_values, negLLprospect_cge_muPrevDiff,
+                    choiceset = choiceset,
+                    choices = tmpdata$choice,
+                    lower = lower_bounds,
+                    upper = upper_bounds,
+                    method = "L-BFGS-B",
+                    hessian = T)
+    
+    c(output$par,output$value); # the things (parameter values & NLL) to save/combine across parallel estimations
+  }
+  
+  tmpoutput = as.array(tmpoutput[,]) # Remove all the extra RNG info
+  dimnames(tmpoutput) <- NULL
+  
+  # Store the output we need access to later
+  best_ind = which.min(tmpoutput[,number_of_parameters+1]); # the index of that NLL
+  
+  # Compare output; select the best one
+  estimated_parameters[subj,] = tmpoutput[best_ind,1:number_of_parameters] # the parameters
+  NLLs[subj] = tmpoutput[best_ind,number_of_parameters+1]; # the best NLL for this person
+  
+  tmp_hess = hessian(negLLprospect_cge_muPrevDiff,estimated_parameters[subj,], 
+                     choiceset = choiceset,
+                     choices = tmpdata$choice)
+  
+  estimated_parameter_errors[subj,] = sqrt(diag(solve(tmp_hess))); # the SEs
+  
+  
+  # Standard (Constrained, no mu change) Model
+  
+  temp_parameters = array(dim = c(number_of_iterations,number_of_parameters_constr));
+  temp_hessians = array(dim = c(number_of_iterations,number_of_parameters,number_of_parameters_constr));
+  temp_NLLs = array(dim = c(number_of_iterations,1));
+  
+  tmpoutput <- foreach(iter=1:number_of_iterations, .combine=rbind) %dorng% {
+    # you need to randomize the initial so you can end up at different points
+    initial_values = runif(number_of_parameters_constr, min = lb_constr, max = ub_constr)
+    
+    # The estimation itself
+    output <- optim(initial_values, negLLprospect_cge,
+                    choiceset = choiceset,
+                    choices = tmpdata$choice,
+                    lower = lb_constr,
+                    upper = ub_constr,
+                    method = "L-BFGS-B",
+                    hessian = T)
+    
+    c(output$par,output$value); # the things (parameter values & NLL) to save/combine across parallel estimations
+  }
+  
+  tmpoutput = as.array(tmpoutput[,]) # Remove all the extra RNG info
+  dimnames(tmpoutput) <- NULL
+  
+  # Store the output we need access to later
+  best_ind = which.min(tmpoutput[,number_of_parameters_constr+1]); # the index of that NLL
+  
+  # Compare output; select the best one
+  estimated_parameters_constr[subj,] = tmpoutput[best_ind,1:number_of_parameters_constr] # the parameters
+  NLLs_constr[subj] = tmpoutput[best_ind,number_of_parameters_constr+1]; # the best NLL for this person
+  
+  tmp_hess = hessian(negLLprospect_cge,estimated_parameters_constr[subj,], 
+                     choiceset = choiceset,
+                     choices = tmpdata$choice)
+  
+  estimated_parameter_errors_constr[subj,] = sqrt(diag(solve(tmp_hess))); # the SEs
+}
+stopCluster(my.cluster)
+toc()
+
+##### Process the Results ###############################
+ttest_result = t.test(estimated_parameters[,3])
+cat(sprintf('Results of one-sample t-test: t = %.2f (df = %i), p = %.4f\n',
+            ttest_result$statistic, ttest_result$parameter, ttest_result$p.value))
+# Value is *slightly* positive, M = 0.17, SD = 0.54; t(84) = 2.9, p = 0.005
+hist(estimated_parameters[,3])
+
+lrt = 2*(NLLs_constr - NLLs)
+df = 1
+lrtp = 1 - pchisq(lrt, df)
+
+cat(sprintf('Out of %i mu-change parameter values:\n - %i are not different from 0\n - %i are different & negative\n - %i are different & positive.\n', 
+            length(lrtp), sum(lrtp >= .05), 
+            sum(((lrtp < .05) & (estimated_parameters[,3] < 0))), 
+            sum(((lrtp < .05) & (estimated_parameters[,3] > 0)))))
+
+cat(sprintf('Likelihood Ratio Test: Test statistic = %.1f, p = %.5f.\n', lrt, lrtp))
+
+cor.test(estimated_parameters[,3], clean_data_complexspan$compositeSpanScore)
+cor.test(estimated_parameters[,3], clean_data_complexspan$compositeSpanScore, method = 'spearman')
+plot(estimated_parameters[,3], clean_data_complexspan$compositeSpanScore, 
+     xlab = 'Mu Change parameter', ylab = 'WMC')
+# No significant correlation (either spearman's rho or pearson's r)
+
+# Had predicted...
+# - negative muchange parameter value
+# - muchange parameter value correlated with WMC (or diff. by group),
+#   such that low WMC people had a negative muchange parameter value
+#   indicating reduced choice consistency after difficult trials. 
+#
+# Find instead:
+# - weak average positive value (significant at a one-sample t-test, but
+#   not significant on a per-person basis at any meaningful level)
+# - No relationship between WMC and muchange.
+
+
+# TAKEAWAY:
+# There are no strong signs in peoples' choices that after difficult trials, choice likelihood
+# is relatively lower for low capacity folks than for high capacity folks. That *would* have
+# been consistent with 'giving up'. The signs are in the expected direction, but no stats
+# reach significance.
+#
+# Note that no stats are instead consistent with *facilitation* after difficult trials (which
+# might predict more internally-consistent choices after difficult trials).
+
+# This analysis likely suffers from too much breaking-into-parts (and any others going down this
+# path would suffer more, e.g. is the likelihood lower, on difficult trials only, after difficult
+# trials than after easy trials?)
+
+# This analysis is ALSO fundamentally limited by our design - easy and difficult trials are
+# DESIGNED with a particular choice likelihood. That's the literal definition of what makes an
+# easy trial easy etc. In particular, difficult trials, where we might expect to see the most
+# movement, are designed with likelihoods *right in the middle*, so biases to act in a
+# particular way on those trials (e.g. always gamble; always safe) might be impossible to see
+# as *all actions are equally (un)likely*. If anything, this counterintuitively suggests that
+# EASY trials would be the place to observe unusual behavior, but we may have again hurt
+# ourselves as easy trials are SO easy as to be obvious, and not requiring much cognitive
+# work at all to decide about. In short, the way to have observed this might have been with
+# trials that were in-between easy and difficult.
 
 
 
