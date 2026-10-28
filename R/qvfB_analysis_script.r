@@ -76,8 +76,8 @@ rm(list=ls()); # Clear the workspace
 
 # STEP 02: SET WORKING DIRECTORY ##### 
 
-setwd('/Users/shlab/Documents/GitHub/qvf/qvf_StudyB')
-#setwd('/Users/sokolhessner/Documents/gitrepos/qvf/qvf_StudyB')
+# setwd('/Users/shlab/Documents/GitHub/qvf/qvf_StudyB')
+setwd('/Users/sokolhessner/Documents/gitrepos/qvf/qvf_StudyB')
 
 # STEP 03: RUN FROM SHLAB DRIVE #####
 
@@ -636,7 +636,7 @@ lines(x = c(mean_params[2], mean_params[2]), y = c(0,50), col = 'orange', lwd = 
 #clean_data_dm$diff_cont = abs(abs(clean_data_dm$choiceP - 0.5)*2-1); # JUST for the easy/difficult dynamic trials
 clean_data_dm$all_diff_cont = abs(abs(clean_data_dm$all_choiceP - 0.5)*2-1); # for ALL trials
 
-clean_data_dm$prev_all_diff_cont = c(NA,clean_data_dm$all_diff_cont[1:(length(clean_data_dm$all_diff_cont)-1)]) # for ALL trials
+clean_data_dm$prev_all_diff_cont = c(NA,clean_data_dm$all_diff_cont[1:(nrow(clean_data_dm)-1)]) # for ALL trials
 clean_data_dm$prev_all_diff_cont[clean_data_dm$trialnumber == 1] = NA;
 
 clean_data_dm$prev2_all_diff_cont = c(NA,clean_data_dm$prev_all_diff_cont[1:(length(clean_data_dm$prev_all_diff_cont)-1)]) # for ALL trials
@@ -659,6 +659,30 @@ clean_data_dm$prev7_all_diff_cont[clean_data_dm$trialnumber == 1] = NA;
 
 clean_data_dm$prev8_all_diff_cont = c(NA,clean_data_dm$prev7_all_diff_cont[1:(length(clean_data_dm$prev7_all_diff_cont)-1)]) # for ALL trials
 clean_data_dm$prev8_all_diff_cont[clean_data_dm$trialnumber == 1] = NA;
+
+
+# Visualize relationship between choice probability and difficulty
+plot(clean_data_dm$all_choiceP, clean_data_dm$all_diff_cont, 
+     pch = 16, col = rgb(0,0,0,.1), xaxs = 'i', yaxs = 'i',
+     xlab = 'Choice Likelihood (0 = safe, 1 = risky)',
+     ylab = 'Choice Difficulty (0 = easy, 1 = difficult)')
+abline(v = c(0.02, 0.08, 0.22, 0.45, 0.55, 0.78, 0.92, 0.98))
+
+
+# What are the Difficulty values that correspond to the different
+# choice likelihood cutoffs we've used? 
+difficulty_bounds = abs(abs(c(0.02, 0.08, 0.22, 0.45, 0.55, 0.78, 0.92, 0.98) - 0.5)*2-1)
+# Easy = 0-0.04
+# Int = 0.16-0.44
+# Diff = 0.90-1
+
+plot(clean_data_dm$all_diff_cont, clean_data_dm$prev_all_diff_cont,
+     pch = 16, col = rgb(0,0,0,.2), xaxs = 'i', yaxs = 'i',
+     xlab = 'Current Difficulty',
+     ylab = 'Previous Difficulty')
+abline(v = c(0.04, 0.16, 0.44, 0.9), col = 'darkorange', lwd = 3)
+abline(h = c(0.04, 0.16, 0.44, 0.9), col = 'darkorange', lwd = 3)
+
 
 
 ## Basic RT analysis ############################################
@@ -1006,8 +1030,8 @@ best_model = as.formula('sqrtRT ~ 1 + all_diff_cont * capacity_HighP1_lowN1_best
                   prev_all_diff_cont * capacity_HighP1_lowN1_best * trialnumberRS +
                   (1 | subjectnumber)')
 
-possible_threshold_values = sort(unique(compositeSpanScores))+.000001;
-possible_threshold_values = possible_threshold_values[1:(length(possible_threshold_values)-1)];
+unique_compositeSpanScores_clean = sort(unique(clean_data_complexspan$compositeSpanScore)) # note: the use of sort() removes NAs in composite span scores!
+possible_threshold_values = diff(unique_compositeSpanScores_clean)/2+unique_compositeSpanScores_clean[1:(length(unique_compositeSpanScores_clean)-1)]
 
 all_aic_values = array(data = NA, dim = length(possible_threshold_values));
 
@@ -1020,8 +1044,8 @@ for(ind in 1:length(possible_threshold_values)){
   
   cat(sprintf('This many people are < break_val: %g\n',sum(clean_data_complexspan$compositeSpanScore<break_val, na.rm = T)))
   
-  if((sum(clean_data_complexspan$compositeSpanScore<break_val, na.rm = T) == 1) | (sum(clean_data_complexspan$compositeSpanScore>break_val, na.rm = T) == 1)){
-    next # don't use any categorizations that create a 'group' with just 1 person
+  if((sum(clean_data_complexspan$compositeSpanScore<break_val, na.rm = T) <= 3) | (sum(clean_data_complexspan$compositeSpanScore>break_val, na.rm = T) <= 3)){
+    next # don't use any categorizations that create a 'group' with 3 or fewer people
   }
   
   m3_tmp = lmer(best_testing_model, data = clean_data_dm, REML = F);
@@ -1057,24 +1081,80 @@ clean_data_dm$capacity_HighP1_lowN1_best[clean_data_dm$complexspan < break_val] 
 clean_data_complexspan$capacity_HighP1_lowN1_best[clean_data_complexspan$compositeSpanScore > break_val] = 1;
 clean_data_complexspan$capacity_HighP1_lowN1_best[clean_data_complexspan$compositeSpanScore < break_val] = -1;
 
+# Visual Inspection of AIC curves suggest that moderate cutoff values (between composite
+# span values of ~0.35 and ~0.55) all do equivalently and reasonably well. This 
+# is broadly consistent with cutoff values observed in prior studies, if slightly
+# lower (the current [10/28/2026] best-fitting value with N = 31 is 0.68)
+# CGE: 0.6785724
+# CGT: ??
+# EDI: 0.6571439
+#
+# The three cutoff values producing equivalent-ish fits are:
+# 0.3692857 0.4571429 0.5571429
+
+# Use a more moderate cutoff value
+moderate_cutoff_value = 0.4571429
+clean_data_dm$capacity_HighP1_lowN1_moderate[clean_data_dm$complexspan > moderate_cutoff_value] = 1
+clean_data_dm$capacity_HighP1_lowN1_moderate[clean_data_dm$complexspan < moderate_cutoff_value] = -1
 
 
 
 # Continuous difficulty (including previous) and categorical capacity
-m3_prev_diffCont_capacityCat_intxn_rfx = lmer(sqrtRT ~ 1 +
+m3_prev_diffCont_capacityCatMedian_intxn_rfx = lmer(sqrtRT ~ 1 +
                                                 all_diff_cont * prev_all_diff_cont * capacity_HighP1_lowN1 +
                                                 (1 | subjectnumber), data = clean_data_dm);
-summary(m3_prev_diffCont_capacityCat_intxn_rfx)
+summary(m3_prev_diffCont_capacityCatMedian_intxn_rfx)
 
-m3_prev_diffCont_wmcCont_intxn_rfx = lmer(sqrtRT ~ 1 +
-                                                all_diff_cont * prev_all_diff_cont * capacity_HighP1_lowN1_best +
-                                                (1 | subjectnumber), data = clean_data_dm);
-summary(m3_prev_diffCont_wmcCont_intxn_rfx)
+m3_prev_diffCont_capacityCatBest_intxn_rfx = lmer(sqrtRT ~ 1 +
+                                                    all_diff_cont * capacity_HighP1_lowN1_best +
+                                                    prev_all_diff_cont * capacity_HighP1_lowN1_best +
+                                                    (1 | subjectnumber), data = clean_data_dm);
+summary(m3_prev_diffCont_capacityCatBest_intxn_rfx)
+
+m3_prev_diffCont_capacityCatModerate_intxn_rfx = lmer(sqrtRT ~ 1 +
+                                                        all_diff_cont * capacity_HighP1_lowN1_moderate + 
+                                                        prev_all_diff_cont * capacity_HighP1_lowN1_moderate +
+                                                        (1 | subjectnumber), data = clean_data_dm);
+summary(m3_prev_diffCont_capacityCatModerate_intxn_rfx)
 
 
+# Summary 10/28/2026
+#
+# - Broadly, these regressions capture the same patterns we've seen before:
+#   - current difficulty has a strong positive effect on decision time with
+#   people being slower the harder the trial is. 
+#   - Previous difficulty has a negative effect on decision time, with people 
+#   being faster after more difficult trials. 
+#
+# - Things that seem different at the moment (with N = 31) include 1) that previous
+# difficulty effect is not (always) significant and 2) that WMC is not reliably
+# emerging as an important modifier of current and previous difficulty effects. 
+# Possibly compounding this is the fact that the WMC data is lower quality than
+# in previous versions (EDI, CGE, CGT) - more people are missing one or both
+# of the WMC measures than before (in CGE, 6/85 people were missing both and 
+# 23/85 were missing 1; in EDI, 6/73 were missing both & 33/73 were missing one; 
+# here, 4/31 are missing both and 11/31 missing one). 
+#
+# - Two other major differences here are 1) the inclusion of ~1/3 intermediate trials
+# which we have not used before, and 2) significantly more trials (294) of the 
+# decision-making task (CGT/CGE/EDI: 180) which take place before the WMC 
+# measures. 
 
 
-# TAKEAWAY: NO EFFECT OF WMC EITHER?!?!?
+# Things to consider checking/analyzing:
+# 
+# 1. Nonlinear effects of time (simple averages of RT by blocks of 10 trials? or 4?)
+# 2. Nonlinear effects of difficulty (current and/or previous)
+#
+# To carry these out, There are two main approaches: 
+# 1. model-free averages based on binning (across time, across curr & prev. diff.)
+# 2. nonlinear transforms that are then used in e.g. regressions. 
+#
+# Option #1 is likely the easiest to do (just requires care in binning).
+#   - bin RTs as a function of trial #
+#   - do more categorical curr/prev difficulty analyses
+#
+
 
 
 
@@ -1193,7 +1273,7 @@ negLLprospect_cge_muPrevDiff <- function(parameters,choiceset,choices) {
   utility_safe_option = choiceset$safeoption^rho;
   
   # normalize values using this term
-  div <- max(choiceset[,1:3])^rho; # decorrelates rho & mu
+  div <- 30^rho; # decorrelates rho & mu
   
   # calculate the probability of selecting the risky option
   choiceP = 1/(1+exp(-applied_mu/div*(utility_risky_option - utility_safe_option)));
@@ -1241,6 +1321,10 @@ doParallel::registerDoParallel(cl = my.cluster)
 
 
 ##### Do the Estimations ###############################
+library(tictoc)
+library(doParallel)
+library(doRNG)
+library(numDeriv)
 tic()
 for (subj in 1:number_of_clean_subjects){
   # for (subj in 1){
@@ -1338,7 +1422,7 @@ ttest_result = t.test(estimated_parameters[,3])
 cat(sprintf('Results of one-sample t-test: t = %.2f (df = %i), p = %.4f\n',
             ttest_result$statistic, ttest_result$parameter, ttest_result$p.value))
 # Value is *slightly* positive, M = 0.17, SD = 0.54; t(84) = 2.9, p = 0.005
-hist(estimated_parameters[,3])
+hist(estimated_parameters[,3], xlab = 'Mu Change parameter value')
 
 lrt = 2*(NLLs_constr - NLLs)
 df = 1
