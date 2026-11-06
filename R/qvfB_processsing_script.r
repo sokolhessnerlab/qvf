@@ -10,7 +10,7 @@ rm(list=ls()); # Clear the workspace
 
 ## setting the working directory on kebab (and some others) -----
 setwd('/Users/shlab/Documents/GitHub/qvf/qvf_StudyB')
-setwd('/Users/sokolhessner/Documents/gitrepos/qvf/qvf_StudyB')
+#setwd('/Users/sokolhessner/Documents/gitrepos/qvf/qvf_StudyB')
 
 
 # STEP 2: RUN FROM SHLAB DRIVE #####

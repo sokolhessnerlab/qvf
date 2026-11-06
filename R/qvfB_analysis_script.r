@@ -76,8 +76,8 @@ rm(list=ls()); # Clear the workspace
 
 # STEP 02: SET WORKING DIRECTORY ##### 
 
-# setwd('/Users/shlab/Documents/GitHub/qvf/qvf_StudyB')
-setwd('/Users/sokolhessner/Documents/gitrepos/qvf/qvf_StudyB')
+setwd('/Users/shlab/Documents/GitHub/qvf/qvf_StudyB')
+#setwd('/Users/sokolhessner/Documents/gitrepos/qvf/qvf_StudyB')
 
 # STEP 03: RUN FROM SHLAB DRIVE #####
 
@@ -1016,6 +1016,28 @@ legend("topleft", legend = c(expression(bold("Previous Difficulty")), "Easy Choi
        col = c(NA, 'blue', 'red'), lwd = c(NA, 2, 2),
        bty = "o", inset = c(0.025, 0.025))
 
+# fixfx
+effectSize = fixef(m1_prev_alldiffCont_intxn_rfx)
+
+# barplot
+par(mar = c(5, 6, 4, 2))
+#dev.off()
+
+barplot(
+  effectSize[-c(1,4)],
+  names.arg = c("Current Difficulty", "Previous Difficulty"),
+  ylab = "Effect Size",
+  ylim = c(-0.1, 0.1),
+  col = c("blue", "red", "purple"), las = 1,
+  width = c(0.1, 0.1),
+  space = c(-.1, .1),
+  cex.axis = 1.2, cex.names = 1, cex.lab = 1.3, border = T
+)
+
+abline(h = 0, lwd = 2)
+box()
+
+
 # TAKEAWAY: I AM NOT SEEING PREVIOUS DIFFICULTY EFFECTS... ???
 
 
@@ -1118,6 +1140,119 @@ m3_prev_diffCont_capacityCatModerate_intxn_rfx = lmer(sqrtRT ~ 1 +
 summary(m3_prev_diffCont_capacityCatModerate_intxn_rfx)
 
 
+m3_best_HighCap_only = lmer(sqrtRT ~ 1 + all_diff_cont + prev_all_diff_cont +
+                              (1 | subjectnumber), data = clean_data_dm[clean_data_dm$capacity_HighP1_lowN1_moderate == 1,], REML = F);
+summary(m3_best_HighCap_only)
+
+m3_best_LowCap_only = lmer(sqrtRT ~ 1 + all_diff_cont + prev_all_diff_cont + 
+                             (1 | subjectnumber), data = clean_data_dm[clean_data_dm$capacity_HighP1_lowN1_moderate == -1,], REML = F);
+summary(m3_best_LowCap_only)
+
+
+m3_best_diffContOnly_only = lmer(sqrtRT ~ 1 + all_diff_cont * capacity_HighP1_lowN1_moderate +
+                              (1 | subjectnumber), data = clean_data_dm, REML = F);
+summary(m3_best_diffContOnly_only)
+
+lowWMC = 0.09437
+highWMC = 0.09437 + 0.008952
+
+barplot(c(lowWMC, highWMC),
+        names.arg = c("Low", "High"),
+        ylab = "Effect Size for Current Difficulty",
+        xlab = "WMC",
+        ylim = c(-0.15, 0.15),
+        col = c("orange", "brown"))
+abline(h = 0, lwd = 1)
+box()
+
+m3_best_prev_diffContOnly_only = lmer(sqrtRT ~ 1 + prev_all_diff_cont * capacity_HighP1_lowN1_moderate + 
+                             (1 | subjectnumber), data = clean_data_dm, REML = F);
+summary(m3_best_prev_diffContOnly_only)
+
+lowWMC = -0.007042
+highWMC = -0.007042 - 0.004122
+
+barplot(c(lowWMC, highWMC),
+        names.arg = c("Low", "High"),
+        ylab = "Effect Size for Previous Difficulty",
+        xlab = "WMC",
+        ylim = c(-0.15, 0.15),
+        col = c("orange", "brown"))
+abline(h = 0, lwd = 1)
+box()
+
+
+
+table(clean_data_dm$capacity_HighP1_lowN1_moderate)
+
+xval_plot = seq(from = 0, to = 1, length.out = 10)
+predict_data_m3_best_H = clean_data_dm[0,];
+predict_data_m3_best_H[1:20,] = NA;
+predict_data_m3_best_H$all_diff_cont[1:10] = xval_plot
+predict_data_m3_best_H$all_diff_cont[11:20] = xval_plot
+predict_data_m3_best_H$prev_all_diff_cont[1:10] = 0;
+predict_data_m3_best_H$prev_all_diff_cont[11:20] = 1;
+predict_data_m3_best_H$capacity_HighP1_lowN1_best = 1;
+
+predict_data_m3_best_L = predict_data_m3_best_H;
+predict_data_m3_best_L$capacity_HighP1_lowN1_best = -1;
+
+predict_output_m3_best_H = predict(m3_prev_diffCont_capacityCatBest_intxn_rfx, newdata = predict_data_m3_best_H, type = 'response', re.form = NA)^2
+predict_output_m3_best_L = predict(m3_prev_diffCont_capacityCatBest_intxn_rfx, newdata = predict_data_m3_best_L, type = 'response', re.form = NA)^2
+
+
+#HIGH CAPACITY PLOT
+# First plot PREV easy & CAPACITY high
+plot(x = xval_plot, y = predict_output_m3_best_H[1:10],
+     type = 'l', lwd = 5, col = 'blue',
+     main = 'Effect of current & previous difficulty: HIGH CAP', xlab = 'Current difficulty (0 = easy, 1 = difficult)', ylab = 'Reaction Time (seconds)',
+     ylim = c(1.25, 1.85))
+# Second plot PREV diff & CAPACITY high
+lines(x = xval_plot, y = predict_output_m3_best_H[11:20],
+      lwd = 5, col = 'red')
+
+#SEPERATE INTO TWO PLOTS (LOW CAPACITY BELOW)
+# Third plot PREV easy & CAPACITY low
+plot(x = xval_plot, y = predict_output_m3_best_L[1:10],
+     type = 'l',lwd = 5, col = 'blue',
+     main = 'Effect of current & previous difficulty: LOW CAP', xlab = 'Current difficulty (0 = easy, 1 = difficult)', ylab = 'Reaction Time (seconds)',
+     ylim = c(1.25,1.85))
+# Fourth (last) plot PREV diff & CAPACITY low
+lines(x = xval_plot, y = predict_output_m3_best_L[11:20],
+      lwd = 5, col = 'red')
+
+# Plot by WMC x Previous Difficult Choice only
+par(mfrow = c(1,1))
+par(mar = c(5, 6, 4, 4))
+# ~ low WMC
+plot(x = xval_plot, y = predict_output_m3_best_L[11:20], cex.axis = 1.3, las = 1,
+     type = 'l', lwd = 5, col = 'red',ylim = c(1.3, 1.8),
+     xlab = expression(bold("Current Difficulty")), ylab = expression(bold("Reaction Time (seconds)")), cex.lab = 1.5,)
+lines(x = xval_plot, y = predict_output_m3_best_H[11:20],
+      lwd = 5, col = 'red',  lty = 2)
+legend("topleft", legend = c(expression(bold("WMC Group")), "low WMC", "high WMC"), cex = 1.3, y.intersp = 1.3,
+       col = c(NA, 'red', 'red'), lty = c(NA, 1, 2), lwd = c(NA, 2, 2),
+       bty = "o", inset = c(0.025, 0.025))
+
+# for SANS
+par(mfrow = c(1,2))
+par(mar = c(5, 6, 4, 4))
+# ~ low WMC
+plot(x = xval_plot, y = predict_output_m3_best_L[1:10], cex.axis = 1.3, las = 1,
+     type = 'l', lwd = 5, col = 'blue',ylim = c(1.3, 1.8),
+     xlab = expression(bold("Current Difficulty")), ylab = expression(bold("Reaction Time (seconds)")), cex.lab = 1.5,)
+lines(x = xval_plot, y = predict_output_m3_best_L[11:20],
+      lwd = 5, col = 'red',  lty = 1)
+# ~ high WMC
+plot(x = xval_plot, y = predict_output_m3_best_H[1:10], cex.axis = 1.3, las = 1,
+     type = 'l', lwd = 5, col = 'blue',ylim = c(1.3, 1.8),
+     xlab = expression(bold("Current Difficulty")), ylab = expression(bold("Reaction Time (seconds)")), cex.lab = 1.5,)
+lines(x = xval_plot, y = predict_output_m3_best_H[11:20],
+      lwd = 5, col = 'red',  lty = 1)
+
+
+
+
 # Summary 10/28/2026
 #
 # - Broadly, these regressions capture the same patterns we've seen before:
@@ -1177,6 +1312,10 @@ summary(m3_prev_diffCont_capacityCatModerate_intxn_rfx)
 # 2. Calculate the likelihood of the choices.
 
 clean_data_dm$all_choice_likelihood = clean_data_dm$choice * clean_data_dm$all_choiceP + (1-clean_data_dm$choice) * (1-clean_data_dm$all_choiceP);
+
+inter_choice_likelihood = NA
+clean_data_dm$inter_choice_likelihood = (clean_data_dm$choice[clean_data_dm$e0i1d2 == 1] * clean_data_dm$all_choiceP[clean_data_dm$e0i1d2 == 1] + 
+                                        (1-clean_data_dm$choice[clean_data_dm$e0i1d2 == 1]) * (1-clean_data_dm$all_choiceP[clean_data_dm$e0i1d2 == 1]));
 
 # 3. Calculate the mean likelihood on dynamic trials after diff. vs. easy trials.
 
@@ -1243,7 +1382,100 @@ summary(likmodel_catDiff_catCap)
 likmodel_contDiff_catCap = lmer(all_choice_likelihood ~ 1 + all_diff_cont * prev_all_diff_cont * capacity_HighP1_lowN1_best +
                                   (1 | subjectnumber), data = clean_data_dm)
 summary(likmodel_contDiff_catCap)
+
+likmodel_contDiff_catCapMod = lmer(all_choice_likelihood ~ 1 + all_diff_cont * prev_all_diff_cont * capacity_HighP1_lowN1_moderate +
+                                  (1 | subjectnumber), data = clean_data_dm)
+summary(likmodel_contDiff_catCapMod)
+
 # no signs of anything going on in previous difficulty
+
+
+likmodel_contDiff = lmer(all_choice_likelihood ~ 1 + all_diff_cont * prev_all_diff_cont +
+                                  (1 | subjectnumber), data = clean_data_dm)
+summary(likmodel_contDiff)
+
+likmodel_contDiff = lmer(all_choice_likelihood ~ 1 + e0i1d2 * prev_all_diff_cont +
+                                  (1 | subjectnumber), data = clean_data_dm)
+summary(likmodel_contDiff)
+
+lowWMC = -0.007042
+highWMC = -0.007042 - 0.004122
+
+barplot(c(lowWMC, highWMC),
+        names.arg = c("Low", "High"),
+        ylab = "Effect Size for Previous Difficulty",
+        xlab = "WMC",
+        ylim = c(-0.15, 0.15),
+        col = c("orange", "brown"))
+abline(h = 0, lwd = 1)
+box()
+
+
+likmodel_prev_contDiff = lmer(all_choice_likelihood ~ 1 +  sqrtRT * prev_all_diff_cont +
+                              sqrtRT_prev * prev_all_diff_cont +
+                           (1 | subjectnumber), data = clean_data_dm)
+summary(likmodel_prev_contDiff)
+
+
+
+clean_data_inteOnly = subset(clean_data_dm, e0i1d2 == 1)
+
+clean_data_inteOnly$inter_choice_likelihood = clean_data_inteOnly$choice * clean_data_inteOnly$all_choiceP + (1 - clean_data_inteOnly$choice) * (1 - clean_data_inteOnly$all_choiceP)
+
+likmodel_contDiff_inteOnly = lmer(inter_choice_likelihood ~ 1 + all_diff_cont * prev_all_diff_cont + 
+                            (1 | subjectnumber), data = clean_data_inteOnly)
+
+summary(likmodel_contDiff_inteOnly)
+
+likmodel_prevContDiffOnly_inteOnly = lmer(inter_choice_likelihood ~ 1 + prev_all_diff_cont + 
+                                    (1 | subjectnumber), data = clean_data_inteOnly)
+
+summary(likmodel_prevContDiffOnly_inteOnly)
+
+likmodel_prevContDiffOnly_allData = lmer(inter_choice_likelihood ~ 1 + prev_all_diff_cont + 
+                                            (1 | subjectnumber), data = clean_data_dm)
+
+summary(likmodel_prevContDiffOnly_allData)
+
+likmodel_prevContDiffOnly_bestCatWMC_allData = lmer(inter_choice_likelihood ~ 1 + prev_all_diff_cont * capacity_HighP1_lowN1_best + 
+                                           (1 | subjectnumber), data = clean_data_dm)
+
+summary(likmodel_prevContDiffOnly_bestCatWMC_allData)
+
+likmodel_prevContDiffOnly_modCatWMC_allData = lmer(inter_choice_likelihood ~ 1 + prev_all_diff_cont * capacity_HighP1_lowN1_moderate + 
+                                                      (1 | subjectnumber), data = clean_data_dm)
+
+summary(likmodel_prevContDiffOnly_modCatWMC_allData)
+
+# doing this doesn't work, no? becasue if i constrain likelihood to only intermediate, then i also lose our ability to see the effect of previous difficulty
+# but it shouldn't affect prevous difficulty, right?
+
+anova(lm(inter_choice_likelihood ~ prev_all_diff_cont, data = clean_data_dm))
+
+likmodelANOVA_currDiffcapOnly = aov(inter_choice_likelihood ~ factor(e0i1d2), data = clean_data_dm)
+summary(likmodelANOVA_currDiffcapOnly)
+TukeyHSD(likmodelANOVA_currDiffcapOnly)
+aggregate(inter_choice_likelihood ~ e0i1d2, data = clean_data_dm, mean) # just as regression said
+
+
+clean_data_dm$easyP1difficultN1_prev
+### CAN I DO THE SAME FOR e0i1d2???
+# input shifted version of desired content
+clean_data_dm$e0i1d2_prev = c(0,clean_data_dm$e0i1d2[1:(length(clean_data_dm$e0i1d2)-1)])
+# fix the few problematic trials (#1)
+clean_data_dm$e0i1d2_prev[clean_data_dm$trialnumber == 1] = 0;
+
+# will this work with a created e0i1d2_prev???
+likmodelANOVA_prevDiffcapOnly = aov(inter_choice_likelihood ~ factor(e0i1d2_prev), data = clean_data_dm)
+summary(likmodelANOVA_prevDiffcapOnly)
+TukeyHSD(likmodelANOVA_prevDiffcapOnly)
+aggregate(inter_choice_likelihood ~ e0i1d2_prev, data = clean_data_dm, mean) # just as regression said
+
+likmodelANOVA_with_prevDiffcap = aov(inter_choice_likelihood ~ factor(e0i1d2) * factor(e0i1d2_prev), data = clean_data_dm)
+summary(likmodelANOVA_with_prevDiffcap)
+TukeyHSD(likmodelANOVA_with_prevDiffcap)
+aggregate(inter_choice_likelihood ~ e0i1d2 + e0i1d2_prev, data = clean_data_dm, mean) # just as regression said
+
 
 
 # Another Approach - look for lower choice consistency after difficult trials
