@@ -1735,7 +1735,58 @@ negLLprospect_cge_muPrevDiff <- function(parameters,choiceset,choices) {
   return(nll)
 }
 
+# Alternative parameterization
+negLLprospect_cge_muPrevDiff_multiplicative <- function(parameters,choiceset,choices) {
+  # A negative log likelihood function for a prospect-theory estimation.
+  # Assumes parameters are [rho, mu, muchange]
+  # Assumes choiceset has columns riskyoption1, riskyoption2, safeoption, and all_diff_cont
+  # Assumes choices are binary/logical, with 1 = risky, 0 = safe.
+  #
+  # Peter Sokol-Hessner
+  # July 2021
+  
+  rho = parameters[1]
+  mu_baseline = parameters[2]
+  mu_fracmultiplier = parameters[3]
+  
+  # Correct parameter bounds
+  if(rho <= 0){
+    rho = .Machine$double.eps;
+  }
+  
+  if(mu_baseline < 0){ # constrain to be zero or greater
+    mu_baseline = .Machine$double.eps;
+  }
+  
+  if(mu_fracmultiplier < 0){ # constrain to be zero or greater
+    mu_fracmultiplier = .Machine$double.eps;
+  }
+  
+  # Produces a multiplier on mu that's anchored at 1, and goes toward 0 or toward positive values
+  applied_mu = mu_baseline * (choiceset$prev_all_diff_cont*(mu_fracmultiplier - 1) + 1)
+  
+  # calculate utility of the two options
+  utility_risky_option = 0.5 * choiceset$riskyoption1^rho +
+    0.5 * choiceset$riskyoption2^rho;
+  utility_safe_option = choiceset$safeoption^rho;
+  
+  # normalize values using this term
+  div <- 30^rho; # decorrelates rho & mu
+  
+  # calculate the probability of selecting the risky option
+  choiceP = 1/(1+exp(-applied_mu/div*(utility_risky_option - utility_safe_option)));
+  
+  likelihood = choices * choiceP + (1 - choices) * (1-choiceP);
+  likelihood[likelihood == 0] = .Machine$double.eps;
+  # likelihood[likelihood == 0] = 0.000000000000001; # 1e-15, i.e. 14 zeros followed by a 1; USE FOR consistency with psychopy script
+  
+  nll <- -sum(log(likelihood));
+  return(nll)
+}
+
 #### Optimization ############################################
+
+##### Using negLLprospect_cge_muPrevDiff #####################
 
 # Set up the parallelization
 n.cores <- parallel::detectCores() - 1; # Use 1 less than the full number of cores.
@@ -1905,6 +1956,184 @@ cor.test(estimated_parameters[,3], clean_data_complexspan$compositeSpanScore, me
 plot(estimated_parameters[,3], clean_data_complexspan$compositeSpanScore, 
      xlab = 'Mu Change parameter', ylab = 'WMC')
 # No significant correlation (either spearman's rho or pearson's r)
+
+
+
+
+
+##### Using negLLprospect_cge_muPrevDiff_multiplicative #####################
+
+# Set up the parallelization
+n.cores <- parallel::detectCores() - 1; # Use 1 less than the full number of cores.
+
+# Bounds and parameters
+eps = .Machine$double.eps;
+lower_bounds = c(eps, 0, 0); # R, M, mu multiplier
+upper_bounds = c(2, 80, 2);
+number_of_parameters = length(lower_bounds);
+
+lb_constr = c(eps, 0); # R, M
+ub_constr = c(2, 80);
+number_of_parameters_constr = length(lb_constr);
+
+# Create placeholders for parameters, errors, NLL (and anything else you want)
+number_of_iterations = 200; # 100 or more
+estimated_parameters = array(dim = c(number_of_clean_subjects,number_of_parameters));
+estimated_parameter_errors = array(dim = c(number_of_clean_subjects,number_of_parameters));
+NLLs = array(dim = c(number_of_clean_subjects,1));
+
+estimated_parameters_constr = array(dim = c(number_of_clean_subjects,number_of_parameters_constr));
+estimated_parameter_errors_constr = array(dim = c(number_of_clean_subjects,number_of_parameters_constr));
+NLLs_constr = array(dim = c(number_of_clean_subjects,1));
+
+cat('Beginning Optimization\n')
+
+my.cluster <- parallel::makeCluster(
+  n.cores,
+  type = "FORK"
+)
+doParallel::registerDoParallel(cl = my.cluster)
+
+
+##### Do the Estimations ###############################
+library(tictoc)
+library(doParallel)
+library(doRNG)
+library(numDeriv)
+tic()
+for (subj in 1:number_of_clean_subjects){
+  # for (subj in 1){
+  subj_id = keep_participants[subj];
+  cat(sprintf('%i of %i\n',subj_id, number_of_clean_subjects))
+  
+  tmpdata = clean_data_dm[(clean_data_dm$subjectnumber == subj_id) &
+                            is.finite(clean_data_dm$choice) & 
+                            is.finite(clean_data_dm$prev_all_diff_cont),]; # defines this person's data
+  
+  choiceset = as.data.frame(cbind(tmpdata$riskyopt1, tmpdata$riskyopt2, tmpdata$safe, tmpdata$prev_all_diff_cont));
+  colnames(choiceset) <- c('riskyoption1', 'riskyoption2', 'safeoption', 'prev_all_diff_cont');
+  
+  # Mu Change Model
+  temp_parameters = array(dim = c(number_of_iterations,number_of_parameters));
+  temp_hessians = array(dim = c(number_of_iterations,number_of_parameters,number_of_parameters));
+  temp_NLLs = array(dim = c(number_of_iterations,1));
+  
+  tmpoutput <- foreach(iter=1:number_of_iterations, .combine=rbind) %dorng% {
+    # you need to randomize the initial so you can end up at different points
+    initial_values = runif(number_of_parameters, min = lower_bounds, max = upper_bounds)
+    
+    # The estimation itself
+    output <- optim(initial_values, negLLprospect_cge_muPrevDiff_multiplicative,
+                    choiceset = choiceset,
+                    choices = tmpdata$choice,
+                    lower = lower_bounds,
+                    upper = upper_bounds,
+                    method = "L-BFGS-B",
+                    hessian = T)
+    
+    c(output$par,output$value); # the things (parameter values & NLL) to save/combine across parallel estimations
+  }
+  
+  tmpoutput = as.array(tmpoutput[,]) # Remove all the extra RNG info
+  dimnames(tmpoutput) <- NULL
+  
+  # Store the output we need access to later
+  best_ind = which.min(tmpoutput[,number_of_parameters+1]); # the index of that NLL
+  
+  # Compare output; select the best one
+  estimated_parameters[subj,] = tmpoutput[best_ind,1:number_of_parameters] # the parameters
+  NLLs[subj] = tmpoutput[best_ind,number_of_parameters+1]; # the best NLL for this person
+  
+  tmp_hess = hessian(negLLprospect_cge_muPrevDiff_multiplicative,estimated_parameters[subj,], 
+                     choiceset = choiceset,
+                     choices = tmpdata$choice)
+  
+  estimated_parameter_errors[subj,] = sqrt(diag(solve(tmp_hess))); # the SEs
+  
+  
+  # Standard (Constrained, no mu change) Model
+  
+  temp_parameters = array(dim = c(number_of_iterations,number_of_parameters_constr));
+  temp_hessians = array(dim = c(number_of_iterations,number_of_parameters,number_of_parameters_constr));
+  temp_NLLs = array(dim = c(number_of_iterations,1));
+  
+  tmpoutput <- foreach(iter=1:number_of_iterations, .combine=rbind) %dorng% {
+    # you need to randomize the initial so you can end up at different points
+    initial_values = runif(number_of_parameters_constr, min = lb_constr, max = ub_constr)
+    
+    # The estimation itself
+    output <- optim(initial_values, negLLprospect_cge,
+                    choiceset = choiceset,
+                    choices = tmpdata$choice,
+                    lower = lb_constr,
+                    upper = ub_constr,
+                    method = "L-BFGS-B",
+                    hessian = T)
+    
+    c(output$par,output$value); # the things (parameter values & NLL) to save/combine across parallel estimations
+  }
+  
+  tmpoutput = as.array(tmpoutput[,]) # Remove all the extra RNG info
+  dimnames(tmpoutput) <- NULL
+  
+  # Store the output we need access to later
+  best_ind = which.min(tmpoutput[,number_of_parameters_constr+1]); # the index of that NLL
+  
+  # Compare output; select the best one
+  estimated_parameters_constr[subj,] = tmpoutput[best_ind,1:number_of_parameters_constr] # the parameters
+  NLLs_constr[subj] = tmpoutput[best_ind,number_of_parameters_constr+1]; # the best NLL for this person
+  
+  tmp_hess = hessian(negLLprospect_cge,estimated_parameters_constr[subj,], 
+                     choiceset = choiceset,
+                     choices = tmpdata$choice)
+  
+  estimated_parameter_errors_constr[subj,] = sqrt(diag(solve(tmp_hess))); # the SEs
+}
+stopCluster(my.cluster)
+toc()
+
+##### Process the Results ###############################
+ttest_result = t.test(estimated_parameters[,3], mu = 1)
+cat(sprintf('Results of one-sample t-test: t = %.2f (df = %i), p = %.4f\n',
+            ttest_result$statistic, ttest_result$parameter, ttest_result$p.value))
+# Value is *slightly* positive, M = 0.17, SD = 0.54; t(84) = 2.9, p = 0.005
+hist(estimated_parameters[,3], xlab = 'Mu Change parameter value')
+
+mean_muchange = mean(estimated_parameters[,3])
+sem_muchange = sem(estimated_parameters[,3])
+
+plot(rep(1,number_of_clean_subjects),
+     estimated_parameters[,3], 
+     col = rgb(0,0,0,0.3), pch = 18, cex = 2.5,
+     bty = 'n', xaxt = 'n', xlab = '',
+     ylim = c(0, 2),
+     ylab = 'Mu Change Parameter Estimates')
+abline(h = 1, lty = 'dashed', col = 'black')
+arrows(x0 = 1, y0 = mean_muchange + sem_muchange, y1 = mean_muchange - sem_muchange,
+       length = 0, lwd = 4)
+points(1, mean(estimated_parameters[,3]),
+       bg = 'white', col = 'black', 
+       pch = 23, cex = 2.5, lwd = 4)
+
+lrt = 2*(NLLs_constr - NLLs)
+df = 1
+lrtp = 1 - pchisq(lrt, df)
+
+cat(sprintf('Out of %i mu-change parameter values:\n - %i are not different from 0\n - %i are different & negative\n - %i are different & positive.\n', 
+            length(lrtp), sum(lrtp >= .05), 
+            sum(((lrtp < .05) & (estimated_parameters[,3] < 0))), 
+            sum(((lrtp < .05) & (estimated_parameters[,3] > 0)))))
+
+cat(sprintf('Likelihood Ratio Test: Test statistic = %.1f, p = %.5f.\n', lrt, lrtp))
+
+cor.test(estimated_parameters[,3], clean_data_complexspan$compositeSpanScore)
+cor.test(estimated_parameters[,3], clean_data_complexspan$compositeSpanScore, method = 'spearman')
+plot(estimated_parameters[,3], clean_data_complexspan$compositeSpanScore, 
+     xlab = 'Mu Change parameter', ylab = 'WMC')
+# No significant correlation (either spearman's rho or pearson's r)
+
+
+
 
 # Had predicted...
 # - negative muchange parameter value
