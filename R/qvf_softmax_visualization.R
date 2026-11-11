@@ -2,7 +2,8 @@
 
 # Setup ----
 rm(list = ls()); # clear the workspace
-setwd('/Users/sokolhessner/Documents/gitrepos/qvf/R/');
+#setwd('/Users/sokolhessner/Documents/gitrepos/qvf/R/');
+setwd('/Users/shlab/Documents/GitHub/qvf/qvf_StudyB')
 
 
 # Baseline Setup ##############################################

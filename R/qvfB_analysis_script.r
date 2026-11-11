@@ -1313,20 +1313,21 @@ lines(x = xval_plot, y = predict_output_m3_best_H[11:20],
 
 clean_data_dm$all_choice_likelihood = clean_data_dm$choice * clean_data_dm$all_choiceP + (1-clean_data_dm$choice) * (1-clean_data_dm$all_choiceP);
 
-inter_choice_likelihood = NA
-clean_data_dm$inter_choice_likelihood = (clean_data_dm$choice[clean_data_dm$e0i1d2 == 1] * clean_data_dm$all_choiceP[clean_data_dm$e0i1d2 == 1] + 
-                                        (1-clean_data_dm$choice[clean_data_dm$e0i1d2 == 1]) * (1-clean_data_dm$all_choiceP[clean_data_dm$e0i1d2 == 1]));
 
 # 3. Calculate the mean likelihood on dynamic trials after diff. vs. easy trials.
 
+par(mfrow = c(1,1))
+
 mean_choice_lik_prevEasy = array(data = NA, dim = c(number_of_clean_subjects,1));
-mean_choice_lik_prevDiff = array(data = NA, dim = c(number_of_clean_subjects,1));
+mean_choice_lik_prevInte = array(data = NA, dim = c(number_of_clean_subjects,1));
+mean_choice_lik_prevDiff = array(data = NA, dim = c(number_of_clean_subjects,1))
 
 for (s in 1:number_of_clean_subjects){
   subj_id = keep_participants[s]
   tmpdata = clean_data_dm[clean_data_dm$subjectnumber == subj_id,];
   
   mean_choice_lik_prevEasy[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == 1], na.rm = T); # na.rm b/c of missed trials
+  mean_choice_lik_prevInte[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == 0], na.rm = T);
   mean_choice_lik_prevDiff[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == -1], na.rm = T);
   
   # Use this code to run this test ONLY on current difficult trials
@@ -1348,6 +1349,150 @@ cor.test(mean_choice_lik_prevEasy, mean_choice_lik_prevDiff, method = 'spearman'
 
 plot(mean_choice_lik_prevEasy, mean_choice_lik_prevDiff)
 lines(x = c(0, 1), y = c(0, 1))
+
+plot(clean_data_dm$easyP1difficultN1_prev == 1, clean_data_dm$all_choice_likelihood)
+lines(x = c(0, 1), y = c(0, 1))
+
+
+# ------------------------------------------------------------------------------
+# MAKE LOOP TO FILL CHOICE LIKELIHOOD MEANS FOR EACH COMBO OF CURRENT & PREVIOUS DIFFICULTY #####
+# ------------------------------------------------------------------------------
+
+# previous easy x current difficulty
+mean_choiceLik_prevEasy_currEasy = array(data = NA, dim = c(number_of_clean_subjects, 1))
+mean_choiceLik_prevEasy_currInte = array(data = NA, dim = c(number_of_clean_subjects, 1))
+mean_choiceLik_prevEasy_currDiff = array(data = NA, dim = c(number_of_clean_subjects, 1))
+
+# previous intermediate x current difficulty
+mean_choiceLik_prevInte_currEasy = array(data = NA, dim = c(number_of_clean_subjects, 1))
+mean_choiceLik_prevInte_currInte = array(data = NA, dim = c(number_of_clean_subjects, 1))
+mean_choiceLik_prevInte_currDiff = array(data = NA, dim = c(number_of_clean_subjects, 1))
+
+# previous difficult x current difficulty
+mean_choiceLik_prevDiff_currEasy = array(data = NA, dim = c(number_of_clean_subjects, 1))
+mean_choiceLik_prevDiff_currInte = array(data = NA, dim = c(number_of_clean_subjects, 1))
+mean_choiceLik_prevDiff_currDiff = array(data = NA, dim = c(number_of_clean_subjects, 1))
+
+for (s in 1:number_of_clean_subjects) {
+  subj_id = keep_participants[s]
+  tmpdata = clean_data_dm[clean_data_dm$subjectnumber == subj_id, ]
+  
+  # previous easy x current difficulty
+  mean_choiceLik_prevEasy_currEasy[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == 1 & tmpdata$easyP1difficultN1 == 1], na.rm = T)
+  mean_choiceLik_prevEasy_currInte[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == 1 & tmpdata$easyP1difficultN1 == 0], na.rm = T)
+  mean_choiceLik_prevEasy_currDiff[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == 1 & tmpdata$easyP1difficultN1 == -1], na.rm = T)
+  
+  # previous intermediate x current difficulty
+  mean_choiceLik_prevInte_currEasy[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == 0 & tmpdata$easyP1difficultN1 == 1], na.rm = T)
+  mean_choiceLik_prevInte_currInte[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == 0 & tmpdata$easyP1difficultN1 == 0], na.rm = T)
+  mean_choiceLik_prevInte_currDiff[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == 0 & tmpdata$easyP1difficultN1 == -1], na.rm = T)
+  
+  
+  # previous difficult x current difficulty
+  mean_choiceLik_prevDiff_currEasy[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == -1 & tmpdata$easyP1difficultN1 == 1], na.rm = T)
+  mean_choiceLik_prevDiff_currInte[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == -1 & tmpdata$easyP1difficultN1 == 0], na.rm = T)
+  mean_choiceLik_prevDiff_currDiff[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == -1 & tmpdata$easyP1difficultN1 == -1], na.rm = T)
+
+  # am i supposed to be plotting all the different interactions? 
+  # or just the role of previous difficult on a specific type of current difficulty?
+  # it's the latter, no?
+}
+
+# PLOTTING PREVIOUS EASY x CURRENT DIFFICULTY # -> how do i signal that this is for each participant??? a legend??? verbally? note???
+plot(c(rep(0, number_of_clean_subjects), rep(0.5, number_of_clean_subjects), rep(1, number_of_clean_subjects)), # plot for each value on x-axis... but it's not continuous # rep() needed to match the means to each participant # when i don't have it, the x-axis goes crazy...
+     c(mean_choiceLik_prevEasy_currEasy, mean_choiceLik_prevEasy_currInte, mean_choiceLik_prevEasy_currDiff),
+     col = c(rep("blue", number_of_clean_subjects), rep("purple", number_of_clean_subjects), rep("red", number_of_clean_subjects)), # rep() needed to match the colors to each participant
+     xlab = "Current Difficulty (0 = Easy:1 = Difficult)", ylab = "Mean Choice Likelihood (Preference (In)Consistency)", main = "Previous Trial Difficulty: Easy Choice",
+     ylim = c(0, 1), xlim = c(0, 1)) # x-axis should have continuous difficulty, no???
+lines(c(0, 0.5, 1),
+      c(mean(mean_choiceLik_prevEasy_currEasy, na.rm = T),
+        mean(mean_choiceLik_prevEasy_currInte, na.rm = T),
+        mean(mean_choiceLik_prevEasy_currDiff, na.rm = T)),
+      col = "blue")
+
+# PLOTTING PREVIOUS INTERMEDIATE x CURRENT DIFFICULTY
+plot(c(rep(0, number_of_clean_subjects), rep(0.5, number_of_clean_subjects), rep(1, number_of_clean_subjects)),
+     c(mean_choiceLik_prevInte_currEasy, mean_choiceLik_prevInte_currInte, mean_choiceLik_prevInte_currDiff),
+     col = c(rep("blue", number_of_clean_subjects), rep("purple", number_of_clean_subjects), rep("red", number_of_clean_subjects)),
+     xlab = "Current Difficulty (0 = Easy:1 = Difficult)", ylab = "Mean Choice Likelihood (Preference (In)Consistency)", main = "Previous Trial Difficulty: Intermediate Choice",
+     ylim = c(0, 1), xlim = c(0, 1))
+lines(c(0, 0.5, 1),
+      c(mean(mean_choiceLik_prevInte_currEasy, na.rm = T),
+        mean(mean_choiceLik_prevInte_currInte, na.rm = T),
+        mean(mean_choiceLik_prevInte_currDiff, na.rm = T)),
+      col = "purple")
+
+# PLOTTING PREVIOUS DIFFICULT x CURRENT DIFFICULTY
+plot(c(rep(0, number_of_clean_subjects), rep(0.5, number_of_clean_subjects), rep(1, number_of_clean_subjects)),
+     c(mean_choiceLik_prevDiff_currEasy, mean_choiceLik_prevDiff_currInte, mean_choiceLik_prevDiff_currDiff),
+     col = c(rep("blue", number_of_clean_subjects), rep("purple", number_of_clean_subjects), rep("red", number_of_clean_subjects)),
+     xlab = "Current Difficulty (0 = Easy:1 = Difficult)", ylab = "Mean Choice Likelihood (Preference (In)Consistency)", main = "Previous Trial Difficulty: Difficult Choice",
+     ylim = c(0, 1), xlim = c(0, 1))
+lines(c(0, 0.5, 1),
+      c(mean(mean_choiceLik_prevDiff_currEasy, na.rm = T),
+        mean(mean_choiceLik_prevDiff_currInte, na.rm = T),
+        mean(mean_choiceLik_prevDiff_currDiff, na.rm = T)),
+      col = "red")
+
+
+# PLOTTING ONLY PREVIOUS DIFFICULTY
+# ------------------------------------------------------------------------------
+
+# PLOTTING PREVIOUS DIFFICULT x CURRENT EASY # -> this is not what I'm trying to do... # shouldn't it be continuous, i.e., more spread?
+plot(rep(1, number_of_clean_subjects), mean_choiceLik_prevDiff_currEasy,
+     xlab = "Current Difficulty: Easy Choice", ylab = "Mean Choice Likelihood (Preference (In)Consistency)", main = "Previous Trial Difficulty: Difficult Choice",
+     ylim = c(0, 1),
+     col = "blue")
+abline(h = mean(mean_choiceLik_prevDiff_currEasy, na.rm = T),
+       col = "blue")
+
+# PLOTTING PREVIOUS DIFFICULT x CURRENT INTERMEDIATE # -> i don't think this is what the x-axis should be...or is it???
+plot(rep(1, number_of_clean_subjects), mean_choiceLik_prevDiff_currInte,
+     xlab = "Current Difficulty: Intermeduate Choice", ylab = "Mean Choice Likelihood (Preference (In)Consistency)", main = "Previous Trial Difficulty: Difficult Choice",
+     ylim = c(0, 1),
+     col = "purple")
+abline(h = mean(mean_choiceLik_prevDiff_currInte, na.rm = T),
+       col = "purple")
+
+# PLOTTING PREVIOUS DIFFICULT x CURRENT DIFFICULT
+plot(rep(1, number_of_clean_subjects), mean_choiceLik_prevDiff_currInte,
+     xlab = "Current Difficulty: Difficult Choice ", ylab = "Mean Choice Likelihood (Preference (In)Consistency)", main = "Previous Trial Difficulty: Difficult Choice",
+     ylim = c(0, 1),
+     col = "red")
+abline(h = mean(mean_choiceLik_prevDiff_currInte, na.rm = T),
+       col = "red")
+
+
+# soft max change graph
+plot(prisky_preveasy, subj_val_diff, col = 'blue', type = 'l', lwd = 6, 
+     xlab = 'Subjective Value Difference (risky - safe)',
+     ylab = 'p(choose risky)')
+lines(prisky_prevdiff, subj_val_diff, col = 'red', lwd = 6)
+
+# Boxes defined in value-difference space
+easy_rej_bound = .15
+easy_acc_bound = .85
+diff_bounds = c(.45, .55)
+
+xvals_easyrej = log((1/easy_rej_bound-1))/-softmax_inv_temp_preveasy
+xvals_easyacc = log((1/easy_acc_bound-1))/-softmax_inv_temp_preveasy
+xvals_diff = log((1/diff_bounds-1))/-softmax_inv_temp_preveasy
+
+polygon(x = c(0, 1, 1, 0), y = c(-6, -6, xvals_easyrej, xvals_easyrej),col = rgb(0, 0, 0, .1), border = F)
+polygon(x = c(0, 1, 1, 0), y = c(xvals_easyacc, xvals_easyacc, 6, 6),col = rgb(0, 0, 0, .1), border = F)
+polygon(x = c(0, 1, 1, 0), y = c(xvals_diff[1], xvals_diff[1], xvals_diff[2], xvals_diff[2]),col = rgb(0, 0, 0, .1), border = F)
+
+int_rej_bounds = c(.25, .35)
+int_acc_bounds = c(.65, .75)
+
+xvals_intrej = log((1/int_rej_bounds-1))/-softmax_inv_temp_preveasy
+xvals_intacc = log((1/int_acc_bounds-1))/-softmax_inv_temp_preveasy
+
+polygon(x = c(0, 1, 1, 0), y = c(xvals_intrej[1], xvals_intrej[1], xvals_intrej[2], xvals_intrej[2]),col = rgb(0, 0, 0, .2))
+polygon(x = c(0, 1, 1, 0), y = c(xvals_intacc[1], xvals_intacc[1], xvals_intacc[2], xvals_intacc[2]),col = rgb(0, 0, 0, .2))
+
+
+
 
 # 4. Calculate the difference in mean choice likelihood as a function of prev. difficulty
 
@@ -1450,12 +1595,12 @@ summary(likmodel_prevContDiffOnly_modCatWMC_allData)
 # doing this doesn't work, no? becasue if i constrain likelihood to only intermediate, then i also lose our ability to see the effect of previous difficulty
 # but it shouldn't affect prevous difficulty, right?
 
-anova(lm(inter_choice_likelihood ~ prev_all_diff_cont, data = clean_data_dm))
+anova(lm(inter_choice_likelihood ~ prev_all_diff_cont, data = clean_data_inteOnly))
 
-likmodelANOVA_currDiffcapOnly = aov(inter_choice_likelihood ~ factor(e0i1d2), data = clean_data_dm)
+likmodelANOVA_currDiffcapOnly = aov(inter_choice_likelihood ~ factor(e0i1d2), data = clean_data_inteOnly)
 summary(likmodelANOVA_currDiffcapOnly)
 TukeyHSD(likmodelANOVA_currDiffcapOnly)
-aggregate(inter_choice_likelihood ~ e0i1d2, data = clean_data_dm, mean) # just as regression said
+aggregate(inter_choice_likelihood ~ e0i1d2, data = clean_data_inteOnly, mean) # just as regression said
 
 
 clean_data_dm$easyP1difficultN1_prev
