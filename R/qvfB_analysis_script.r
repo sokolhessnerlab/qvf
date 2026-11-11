@@ -1691,6 +1691,9 @@ TukeyHSD(likmodelANOVA_with_prevDiffcap)
 aggregate(inter_choice_likelihood ~ e0i1d2 + e0i1d2_prev, data = clean_data_dm, mean) # just as regression said
 
 
+# CHANGES IN MU: Looking in estimated softmax inv. temps for evidence of changes in choice quality ####
+#
+#
 
 # Another Approach - look for lower choice consistency after difficult trials
 negLLprospect_cge_muPrevDiff <- function(parameters,choiceset,choices) {
@@ -1869,6 +1872,22 @@ cat(sprintf('Results of one-sample t-test: t = %.2f (df = %i), p = %.4f\n',
             ttest_result$statistic, ttest_result$parameter, ttest_result$p.value))
 # Value is *slightly* positive, M = 0.17, SD = 0.54; t(84) = 2.9, p = 0.005
 hist(estimated_parameters[,3], xlab = 'Mu Change parameter value')
+
+mean_muchange = mean(estimated_parameters[,3])
+sem_muchange = sem(estimated_parameters[,3])
+
+plot(rep(1,number_of_clean_subjects),
+     estimated_parameters[,3], 
+     col = rgb(0,0,0,0.3), pch = 18, cex = 2.5,
+     bty = 'n', xaxt = 'n', xlab = '',
+     ylim = c(-1, 1),
+     ylab = 'Mu Change Parameter Estimates')
+abline(h = 0, lty = 'dashed', col = 'black')
+arrows(x0 = 1, y0 = mean_muchange + sem_muchange, y1 = mean_muchange - sem_muchange,
+       length = 0, lwd = 4)
+points(1, mean(estimated_parameters[,3]),
+       bg = 'white', col = 'black', 
+       pch = 23, cex = 2.5, lwd = 4)
 
 lrt = 2*(NLLs_constr - NLLs)
 df = 1
