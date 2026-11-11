@@ -2107,7 +2107,7 @@ plot(rep(1,number_of_clean_subjects),
      col = rgb(0,0,0,0.3), pch = 18, cex = 2.5,
      bty = 'n', xaxt = 'n', xlab = '',
      ylim = c(0, 2),
-     ylab = 'Mu Change Parameter Estimates')
+     ylab = 'Mu Multiplier Parameter Estimates')
 abline(h = 1, lty = 'dashed', col = 'black')
 arrows(x0 = 1, y0 = mean_muchange + sem_muchange, y1 = mean_muchange - sem_muchange,
        length = 0, lwd = 4)
