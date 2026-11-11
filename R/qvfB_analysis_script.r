@@ -76,8 +76,8 @@ rm(list=ls()); # Clear the workspace
 
 # STEP 02: SET WORKING DIRECTORY ##### 
 
-setwd('/Users/shlab/Documents/GitHub/qvf/qvf_StudyB')
-#setwd('/Users/sokolhessner/Documents/gitrepos/qvf/qvf_StudyB')
+# setwd('/Users/shlab/Documents/GitHub/qvf/qvf_StudyB')
+setwd('/Users/sokolhessner/Documents/gitrepos/qvf/qvf_StudyB')
 
 # STEP 03: RUN FROM SHLAB DRIVE #####
 
@@ -1373,30 +1373,99 @@ mean_choiceLik_prevDiff_currEasy = array(data = NA, dim = c(number_of_clean_subj
 mean_choiceLik_prevDiff_currInte = array(data = NA, dim = c(number_of_clean_subjects, 1))
 mean_choiceLik_prevDiff_currDiff = array(data = NA, dim = c(number_of_clean_subjects, 1))
 
+## THE BELOW LOOP CODE IS NOT VALID AS IT USES easyP1difficultN1 INSTEAD OF e0i1d2; THE LATTER HAS
+## STATIC TRIALS LISTED AS '0', AS WELL AS INTERMEDIATE, BUT THAT'S NOT APPROPRIATE
+## FOR THIS ANALYSIS.
+# for (s in 1:number_of_clean_subjects) {
+#   subj_id = keep_participants[s]
+#   tmpdata = clean_data_dm[clean_data_dm$subjectnumber == subj_id, ]
+#   
+#   # previous easy x current difficulty
+#   mean_choiceLik_prevEasy_currEasy[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == 1 & tmpdata$easyP1difficultN1 == 1], na.rm = T)
+#   mean_choiceLik_prevEasy_currInte[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == 1 & tmpdata$easyP1difficultN1 == 0], na.rm = T)
+#   mean_choiceLik_prevEasy_currDiff[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == 1 & tmpdata$easyP1difficultN1 == -1], na.rm = T)
+#   
+#   # previous intermediate x current difficulty
+#   mean_choiceLik_prevInte_currEasy[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == 0 & tmpdata$easyP1difficultN1 == 1], na.rm = T)
+#   mean_choiceLik_prevInte_currInte[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == 0 & tmpdata$easyP1difficultN1 == 0], na.rm = T)
+#   mean_choiceLik_prevInte_currDiff[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == 0 & tmpdata$easyP1difficultN1 == -1], na.rm = T)
+#   
+#   
+#   # previous difficult x current difficulty
+#   mean_choiceLik_prevDiff_currEasy[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == -1 & tmpdata$easyP1difficultN1 == 1], na.rm = T)
+#   mean_choiceLik_prevDiff_currInte[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == -1 & tmpdata$easyP1difficultN1 == 0], na.rm = T)
+#   mean_choiceLik_prevDiff_currDiff[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == -1 & tmpdata$easyP1difficultN1 == -1], na.rm = T)
+# 
+#   # am i supposed to be plotting all the different interactions? 
+#   # or just the role of previous difficult on a specific type of current difficulty?
+#   # it's the latter, no?
+# }
+
+
+
+
+
+#
+### CALCULATING CHOICE LIKELIHOOD as a function of current and previous choice difficulty ####
+#
+
+mean_choiceLik_prevEID_currEID = array(dim = c(number_of_clean_subjects,3,3))
+clean_data_dm$e0i1d2_prev = c(NA,clean_data_dm$e0i1d2[1:(length(clean_data_dm$e0i1d2)-1)])
+clean_data_dm$e0i1d2_prev[clean_data_dm$trialnumber == 1] = NA;
+
+
 for (s in 1:number_of_clean_subjects) {
   subj_id = keep_participants[s]
   tmpdata = clean_data_dm[clean_data_dm$subjectnumber == subj_id, ]
   
-  # previous easy x current difficulty
-  mean_choiceLik_prevEasy_currEasy[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == 1 & tmpdata$easyP1difficultN1 == 1], na.rm = T)
-  mean_choiceLik_prevEasy_currInte[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == 1 & tmpdata$easyP1difficultN1 == 0], na.rm = T)
-  mean_choiceLik_prevEasy_currDiff[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == 1 & tmpdata$easyP1difficultN1 == -1], na.rm = T)
-  
-  # previous intermediate x current difficulty
-  mean_choiceLik_prevInte_currEasy[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == 0 & tmpdata$easyP1difficultN1 == 1], na.rm = T)
-  mean_choiceLik_prevInte_currInte[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == 0 & tmpdata$easyP1difficultN1 == 0], na.rm = T)
-  mean_choiceLik_prevInte_currDiff[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == 0 & tmpdata$easyP1difficultN1 == -1], na.rm = T)
-  
-  
-  # previous difficult x current difficulty
-  mean_choiceLik_prevDiff_currEasy[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == -1 & tmpdata$easyP1difficultN1 == 1], na.rm = T)
-  mean_choiceLik_prevDiff_currInte[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == -1 & tmpdata$easyP1difficultN1 == 0], na.rm = T)
-  mean_choiceLik_prevDiff_currDiff[s] = mean(tmpdata$all_choice_likelihood[tmpdata$easyP1difficultN1_prev == -1 & tmpdata$easyP1difficultN1 == -1], na.rm = T)
-
-  # am i supposed to be plotting all the different interactions? 
-  # or just the role of previous difficult on a specific type of current difficulty?
-  # it's the latter, no?
+  for (currdiff in 1:3){
+    for (prevdiff in 1:3){
+      mean_choiceLik_prevEID_currEID[s,prevdiff,currdiff] = mean(tmpdata$all_choice_likelihood[(tmpdata$e0i1d2 == (currdiff-1)) & 
+                                                                                               (tmpdata$e0i1d2_prev == (prevdiff - 1))], na.rm = T)
+    }
+  }
 }
+
+#
+### PLOTTING CHOICE LIKELIHOOD as a function of current and previous choice difficulty ####
+#
+
+cols = c('blue', 'purple', 'red')
+titles = c('Current Easy', 'Current Intermediate', 'Current Difficult')
+par(mfrow = c(1, 3))
+point_locs = c(0.02, 0.3, 0.95) # locations at which to plot, reflecting the middle
+# of the 3 difficulty ranges (easy is 0 - 0.04, inte is 0.16-0.44, and difficult is 0.90-1).
+# these are derived from the probability ranges (0-0.02, 0.08-0.22, and 0.45-0.5)
+
+for (currdiff in 1:3){
+  # initialize an empty plot
+  if (currdiff == 1) {
+    plot(NULL, xlim = c(0, 1), ylim = c(0.4, 1), bty = 'n', xlab = 'Previous Difficulty', ylab = 'Choice Likelihood', main = titles[currdiff])
+  } else {
+    plot(NULL, xlim = c(0, 1), ylim = c(0.4, 1), bty = 'n', xlab = 'Previous Difficulty', ylab = '', main = titles[currdiff], yaxt = 'n') # no y-axis on plots 2 & 3
+  }
+  
+  # prep the individual colors, and include transparency
+  tmp_col = col2rgb(cols[currdiff])
+  tmp_col = rgb(tmp_col[1], tmp_col[2], tmp_col[3], alpha = 0.1*255, maxColorValue = 255)
+  
+  # Plot by current difficulty, across previous difficulty
+  for(prevdiff in 1:3){
+    # put individual datapoints on the graph
+    points(rep(point_locs[prevdiff],number_of_clean_subjects), # set the x value to be the right place
+           mean_choiceLik_prevEID_currEID[,prevdiff,currdiff], # mean across subjects
+           col = tmp_col, pch = 16, cex = 3)
+  }
+  
+  # Add the group mean values, connected by a line
+  lines(point_locs,
+         colMeans(mean_choiceLik_prevEID_currEID[,,currdiff]),
+         col = cols[currdiff], type = 'b', lwd = 5, pch = 16, cex = 5)
+}
+par(mfrow = c(1, 1)) # reset to single-plotting
+
+
+
 
 # PLOTTING PREVIOUS EASY x CURRENT DIFFICULTY # -> how do i signal that this is for each participant??? a legend??? verbally? note???
 plot(c(rep(0, number_of_clean_subjects), rep(0.5, number_of_clean_subjects), rep(1, number_of_clean_subjects)), # plot for each value on x-axis... but it's not continuous # rep() needed to match the means to each participant # when i don't have it, the x-axis goes crazy...
