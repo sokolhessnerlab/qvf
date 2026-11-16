@@ -2,8 +2,8 @@
 
 # Setup ----
 rm(list = ls()); # clear the workspace
-#setwd('/Users/sokolhessner/Documents/gitrepos/qvf/R/');
-setwd('/Users/shlab/Documents/GitHub/qvf/qvf_StudyB')
+setwd('/Users/sokolhessner/Documents/gitrepos/qvf/R/');
+# setwd('/Users/shlab/Documents/GitHub/qvf/qvf_StudyB')
 
 
 # Baseline Setup ##############################################
@@ -134,3 +134,124 @@ polygon(x = c(diff_bnd[1], diff_bnd[1], diff_bnd[2], diff_bnd[2]), y = c(-1, 100
 cat(sprintf('Bounds for: Intermediate Reject = [%.2f, %.2f]; Intermediate Accept = [%.2f, %.2f]\n',
             inte_rej[1], inte_rej[2], inte_acc[1], inte_acc[2]))
 
+
+
+# Plots for Presenting Softmax-related Design Elements & Hypotheses ####
+
+## Plot A: Predictions of Disengagement vs. Adaptation/Facilitation ####
+x_vals = seq(from = -5, to = 5, by = .01)
+baseline_temp = 1.5
+steeper_temp = 4
+flatter_temp = .7
+
+y_baseline = softmax(xvals = x_vals, mu = baseline_temp)
+y_steeper = softmax(xvals = x_vals, mu = steeper_temp)
+y_flatter = softmax(xvals = x_vals, mu = flatter_temp)
+
+plot(x_vals, y_baseline, lwd = 10, col = 'black', type = 'l',
+     xaxt = 'n', xlab = 'Value Difference Between Options', ylab = 'p(Risky)', main = 'Adaptation')
+lines(x_vals, y_steeper, lwd = 5, lty = 'dashed', col = 'darkgrey')
+
+plot(x_vals, y_baseline, lwd = 10, col = 'black', type = 'l',
+     xaxt = 'n', xlab = 'Value Difference Between Options', ylab = 'p(Risky)', main = 'Disengagement')
+lines(x_vals, y_flatter, lwd = 5, lty = 'dashed', col = 'darkgrey')
+
+
+## Plot B: Identifying Easy/Inte/Diff & highlighting zones of maximum difference ####
+
+x_vals = seq(from = -5, to = 5, by = .01)
+baseline_temp = 1.5
+steeper_temp = 4
+flatter_temp = .9
+
+y_baseline = softmax(xvals = x_vals, mu = baseline_temp)
+y_steeper = softmax(xvals = x_vals, mu = steeper_temp)
+y_flatter = softmax(xvals = x_vals, mu = flatter_temp)
+
+
+baseline_p_vals_easy_acc = seq(from = 0.001, to = 0.02, by = 0.001)
+baseline_p_vals_inte_acc = seq(from = 0.08, to = 0.22, by = 0.022)
+baseline_p_vals_diff = seq(from = 0.45, to = 0.55, by = 0.001)
+baseline_p_vals_inte_rej = seq(from = 0.78, to = 0.92, by = 0.022)
+baseline_p_vals_easy_rej = seq(from = 0.98, to = 0.999, by = 0.001)
+
+baseline_x_vals_easy_acc = log((1/baseline_p_vals_easy_acc-1))/-baseline_temp
+baseline_x_vals_inte_acc = log((1/baseline_p_vals_inte_acc-1))/-baseline_temp
+baseline_x_vals_diff = log((1/baseline_p_vals_diff-1))/-baseline_temp
+baseline_x_vals_inte_rej = log((1/baseline_p_vals_inte_rej-1))/-baseline_temp
+baseline_x_vals_easy_rej = log((1/baseline_p_vals_easy_rej-1))/-baseline_temp
+
+steeper_p_vals_easy_acc = softmax(baseline_x_vals_easy_acc, steeper_temp)
+steeper_p_vals_inte_acc = softmax(baseline_x_vals_inte_acc, steeper_temp)
+steeper_p_vals_diff = softmax(baseline_x_vals_diff, steeper_temp)
+steeper_p_vals_inte_rej = softmax(baseline_x_vals_inte_rej, steeper_temp)
+steeper_p_vals_easy_rej = softmax(baseline_x_vals_easy_rej, steeper_temp)
+
+flatter_p_vals_easy_acc = softmax(baseline_x_vals_easy_acc, flatter_temp)
+flatter_p_vals_inte_acc = softmax(baseline_x_vals_inte_acc, flatter_temp)
+flatter_p_vals_diff = softmax(baseline_x_vals_diff, flatter_temp)
+flatter_p_vals_inte_rej = softmax(baseline_x_vals_inte_rej, flatter_temp)
+flatter_p_vals_easy_rej = softmax(baseline_x_vals_easy_rej, flatter_temp)
+
+
+plot(NULL, xlim = c(min(x_vals), max(x_vals)), ylim = c(0,1),
+     xaxt = 'n', xlab = 'Value Difference Between Options', ylab = 'p(Risky)')
+lines(x_vals, y_baseline, lwd = 6, col = 'black')
+lines(x_vals, y_steeper, lwd = 2, col = 'darkgrey')
+lines(x_vals, y_flatter, lwd = 2, col = 'darkgrey')
+
+polygon(x = c(baseline_x_vals_easy_acc,rev(baseline_x_vals_easy_acc)),
+        y = c(flatter_p_vals_easy_acc,rev(steeper_p_vals_easy_acc)),
+        col = rgb(0,0,1,.8), border = NA)
+
+polygon(x = c(baseline_x_vals_inte_acc,rev(baseline_x_vals_inte_acc)),
+        y = c(flatter_p_vals_inte_acc,rev(steeper_p_vals_inte_acc)),
+        col = rgb(.5,0,1,.8), border = NA)
+
+polygon(x = c(baseline_x_vals_diff,rev(baseline_x_vals_diff)),
+        y = c(flatter_p_vals_diff,rev(steeper_p_vals_diff)),
+        col = rgb(1,0,0,.8), border = NA)
+
+polygon(x = c(baseline_x_vals_inte_rej,rev(baseline_x_vals_inte_rej)),
+        y = c(flatter_p_vals_inte_rej,rev(steeper_p_vals_inte_rej)),
+        col = rgb(.5,0,1,.8), border = NA)
+
+polygon(x = c(baseline_x_vals_easy_rej,rev(baseline_x_vals_easy_rej)),
+        y = c(flatter_p_vals_easy_rej,rev(steeper_p_vals_easy_rej)),
+        col = rgb(0,0,1,.8), border = NA)
+
+## Plot C: Expected Magnitude of Behavioral Change Graph ####
+
+# Making a version of an earlier graph that highlights the different trial types better. 
+plot(base_p_vals, weighted_p_diffs_sum, 
+     col = 'black', type = 'l', lwd = 1,
+     xlab = 'Baseline p(risky)',
+     ylab = 'Expected Behavioral Difference', 
+     main = 'Expected Magnitude of Behavioral Change',
+     xaxs = "i",yaxs = "i", bty = 'n')
+
+p_vals_easyacc = base_p_vals < .02
+p_vals_inteacc = (base_p_vals > .08) & (base_p_vals < .22)
+p_vals_diff = (base_p_vals > .45) & (base_p_vals < .55)
+p_vals_interej = (base_p_vals > .78) & (base_p_vals < .92)
+p_vals_easyrej = base_p_vals > .98
+
+polygon(x = c(base_p_vals[p_vals_easyacc], rev(base_p_vals[p_vals_easyacc])),
+        y = c(rep(0,sum(p_vals_easyacc)), rev(weighted_p_diffs_sum[p_vals_easyacc])),
+        col = rgb(0,0,1), border = NA)
+
+polygon(x = c(base_p_vals[p_vals_inteacc], rev(base_p_vals[p_vals_inteacc])),
+        y = c(rep(0,sum(p_vals_inteacc)), rev(weighted_p_diffs_sum[p_vals_inteacc])),
+        col = rgb(.5,0,1), border = NA)
+
+polygon(x = c(base_p_vals[p_vals_diff], rev(base_p_vals[p_vals_diff])),
+        y = c(rep(0,sum(p_vals_diff)), rev(weighted_p_diffs_sum[p_vals_diff])),
+        col = rgb(1,0,0), border = NA)
+
+polygon(x = c(base_p_vals[p_vals_interej], rev(base_p_vals[p_vals_interej])),
+        y = c(rep(0,sum(p_vals_interej)), rev(weighted_p_diffs_sum[p_vals_interej])),
+        col = rgb(.5,0,1), border = NA)
+
+polygon(x = c(base_p_vals[p_vals_easyrej], rev(base_p_vals[p_vals_easyrej])),
+        y = c(rep(0,sum(p_vals_easyrej)), rev(weighted_p_diffs_sum[p_vals_easyrej])),
+        col = rgb(0,0,1), border = NA)
