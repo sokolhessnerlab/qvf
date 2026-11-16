@@ -158,6 +158,7 @@ lines(x_vals, y_flatter, lwd = 5, lty = 'dashed', col = 'darkgrey')
 
 
 ## Plot B: Identifying Easy/Inte/Diff & highlighting zones of maximum difference ####
+### Plot B1: Option 1 ####
 
 x_vals = seq(from = -5, to = 5, by = .01)
 baseline_temp = 1.5
@@ -219,6 +220,25 @@ polygon(x = c(baseline_x_vals_inte_rej,rev(baseline_x_vals_inte_rej)),
 polygon(x = c(baseline_x_vals_easy_rej,rev(baseline_x_vals_easy_rej)),
         y = c(flatter_p_vals_easy_rej,rev(steeper_p_vals_easy_rej)),
         col = rgb(0,0,1,.8), border = NA)
+
+### Plot B2: Option 2 ####
+plot(NULL, xlim = c(min(x_vals), max(x_vals)), ylim = c(0,1),
+     xaxt = 'n', xlab = 'Value Difference Between Options', ylab = 'p(Risky)')
+lines(x_vals, y_steeper, lwd = 6, col = 'darkgray')
+lines(x_vals, y_flatter, lwd = 6, col = 'darkgray')
+
+
+x_vals_arrows = c(-2.6, -1.3, -.3, .3, 1.3, 2.6)
+
+steeper_pvals = softmax(xvals = x_vals_arrows, mu = steeper_temp)
+flatter_pvals = softmax(xvals = x_vals_arrows, mu = flatter_temp)
+
+
+for(lnum in 1:length(x_vals_arrows)){
+  lines(x = rep(x_vals_arrows[lnum], 2),
+        y = c(steeper_pvals[lnum], flatter_pvals[lnum]),
+        col = 'black', lwd = 4)
+}
 
 ## Plot C: Expected Magnitude of Behavioral Change Graph ####
 
